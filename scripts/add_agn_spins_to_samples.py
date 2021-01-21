@@ -12,6 +12,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 import scipy.stats
+import sys
 
 logging.getLogger('bilby_pipe').setLevel(logging.ERROR)
 
@@ -207,6 +208,7 @@ def main():
 
 
 if __name__ == '__main__':
-    main()
-    # process_res("../data/gwtc1_with_kicks/GW150914_downsampled_posterior_samples_with_kicks.dat",
-    #             "../output")
+    process_res(
+        r=sys.argv[1],
+        outdir="../output/gwtc2_with_spins"
+    )

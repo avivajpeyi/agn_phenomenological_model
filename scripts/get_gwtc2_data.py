@@ -5,9 +5,13 @@ import pesummary
 from pesummary.io import read
 import pandas as pd
 import numpy as np
+import sys
 
 MAX_NUM_SAMPLES = 5000
 SOURCE = "/home/zoheyr.doctor/public_html/O3/O3aCatalog/data_release/all_posterior_samples/*.h5"
+
+
+
 
 if __name__ == '__main__':
     outdir = "../data/gwtc2_samples"
