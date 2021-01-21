@@ -28,5 +28,5 @@ if __name__ == '__main__':
             samples = pd.DataFrame(samples_dict['PublicationSamples'])
             samples.to_csv(samp_fname, sep=' ', index=False)
             priors_array = np.load(res_file.replace(".h5", "_prior.npy"))
-            priors = pd.DataFrame(priors_array)
+            priors = pd.DataFrame(priors_array).sample(MAX_NUM_SAMPLES)
             priors.to_csv(prior_fname, sep=' ', index=False)
