@@ -3,7 +3,6 @@ from tqdm import tqdm
 import pesummary.io
 import pandas as pd
 
-# logging.getLogger("PESummary").setLevel(logging.ERROR)
 
 outdir = "../data/downsampled_pe_samples"
 os.makedirs(outdir, exist_ok=True)
