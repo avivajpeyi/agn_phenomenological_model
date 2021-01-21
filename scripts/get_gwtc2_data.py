@@ -1,8 +1,7 @@
 import os, glob
 from tqdm import tqdm
 import pesummary.io
-
-import logging
+import pandas as pd
 
 # logging.getLogger("PESummary").setLevel(logging.ERROR)
 
