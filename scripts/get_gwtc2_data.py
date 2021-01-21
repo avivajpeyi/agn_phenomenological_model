@@ -7,12 +7,12 @@ import pandas as pd
 import numpy as np
 
 MAX_NUM_SAMPLES = 5000
-
+SOURCE = "/home/zoheyr.doctor/public_html/O3/O3aCatalog/data_release/all_posterior_samples/*.h5"
 
 if __name__ == '__main__':
-    outdir = "/home/zoheyr.doctor/public_html/O3/O3aCatalog/data_release/all_posterior_samples/*.h5"
+    outdir = "../data/gwtc2_samples"
     os.makedirs(outdir, exist_ok=True)
-    files = glob.glob("../data/*/*.h5")
+    files = glob.glob(SOURCE)
     files = [f for f in files if "comoving" not in f]
     for res_file in tqdm(files, total=len(files)):
         event_name = os.path.basename(res_file).split(".h")[0]
