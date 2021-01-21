@@ -25,12 +25,16 @@ if __name__ == '__main__':
         print(f"Checking fname {samp_fname}")
         if not (os.path.isfile(samp_fname)):
             print(f"Opening {res_file}")
-            data = pesummary.io.read(res_file)
-            if len(data.samples) > MAX_NUM_SAMPLES:
-                data.downsample(MAX_NUM_SAMPLES)
-            samples_dict = data.samples_dict
-            samples = pd.DataFrame(samples_dict['PublicationSamples'])
-            samples.to_csv(samp_fname, sep=' ', index=False)
-            priors_array = np.load(res_file.replace(".h5", "_prior.npy"))
-            priors = pd.DataFrame(priors_array).sample(MAX_NUM_SAMPLES)
-            priors.to_csv(prior_fname, sep=' ', index=False)
+            try:
+                data = pesummary.io.read(res_file)
+                if len(data.samples) > MAX_NUM_SAMPLES:
+                    data.downsample(MAX_NUM_SAMPLES)
+                samples_dict = data.samples_dict
+                samples = pd.DataFrame(samples_dict['PublicationSamples'])
+                samples.to_csv(samp_fname, sep=' ', index=False)
+                priors_array = np.load(res_file.replace(".h5", "_prior.npy"))
+                priors = pd.DataFrame(priors_array).sample(MAX_NUM_SAMPLES)
+                priors.to_csv(prior_fname, sep=' ', index=False)
+            except Exception as e:
+                print(f"ERROR : {e}")
+
