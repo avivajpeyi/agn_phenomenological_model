@@ -4,6 +4,8 @@
 data
 output
 
+*.npy
+
 
 ### Example user template template
 # IntelliJ project files

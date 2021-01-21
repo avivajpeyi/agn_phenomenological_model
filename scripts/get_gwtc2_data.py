@@ -1,44 +1,32 @@
+"""Very hacky script to grab the "PublicationSamples" and priors from the GWTC2 cat"""
 import os, glob
 from tqdm import tqdm
 import pesummary
-from pesummary.io import read, write
+from pesummary.io import read
 import pandas as pd
+import numpy as np
 
-
-outdir = "../data/downsampled_pe_samples"
-os.makedirs(outdir, exist_ok=True)
 MAX_NUM_SAMPLES = 5000
-files = glob.glob("/home/avi.vajpeyi/projects/jupyter_notebooks/GW190408_181802/GW190408_181802.h5")
-for res_file in tqdm(files, total=len(files)):
-    event_name = os.path.basename(res_file).split(".h")[0].split("_")[0]
-    posterior_filename = f"{outdir}/{event_name}.csv"
-    prior_filename = f"{outdir}/{event_name}_prior.csv"
 
-    if os.path.isfile(posterior_filename) and os.path.isfile(prior_filename):
-        pass
-    else:
-        try:
+
+if __name__ == '__main__':
+    outdir = "/home/zoheyr.doctor/public_html/O3/O3aCatalog/data_release/all_posterior_samples/*.h5"
+    os.makedirs(outdir, exist_ok=True)
+    files = glob.glob("../data/*/*.h5")
+    files = [f for f in files if "comoving" not in f]
+    for res_file in tqdm(files, total=len(files)):
+        event_name = os.path.basename(res_file).split(".h")[0]
+        samp_fname = f"{outdir}/{event_name}.csv"
+        prior_fname = f"{outdir}/{event_name}_prior.csv"
+        print(f"Checking fname {samp_fname}")
+        if not (os.path.isfile(samp_fname)):
             print(f"Opening {res_file}")
             data = pesummary.io.read(res_file)
-            print(data.summary)
             if len(data.samples) > MAX_NUM_SAMPLES:
                 data.downsample(MAX_NUM_SAMPLES)
-            
-            print('Found run labels:')
-            print(data.labels)
             samples_dict = data.samples_dict
-            posterior_samples = samples_dict['PublicationSamples']
-            parameters = sorted(list(posterior_samples.keys()))
-            print(parameters)
-            prior_samples = pd.DataFrame(data.priors['samples']).to_numpy()
-            kwargs = dict(parameters=parameters, file_format="csv")
-
-            if not os.path.isfile(posterior_filename):
-                write(samples=posterior_samples,
-                                   filename=posterior_filename, **kwargs)
-            if not os.path.isfile(prior_filename):
-                write(samples=prior_samples, filename=prior_filename,
-                                   **kwargs)
-        except Exception as e:
-            print(f"ERROR {event_name}: {e}")
-
+            samples = pd.DataFrame(samples_dict['PublicationSamples'])
+            samples.to_csv(samp_fname, sep=' ', index=False)
+            priors_array = np.load(res_file.replace(".h5", "_prior.npy"))
+            priors = pd.DataFrame(priors_array)
+            priors.to_csv(prior_fname, sep=' ', index=False)
