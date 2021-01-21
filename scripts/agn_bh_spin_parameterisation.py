@@ -1,3 +1,4 @@
+import logging
 import os
 import shutil
 
@@ -12,10 +13,8 @@ from bbh_simulator.calculate_kick_vel_from_samples import Samples
 from matplotlib import rc
 from tqdm import tqdm
 
-import logging
 logging.getLogger("bbh_simulator").setLevel(logging.ERROR)
 logging.getLogger().setLevel(logging.ERROR)
-
 
 rc('text', usetex=True)
 
@@ -252,6 +251,7 @@ def get_chi_p(s1, s2, q=1):
 
 N = 1000
 
+
 def convert_vectors_to_bbh_param(cos_theta1L_std, cos_theta12_std):
     """Generate BBH spin vectors and convert to LIGO BBH params
     cos_tilt_i:
@@ -366,6 +366,7 @@ def plot_overlaid_corners(cos_theta1L_std_vals, cos_theta12_std_vals, pltdir):
 import glob
 from bilby_report.tools import image_utils
 
+
 def save_gif(gifname, outdir="gif", loop=False):
     image_paths = glob.glob(f"{outdir}/*.png")
     gif_filename = os.path.join(outdir, gifname)
@@ -388,11 +389,12 @@ if __name__ == '__main__':
     varying = list(np.arange(0, 2.1, 0.5))
     constant = [1 for i in range(len(varying))]
 
+    outdir = "../output/vary_12"
     plot_overlaid_corners(cos_theta1L_std_vals=constant,
-                          cos_theta12_std_vals=varying, pltdir="../vary_12")
+                          cos_theta12_std_vals=varying, pltdir=outdir)
+    save_gif("vary_12.gif", outdir=outdir, loop=True)
 
+    outdir = "../output/vary_1L"
     plot_overlaid_corners(cos_theta1L_std_vals=varying,
-                          cos_theta12_std_vals=constant, pltdir="../vary_1L")
-
-    save_gif("vary_12.gif", outdir="../vary_12/",loop=True)
-    save_gif("vary_1L.gif", outdir="../vary_1L/", loop=True)
+                          cos_theta12_std_vals=constant, pltdir=outdir)
+    save_gif("vary_1L.gif", outdir=outdir, loop=True)
