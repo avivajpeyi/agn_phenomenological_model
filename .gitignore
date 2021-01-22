@@ -6,6 +6,8 @@ output
 
 *.npy
 
+*condor/
+
 
 ### Example user template template
 # IntelliJ project files
