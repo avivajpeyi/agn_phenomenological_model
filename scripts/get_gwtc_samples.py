@@ -59,7 +59,7 @@ def process_gwtc1_file(res_file, outdir):
     posterior_filename = f"{outdir}/{event_name}.csv"
     prior_filename = f"{outdir}/{event_name}_prior.csv"
     print(f"Checking fname {posterior_filename}")
-    if not (os.path.isfile(posterior_filename) and os.path.isfile(prior_filename)):
+    if not (os.path.isfile(posterior_filename)):
         print(f"Opening {res_file}")
         data = pesummary.io.read(res_file)
         if len(data.samples) > MAX_NUM_SAMPLES:
