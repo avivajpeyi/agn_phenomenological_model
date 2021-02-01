@@ -1,0 +1,29 @@
+# MASS
+alpha = 5  # Uniform(minimum=-4, maximum=12, name='alpha', latex_label='$\\alpha$', boundary='reflective')
+beta = 5  # Uniform(minimum=-4, maximum=12, name='beta', latex_label='$\\beta_{q}$')
+mmax = 50  # Uniform(minimum=30, maximum=100, name='mmax', latex_label='$m_{\\max}$')
+mmin = 5  # Uniform(minimum=2, maximum=10, name='mmin', latex_label='$m_{\\min}$')
+lam = 0.5  # Uniform(minimum=0, maximum=1, name='lambda', latex_label='$\\lambda_{m}$')
+mpp = 30  # Uniform(minimum=20, maximum=50, name='mpp', latex_label='$\\mu_{m}$')
+sigpp = 5  # Uniform(minimum=1, maximum=10, name='sigpp', latex_label='$\\sigma_{m}$')
+delta_m = 5  # Uniform(minimum=0, maximum=10, name='delta_m', latex_label='$\\delta_{m}$')
+
+# a = "gwpopulation.models.mass.power_law_primary_mass_ratio",
+# b = "gwpopulation.models.mass.power_law_primary_mass_ratio",
+# c = "SmoothedMassDistribution",
+# d = "BrokenPowerLawSmoothedMassDistribution",
+# e = "MultiPeakSmoothedMassDistribution",
+# f = "BrokenPowerLawPeakSmoothedMassDistribution",
+
+
+# SPIN MAGNITUDE (iid --> iid_spin_magnitude_beta(amax, alpha_chi, beta_chi)
+amax = 1
+mu_chi = 1 # Uniform(minimum=0, maximum=1, name='mu_chi', latex_label='$\\mu_{\\chi}$')
+sigma_chi = 0.1 # Uniform(minimum=0, maximum=0.25, name='sigma_chi', latex_label='$\\sigma^{2}_{\\chi}$')
+
+# SPIN ORIENTATION (agn --> sigma_1, sigma_12)
+sigma_1 = 1
+sigma_12 = 1
+
+# REDSHIFT
+lamb = 0
