@@ -57,7 +57,7 @@ PARAMS = dict(
     # tilt_1=dict(l=r"$tilt_{1}$", r=(0, np.pi)),
     # theta_1L=dict(l=r"$\theta_{1L}$", r=(0, np.pi)),
     # diff=dict(l=r"diff", r=(-np.pi, np.pi)),
-    remnant_kick_mag=dict(l=r'$|\vec{v}_k|\ $km/s', r=(0,3000))
+    # remnant_kick_mag=dict(l=r'$|\vec{v}_k|\ $km/s', r=(0,3000))
 )
 
 CORNER_KWARGS = dict(
