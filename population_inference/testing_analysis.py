@@ -1,9 +1,17 @@
 from gwpopulation_pipe.data_analysis import *
 from configargparse import Namespace
 
-EXECUTION_STR = "gwpopulation_pipe_analysis /Users/avaj0001/Documents/projects/agn_phenomenological_model/population_inference/outdir/test_config_complete.ini --prior /Users/avaj0001/Documents/projects/agn_phenomenological_model/population_inference/priors/mass_c_iid_mag_agn_tilt_powerlaw_redshift.prior --label test_mass_c_iid_mag_agn_tilt_powerlaw_redshift --models SmoothedMassDistribution --models iid_spin_magnitude --models agn_spin_orientation --models gwpopulation.models.redshift.PowerLawRedshift --vt-models SmoothedMassDistribution --vt-models gwpopulation.models.redshift.PowerLawRedshift"
+EXECUTION_STR = "gwpopulation_pipe_analysis /Users/avaj0001/Documents/projects/agn_phenomenological_model/population_inference/outdir/test_config_complete.ini " \
+                "--prior /Users/avaj0001/Documents/projects/agn_phenomenological_model/population_inference/priors/mass_c_iid_mag_agn_tilt_powerlaw_redshift.prior " \
+                "--label test_mass_c_iid_mag_agn_tilt_powerlaw_redshift " \
+                "--models SmoothedMassDistribution " \
+                "--models iid_spin_magnitude " \
+                "--models ind_spin_orientation " \
+                "--models gwpopulation.models.redshift.PowerLawRedshift " \
+                "--vt-models SmoothedMassDistribution " \
+                "--vt-models gwpopulation.models.redshift.PowerLawRedshift"
 
-
+#"--models agn_spin_orientation " \
 
 def main():
     parser = create_parser()
