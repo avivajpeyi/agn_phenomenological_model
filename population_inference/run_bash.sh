@@ -1,0 +1,2 @@
+gwpopulation_pipe agn_gwpop_inference.ini
+gwpopulation_pipe ind_gwpop_inference.ini
