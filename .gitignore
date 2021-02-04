@@ -3,7 +3,7 @@
 ### Extra junk
 data
 output
-
+*_outdir
 *.npy
 
 *condor/

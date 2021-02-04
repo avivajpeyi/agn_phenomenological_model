@@ -246,5 +246,5 @@ def test_likelihood(likelihood, hyper_prior):
 
 
 if __name__ == '__main__':
-    likelihood, hyperprior = get_likelihood_and_hyoperprior_from_args(LOCAL)
+    likelihood, hyperprior = get_likelihood_and_hyoperprior_from_args(CIT)
     test_likelihood(likelihood, hyperprior)
