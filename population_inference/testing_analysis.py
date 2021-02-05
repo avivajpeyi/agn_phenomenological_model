@@ -1,17 +1,22 @@
 from gwpopulation_pipe.data_analysis import *
 from configargparse import Namespace
+from pprint import pprint
 
-EXECUTION_STR = "gwpopulation_pipe_analysis /Users/avaj0001/Documents/projects/agn_phenomenological_model/population_inference/outdir/test_config_complete.ini " \
-                "--prior /Users/avaj0001/Documents/projects/agn_phenomenological_model/population_inference/priors/mass_c_iid_mag_agn_tilt_powerlaw_redshift.prior " \
-                "--label test_mass_c_iid_mag_agn_tilt_powerlaw_redshift " \
-                "--models SmoothedMassDistribution " \
-                "--models iid_spin_magnitude " \
-                "--models ind_spin_orientation " \
-                "--models gwpopulation.models.redshift.PowerLawRedshift " \
-                "--vt-models SmoothedMassDistribution " \
-                "--vt-models gwpopulation.models.redshift.PowerLawRedshift"
+EXECUTION_STR = "gwpopulation_pipe_analysis /Users/avaj0001/Documents/projects/agn_phenomenological_model/population_inference/agn_outdir/agn_config_complete.ini --prior /Users/avaj0001/Documents/projects/agn_phenomenological_model/population_inference/priors/mass_c_iid_mag_agn_tilt_powerlaw_redshift.prior --label agn_mass_c_iid_mag_agn_tilt_powerlaw_redshift --models SmoothedMassDistribution --models iid_spin_magnitude --models agn_spin_orientation --models gwpopulation.models.redshift.PowerLawRedshift --vt-models SmoothedMassDistribution --vt-models gwpopulation.models.redshift.PowerLawRedshift --verbose"
 
 #"--models agn_spin_orientation " \
+
+def test_likelihood(likelihood, hyper_prior):
+    theta = hyper_prior.sample()
+    likelihood.parameters.update(theta)
+    ln_l = likelihood.log_likelihood()
+    ratio = likelihood.log_likelihood_ratio()
+    params = {
+        key: t for key, t in zip(hyper_prior.keys(), theta.values())
+    }
+    ln_p = hyper_prior.ln_prob(params)
+    pprint(theta)
+    pprint(dict(ln_likelihood=ln_l, ln_prior=ln_p, log_likelihood_ratio=ratio))
 
 def main():
     parser = create_parser()
@@ -36,38 +41,21 @@ def main():
     selection = load_vt(args)
 
     likelihood = create_likelihood(args, posteriors, model, selection)
-    likelihood.parameters.update(hyper_prior.sample())
+    rand_sample = hyper_prior.sample()
+    likelihood.parameters.update(rand_sample)
     likelihood.log_likelihood_ratio()
-
-    if args.injection_file is not None:
-        injections = pd.read_json(args.injection_file)
-        injection_parameters = dict(injections.iloc[args.injection_index])
-    else:
-        injection_parameters = None
+    test_likelihood(likelihood, hyper_prior)
 
     logger.debug("Starting sampling")
-    result = run_sampler(
+    run_sampler(
         likelihood=likelihood,
         priors=hyper_prior,
         label=args.label,
         sampler=args.sampler_name,
         outdir=os.path.join(args.run_dir, "result"),
-        injection_parameters=injection_parameters,
         **get_sampler_kwargs(args),
     )
-    result.prior = args.prior
-    result.models = args.models
-    result.event_ids = event_ids
 
-    logger.info("Computing rate posterior")
-    compute_rate_posterior(posterior=result.posterior, selection=selection)
-
-    result.save_to_file(extension="json", overwrite=True)
-
-    logger.info("Resampling single event posteriors")
-    resample_single_event_posteriors(likelihood, result, save=True)
-
-    result.plot_corner(parameters=result.search_parameter_keys + ["log_10_rate"])
 
 
 if __name__ == '__main__':
