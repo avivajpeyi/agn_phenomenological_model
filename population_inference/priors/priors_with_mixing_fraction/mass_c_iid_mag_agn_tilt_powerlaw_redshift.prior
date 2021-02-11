@@ -1,4 +1,4 @@
-# MASS (model c: SmoothedMassDistribution)
+# MASS (model c: Powerlaw + Single peak )
 alpha = Uniform(minimum=-4, maximum=12, name='alpha', latex_label='$\\alpha$', boundary='reflective')
 beta = Uniform(minimum=-4, maximum=12, name='beta', latex_label='$\\beta_{q}$')
 mmax = Uniform(minimum=30, maximum=100, name='mmax', latex_label='$m_{\\max}$')
@@ -11,13 +11,16 @@ delta_m = Uniform(minimum=0, maximum=10, name='delta_m', latex_label='$\\delta_{
 
 # SPIN MAGNITUDE (iid --> iid_spin_magnitude_beta(amax, alpha_chi, beta_chi)
 amax = 1
-alpha_chi = 1
-beta_chi = 0.1
+mu_chi = Uniform(minimum=0, maximum=1, name='mu_chi', latex_label='$\\mu_{\\chi}$')
+sigma_chi = Uniform(minimum=0, maximum=0.25, name='sigma_chi', latex_label='$\\sigma^{2}_{\\chi}$')
+alpha_chi = Constraint(minimum=1, maximum=1e5)
+beta_chi = Constraint(minimum=1, maximum=1e5)
 
-# (ind) independent_spin_orientation_gaussian_isotropic
-sigma_1 = 1
-sigma_2 = 1
-xi_spin = 0
+# SPIN ORIENTATION (agn --> sigma_1, sigma_12)
+sigma_1 =  Uniform(minimum=1e-2, maximum=4, name='sigma_1', latex_label='$\\sigma_{1}$')
+sigma_12 = Uniform(minimum=1e-4, maximum=1e1, name='sigma_12', latex_label='$\\sigma_{12}$')
+xi_spin = Uniform(minimum=0, maximum=1, name='xi_spin', latex_label='$\\xi$')
+
 
 # REDSHIFT
 lamb = 0
