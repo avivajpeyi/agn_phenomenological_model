@@ -8,7 +8,6 @@ mpp = Uniform(minimum=20, maximum=50, name='mpp', latex_label='$\\mu_{m}$')
 sigpp = Uniform(minimum=1, maximum=10, name='sigpp', latex_label='$\\sigma_{m}$')
 delta_m = Uniform(minimum=0, maximum=10, name='delta_m', latex_label='$\\delta_{m}$')
 
-
 # SPIN MAGNITUDE (iid --> iid_spin_magnitude_beta(amax, alpha_chi, beta_chi)
 amax = 1
 mu_chi = Uniform(minimum=0, maximum=1, name='mu_chi', latex_label='$\\mu_{\\chi}$')
@@ -19,7 +18,6 @@ beta_chi = Constraint(minimum=1, maximum=1e5)
 # SPIN ORIENTATION (agn --> sigma_1, sigma_12)
 sigma_1 =  Uniform(minimum=1e-2, maximum=4, name='sigma_1', latex_label='$\\sigma_{1}$')
 sigma_12 = Uniform(minimum=1e-4, maximum=1e1, name='sigma_12', latex_label='$\\sigma_{12}$')
-xi_spin = 1
 
 
 # REDSHIFT
