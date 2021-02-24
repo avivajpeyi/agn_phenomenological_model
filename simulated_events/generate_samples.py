@@ -119,7 +119,9 @@ def generate_prior(p):
         phi_12=Uniform(name="phi_12", minimum=0, maximum=2 * np.pi, boundary='periodic',
                        latex_label="$\\phi_{12}$"),
         phase=Uniform(name="phase", minimum=0, maximum=2 * np.pi, boundary='periodic'),
-        incl=Uniform(name="incl", minimum=0, maximum=2 * np.pi, boundary='periodic')
+        incl=Uniform(name="incl", minimum=0, maximum=2 * np.pi, boundary='periodic'),
+        geocent_time=Uniform(minimum=-0.1, maximum=0.1, name="geocent_time",
+                             latex_label="$t_c$", unit="$s$")
     ))
     return priors
 
