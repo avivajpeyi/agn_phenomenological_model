@@ -76,6 +76,8 @@ def generate_prior(p):
         dec=Cosine(name='dec'),
         ra=Uniform(name='ra', minimum=0, maximum=2 * np.pi, boundary='periodic'),
         psi=Uniform(name='psi', minimum=0, maximum=np.pi, boundary='periodic'),
+        geocent_time=Uniform(minimum=-0.1, maximum=0.1, name="geocent_time",
+                             latex_label="$t_c$", unit="$s$")
     ))
     return priors
 
