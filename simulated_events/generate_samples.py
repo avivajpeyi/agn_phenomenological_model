@@ -1,4 +1,4 @@
-import pprint
+from pprint import pprint as print_p
 import warnings
 
 import bilby
@@ -17,6 +17,8 @@ from numpy import cos, sin
 warnings.filterwarnings("ignore")
 REFERENCE_FREQ = 20
 NUM = 200
+
+SAMPLES = "samples.dat"
 
 CORNER_KWARGS = dict(
     smooth=0.99,
@@ -52,7 +54,7 @@ POP_MODEL_VALS = {
 
 
 def plot_samples_corner():
-    samples = pd.read_csv("samples.csv")
+    samples = pd.read_csv(SAMPLES, sep=" ")
     p = ["mass_1", "mass_2", "a_1", "cos_tilt_1", "cos_tilt_2","cos_theta_12", "phi_12", "phi_jl"]
     corner.corner(samples[p], **CORNER_KWARGS,
                   labels=["$m_1$", "$m_2$",
@@ -63,7 +65,8 @@ def plot_samples_corner():
                   # ]
                   )
     plt.savefig("plots/samples.png")
-    pprint.pprint(samples.to_dict('records')[0])
+    plt.close()
+    # pprint.pprint(samples.to_dict('records')[0])
     print("done")
 
 
@@ -200,15 +203,15 @@ def transform_component_spins(incl=2, S1x=0, S1y=0, S1z=1, S2x=0, S2y=0, S2z=1, 
             m2=m2, fRef=REFERENCE_FREQ, phiRef=phase
         ))
 
-    print("INPUT")
-    pprint.pprint(dict(
-        incl=incl, S1x=S1x, S1y=S1y, S1z=S1z, S2x=S2x, S2y=S2y, S2z=S2z, m1=m1,
-            m2=m2, fRef=REFERENCE_FREQ, phiRef=phase,
-    ))
-    print("OUTPUT")
-    pprint.pprint(dict(
-        thetaJN=thetaJN, phiJL=phiJL, theta1=theta1, theta2=theta2, phi12=phi12, chi1=chi1, chi2=chi2
-    ))
+    # print("INPUT")
+    # pprint.pprint(dict(
+    #     incl=incl, S1x=S1x, S1y=S1y, S1z=S1z, S2x=S2x, S2y=S2y, S2z=S2z, m1=m1,
+    #         m2=m2, fRef=REFERENCE_FREQ, phiRef=phase,
+    # ))
+    # print("OUTPUT")
+    # pprint.pprint(dict(
+    #     thetaJN=thetaJN, phiJL=phiJL, theta1=theta1, theta2=theta2, phi12=phi12, chi1=chi1, chi2=chi2
+    # ))
     return thetaJN, phiJL, theta1, theta2, phi12, chi1, chi2
 
 
@@ -265,12 +268,12 @@ def get_samples(num_samples=10000):
 
 def generation_main():
     s = get_samples()
-    s.to_csv("samples.csv")
+    s.to_csv(SAMPLES, sep=" ", index=False)
     plot_samples_corner()
 
 
 def plot_theta_12_dist():
-    samples = pd.read_csv("samples.csv", index_col=0)
+    samples = pd.read_csv(SAMPLES, sep=" ")
     prior = generate_prior(POP_MODEL_VALS)
     plt.hist(samples['cos_theta_12'], density=True, histtype="step", color="blue",
              label="Event Params")
@@ -289,7 +292,7 @@ def get_one_sample():
     s = get_samples(1)
     s = s.to_dict('records')[0]
     s['reference_frequency'] = REFERENCE_FREQ
-    pprint.pprint(s)
+    # print_p(s)
     params = ['theta_jn',
               'phi_jl',
               'tilt_1',
@@ -305,16 +308,16 @@ def get_one_sample():
     returned_s = bilby.gw.conversion.transform_precessing_spins(**s_to_pass)
     returned_s = {k:float(v) for k,v in zip(params, returned_s)}
     component_spins = bilby.gw.conversion.generate_component_spins(s)
-    pprint.pprint(returned_s)
+    # print_p(returned_s)
 
 
 def save_multipl_samples():
     s = get_samples(200)
-    s.to_csv('samples.csv')
+    s.to_csv(SAMPLES, sep=" ", index=False)
     plot_samples_corner()
 
 
 if __name__ == '__main__':
-    # get_one_sample()
-    # save_multipl_samples()
+    get_one_sample()
+    save_multipl_samples()
     plot_theta_12_dist()
