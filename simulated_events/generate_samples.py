@@ -1,6 +1,7 @@
-from pprint import pprint as print_p
+import logging
 import warnings
-
+import os
+from pprint import pprint as print_p
 import bilby
 import corner
 import lalsimulation
@@ -14,11 +15,14 @@ from gwpopulation.models.redshift import PowerLawRedshift
 from gwpopulation.models.spin import iid_spin_magnitude_beta, truncnorm
 from numpy import cos, sin
 
+logging.getLogger("bilby").setLevel(logging.ERROR)
+
 warnings.filterwarnings("ignore")
 REFERENCE_FREQ = 20
 NUM = 200
 
 SAMPLES = "samples.dat"
+INJ_SAMPLES = "injection_samples.dat"
 
 CORNER_KWARGS = dict(
     smooth=0.99,
@@ -52,22 +56,116 @@ POP_MODEL_VALS = {
     "lamb": 0.0,
 }
 
+PARAMS = {
+    'mass_1': '$m_1$',
+    'mass_2': '$m_2$',
+    'a_1': '$a_1$',
+    'cos_tilt_1': '$\\cos \\mathrm{tilt}_1$',
+    'cos_tilt_2': '$\\cos \\mathrm{tilt}_2$',
+    'cos_theta_12': '$\\cos \\theta_{12}$',
+    'phi_12': '$\\phi_{12}$',
+    'phi_jl': '$\\phi_{JL}$',
+    'luminosity_distance': '$d_L$',
+    'network_snr': '$\\rho$'
+}
 
-def plot_samples_corner():
-    samples = pd.read_csv(SAMPLES, sep=" ")
-    p = ["mass_1", "mass_2", "a_1", "cos_tilt_1", "cos_tilt_2","cos_theta_12", "phi_12", "phi_jl"]
-    corner.corner(samples[p], **CORNER_KWARGS,
-                  labels=["$m_1$", "$m_2$",
-                      "$a_1$", "$\\cos \\mathrm{tilt}_1$","$\\cos \\mathrm{tilt}_2$","$\\cos \\theta_{12}$", "$\\phi_{12}$", "$\\phi_{JL}$"
-                  ],
-                  # range=[
-                  #     (-1,1), (-1,1), (-1,1),
-                  # ]
-                  )
-    plt.savefig("plots/samples.png")
+INJECTION_PARAMS = ["a_1",
+                    "a_2",
+                    "dec",
+                    "ra",
+                    "psi",
+                    "phi_12",
+                    "phase",
+                    "incl",
+                    "geocent_time",
+                    "mass_1",
+                    "mass_2",
+                    "luminosity_distance",
+                    "tilt_1",
+                    "tilt_2",
+                    "theta_jn",
+                    "phi_jl"]
+
+
+def plot_samples_corner(samples_dat=SAMPLES):
+    samples = pd.read_csv(samples_dat, sep=" ")
+    p = [i for i in PARAMS.keys()]
+    l = [PARAMS[i] for i in p]
+    corner.corner(samples[p], **CORNER_KWARGS, labels=l)
+    plt.savefig(f"plots/{os.path.basename(samples_dat).replace('.dat', '.png')}")
     plt.close()
-    # pprint.pprint(samples.to_dict('records')[0])
     print("done")
+
+
+@np.vectorize
+def get_injection_snr(
+        a_1,
+        a_2,
+        dec,
+        ra,
+        psi,
+        phi_12,
+        phase,
+        incl,
+        geocent_time,
+        mass_1,
+        mass_2,
+        luminosity_distance,
+        tilt_1,
+        tilt_2,
+        theta_jn,
+        phi_jl, **kwargs):
+    """
+    :returns H1 snr, L1 snr, network SNR
+    """
+    injection_parameters = dict(
+        a_1=a_1,
+        a_2=a_2,
+        dec=dec,
+        ra=ra,
+        psi=psi,
+        phi_12=phi_12,
+        phase=phase,
+        incl=incl,
+        geocent_time=geocent_time,
+        mass_1=mass_1,
+        mass_2=mass_2,
+        luminosity_distance=luminosity_distance,
+        tilt_1=tilt_1,
+        tilt_2=tilt_2,
+        theta_jn=theta_jn,
+        phi_jl=phi_jl,
+    )
+
+    duration = 4
+    sampling_frequency = 2048.
+
+    waveform_generator = bilby.gw.WaveformGenerator(
+        duration=duration,
+        sampling_frequency=sampling_frequency,
+        frequency_domain_source_model=bilby.gw.source.lal_binary_black_hole,
+        parameter_conversion=bilby.gw.conversion.convert_to_lal_binary_black_hole_parameters,
+        waveform_arguments=dict(
+            waveform_approximant='IMRPhenomPv2',
+            reference_frequency=50., minimum_frequency=20.
+        )
+    )
+
+    # Set up interferometers.
+    ifos = bilby.gw.detector.InterferometerList(['H1', 'L1'])
+    ifos.set_strain_data_from_power_spectral_densities(
+        sampling_frequency=sampling_frequency,
+        duration=duration,
+        start_time=injection_parameters['geocent_time'] - 2
+    )
+    ifos.inject_signal(
+        waveform_generator=waveform_generator,
+        parameters=injection_parameters
+    )
+
+    snrs = [ifo.meta_data["optimal_SNR"] for ifo in ifos]
+    network_snr = np.sqrt(np.sum([i ** 2 for i in snrs]))
+    return snrs[0], snrs[1], network_snr
 
 
 def generate_prior(p):
@@ -128,9 +226,9 @@ def generate_prior(p):
 
 def generate_s1_to_z_rotation_matrix(theta, phi):
     return np.array((
-        (cos(theta)*cos(phi), cos(theta)*sin(phi), -sin(theta)),
+        (cos(theta) * cos(phi), cos(theta) * sin(phi), -sin(theta)),
         (-sin(phi), cos(phi), 0),
-        (cos(phi)*sin(theta), sin(theta)*sin(phi), cos(theta))
+        (cos(phi) * sin(theta), sin(theta) * sin(phi), cos(theta))
     ))
 
 
@@ -189,7 +287,6 @@ def generate_agn_spins(theta_12, phi_12, theta_1, phi_1):
     return tilt_2, phi_2
 
 
-
 def get_mass_samples(m1_source, q, z):
     m1 = m1_source * (1 + np.array(z))
     m2 = m1 * q
@@ -197,23 +294,14 @@ def get_mass_samples(m1_source, q, z):
 
 
 @np.vectorize
-def transform_component_spins(incl=2, S1x=0, S1y=0, S1z=1, S2x=0, S2y=0, S2z=1, m1=20, m2=20, phase=0):
+def transform_component_spins(incl=2, S1x=0, S1y=0, S1z=1, S2x=0, S2y=0, S2z=1, m1=20,
+                              m2=20, phase=0):
     """https://lscsoft.docs.ligo.org/lalsuite/lalsimulation/group__lalsimulation__inference.html#ga6920c640f473e7125f9ddabc4398d60a"""
     thetaJN, phiJL, theta1, theta2, phi12, chi1, chi2 = (
         lalsimulation.SimInspiralTransformPrecessingWvf2PE(
             incl=incl, S1x=S1x, S1y=S1y, S1z=S1z, S2x=S2x, S2y=S2y, S2z=S2z, m1=m1,
             m2=m2, fRef=REFERENCE_FREQ, phiRef=phase
         ))
-
-    # print("INPUT")
-    # pprint.pprint(dict(
-    #     incl=incl, S1x=S1x, S1y=S1y, S1z=S1z, S2x=S2x, S2y=S2y, S2z=S2z, m1=m1,
-    #         m2=m2, fRef=REFERENCE_FREQ, phiRef=phase,
-    # ))
-    # print("OUTPUT")
-    # pprint.pprint(dict(
-    #     thetaJN=thetaJN, phiJL=phiJL, theta1=theta1, theta2=theta2, phi12=phi12, chi1=chi1, chi2=chi2
-    # ))
     return thetaJN, phiJL, theta1, theta2, phi12, chi1, chi2
 
 
@@ -238,9 +326,6 @@ def get_total_orb_angles(s1, s2, incl, m1, m2, phase, ):
 def mult_magn_to_vect(mags, vecs):
     return np.array([m * v for m, v in zip(mags, vecs)])
 
-def calculate_theta_jn_and_phi_jl(m1, m2):
-    lhat = [0, 0, 1]
-
 
 def get_samples(num_samples=10000):
     pop_model = generate_prior(POP_MODEL_VALS)
@@ -249,7 +334,7 @@ def get_samples(num_samples=10000):
     m1, m2 = get_mass_samples(s["mass_1_source"], s["mass_ratio"], z)
     tilt_1, theta_12 = np.arccos(s["cos_tilt_1"]), np.arccos(s["cos_theta_12"])
     tilt_2, phi_2 = generate_agn_spins(theta_12=theta_12, phi_12=s["phi_12"],
-                                       theta_1=tilt_1, phi_1= phi_1)
+                                       theta_1=tilt_1, phi_1=phi_1)
     lumin_dist = bilby.gw.conversion.redshift_to_luminosity_distance(z)
     s1 = mult_magn_to_vect(np.array(s["a_1"]),
                            np.array(make_spin_vector(tilt_1, phi_1)).transpose())
@@ -265,17 +350,17 @@ def get_samples(num_samples=10000):
     s['cos_tilt_2'] = np.cos(tilt_2)
     s['theta_jn'] = theta_jn
     s['phi_jl'] = phi_jl
+
+    h1_snr, l1_snr, network_snr = get_injection_snr(**s)
+    s['h1_snr'] = h1_snr
+    s['l1_snr'] = l1_snr
+    s['network_snr'] = network_snr
+
     return pd.DataFrame(s)
 
 
-def generation_main():
-    s = get_samples()
-    s.to_csv(SAMPLES, sep=" ", index=False)
-    plot_samples_corner()
-
-
-def plot_theta_12_dist():
-    samples = pd.read_csv(SAMPLES, sep=" ")
+def plot_theta_12_dist(sample_dat):
+    samples = pd.read_csv(sample_dat, sep=" ")
     prior = generate_prior(POP_MODEL_VALS)
     plt.hist(samples['cos_theta_12'], density=True, histtype="step", color="blue",
              label="Event Params")
@@ -288,13 +373,11 @@ def plot_theta_12_dist():
     plt.savefig("plots/cos_theta_12.png")
 
 
-
-
 def get_one_sample():
     s = get_samples(1)
     s = s.to_dict('records')[0]
     s['reference_frequency'] = REFERENCE_FREQ
-    # print_p(s)
+    print_p(s)
     params = ['theta_jn',
               'phi_jl',
               'tilt_1',
@@ -306,20 +389,26 @@ def get_one_sample():
               'mass_2',
               'reference_frequency',
               'phase']
-    s_to_pass = {k:v for k,v in s.items() if k in params}
+    s_to_pass = {k: v for k, v in s.items() if k in params}
     returned_s = bilby.gw.conversion.transform_precessing_spins(**s_to_pass)
-    returned_s = {k:float(v) for k,v in zip(params, returned_s)}
+    returned_s = {k: float(v) for k, v in zip(params, returned_s)}
     component_spins = bilby.gw.conversion.generate_component_spins(s)
-    # print_p(returned_s)
+    print_p(returned_s)
+    print_p(component_spins)
 
 
 def save_multipl_samples():
-    s = get_samples(200)
-    s.to_csv(SAMPLES, sep=" ", index=False)
-    plot_samples_corner()
+    # s = get_samples(10000)
+    # s.to_csv(SAMPLES, sep=" ", index=False)
+    s = pd.read_csv(SAMPLES, sep=" ")
+    plot_samples_corner(SAMPLES)
+    injection_samples = s[(s["network_snr"]>8)&(s["mass_1"]<200)].sample(200)
+    injection_samples.to_csv("injection_samples_all_params.dat", sep=" ", index=False)
+    plot_samples_corner("injection_samples_all_params.dat")
+    injection_samples = injection_samples[INJECTION_PARAMS]
+    injection_samples.to_csv(INJ_SAMPLES, sep=" ", index=False)
 
 
 if __name__ == '__main__':
-    get_one_sample()
     save_multipl_samples()
-    plot_theta_12_dist()
+    plot_theta_12_dist("injection_samples_all_params.dat")
