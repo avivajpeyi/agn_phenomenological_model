@@ -16,6 +16,12 @@ PARAM = [
     'mass_ratio',
     'mass_1',
     'redshift',
+    'spin_1x',
+    'spin_1y',
+    'spin_1z',
+    'spin_2x',
+    'spin_2y',
+    'spin_2z',
 ]
 
 
@@ -36,6 +42,7 @@ def save_cbc_dat(posterior: pd.DataFrame, old_fn: str):
     new_fn = os.path.basename(old_fn).replace(".json", ".dat")
     new_fn = os.path.join(DAT_OUTDIR, new_fn)
     posterior.to_csv(new_fn, sep=" ", index=False)
+
 
 if __name__ == "__main__":
     main()
