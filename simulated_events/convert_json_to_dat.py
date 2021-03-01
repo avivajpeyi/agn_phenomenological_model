@@ -37,5 +37,5 @@ def save_cbc_dat(posterior: pd.DataFrame, old_fn: str):
     new_fn = os.path.join(DAT_OUTDIR, new_fn)
     posterior.to_csv(new_fn, sep=" ", index=False)
 
-    if __name__ == "__main__":
-        main()
+if __name__ == "__main__":
+    main()
