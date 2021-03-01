@@ -12,7 +12,6 @@ PARAM = [
     'a_1',
     'a_2',
     'cos_tilt_1',
-    'cos_theta_12',
     'mass_ratio',
     'mass_1',
     'redshift',
