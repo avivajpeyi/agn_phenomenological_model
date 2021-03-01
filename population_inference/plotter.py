@@ -66,7 +66,7 @@ CORNER_KWARGS = dict(
     label_kwargs=dict(fontsize=30),
     title_kwargs=dict(fontsize=16),
     truth_color='tab:orange',
-    quantiles=[0.5, 0.95],
+    quantiles=(0.16, 0.84),
     levels=(1 - np.exp(-0.5), 1 - np.exp(-2), 1 - np.exp(-9 / 2.)),
     plot_density=False,
     plot_datapoints=False,
@@ -115,47 +115,112 @@ def get_normalisation_weight(len_current_samples, len_of_longest_samples):
 
 
 
+MIXED = '/home/avi.vajpeyi/projects/agn_phenomenological_model/population_inference/mixed_pop_outdir/result/mixed_pop_mass_c_iid_mag_afm_tilt_powerlaw_redshift_samples.dat'
+# FIXED_XI_0='/home/avi.vajpeyi/projects/agn_phenomenological_model/population_inference/fixed_xi_0_pop_outdir/result/fixed_xi_0_pop_mass_c_iid_mag_afm_tilt_powerlaw_redshift_samples.dat'
+# FIXED_XI_1='/home/avi.vajpeyi/projects/agn_phenomenological_model/population_inference/fixed_xi_1_pop_outdir/result/fixed_xi_1_pop_mass_c_iid_mag_afm_tilt_powerlaw_redshift_samples.dat'
+AGN = '/home/avi.vajpeyi/projects/agn_phenomenological_model/population_inference/agn_pop_outdir/result/agn_pop_mass_c_iid_mag_agn_tilt_powerlaw_redshift_samples.dat'
+OLD_AGN = "/home/avi.vajpeyi/projects/agn_phenomenological_model/population_inference/old_runs/agn_pop_outdir/result/agn_pop_mass_c_iid_mag_agn_tilt_powerlaw_redshift_samples.dat"
+
+
+
+
+COLS = dict(
+    agn='blue',
+    mix='purple',
+    fixed_xi_1='orange',
+    fixed_xi_0='red'
+)
+
 def read_agn_data():
-    df= pd.read_csv(
-        "agn_pop_outdir/result/agn_pop_mass_c_iid_mag_agn_tilt_powerlaw_redshift_samples.dat", 
-        sep=' '
-    )[['sigma_1', 'sigma_12']]
+    df= pd.read_csv(AGN,sep=' ')[['sigma_1', 'sigma_12']]
+    df['xi_spin'] = 1
+    return df
+
+
+def read_old_agn_data():
+    df= pd.read_csv(OLD_AGN,sep=' ')[['sigma_1', 'sigma_12']]
     df['xi_spin'] = 1
     return df
 
 def read_mixture_data():
-    df = pd.read_csv(
-        "mixed_pop_outdir/result/mixed_pop_mass_c_iid_mag_afm_tilt_powerlaw_redshift_samples.dat", 
-        sep=' '
-    )[['sigma_1', 'sigma_12','xi_spin']]
+    df = pd.read_csv(MIXED, sep=' ')[['sigma_1', 'sigma_12','xi_spin']]
     return df
+
+def read_fixed_xi_1():
+    df= pd.read_csv(FIXED_XI_1,sep=' ')[['sigma_1', 'sigma_12']]
+    df['xi_spin'] = 1
+    return df
+
+def read_fixed_xi_0():
+    df= pd.read_csv(FIXED_XI_0,sep=' ')[['sigma_1', 'sigma_12']]
+    df['xi_spin'] = 0
+    return df
+
 
 print("Plotting...")
 fig = overlaid_corner(
     samples_list=[read_agn_data(), read_mixture_data()], 
     sample_labels=["AGN", "Mixture Model"], 
     axis_labels=["$\\sigma_{1}$", "$\\sigma_{12}$", "$\\xi_{\\mathrm{spin}}$"], 
-    plot_range=[(1e-2, 4), (1e-4, 10), (0,1)],
-    colors=['blue', 'purple']
+    plot_range=[(1e-2, 4), (1e-4, 4), (0,1)],
+    colors=[COLS['agn'], COLS['mix']]
 )
-fig.savefig("both.png")
+fig.savefig("mix_and_agn.png")
     
     
 fig = overlaid_corner(
     samples_list=[read_mixture_data()], 
     sample_labels= ["Mixture Model"], 
     axis_labels=["$\\sigma_{1}$", "$\\sigma_{12}$", "$\\xi_{\\mathrm{spin}}$"], 
-    plot_range=[(1e-2, 4), (1e-4, 10), (0,1)],
-    colors=[ 'purple']
+    plot_range=[(1e-2, 4), (1e-4, 4), (0,1)],
+    colors=[COLS['mix']]
 )
-fig.savefig("mix.png")
-    
-# print("Plotting...")
+fig.savefig("only_mix.png")
+
+
+fig = overlaid_corner(
+    samples_list=[read_agn_data()], 
+    sample_labels= ["AGN"], 
+    axis_labels=["$\\sigma_{1}$", "$\\sigma_{12}$", "$\\xi_{\\mathrm{spin}}$"], 
+    plot_range=[(1e-2, 4), (1e-4, 4), (0,1)],
+    colors=[COLS['agn']]
+)
+fig.savefig("only_agn.png")
+
 # fig = overlaid_corner(
-#     samples_list=[read_agn_data()[['sigma_1', 'sigma_12']], read_mixture_data()[['sigma_1', 'sigma_12']]], 
-#     sample_labels=["AGN", "Mixture Model"], 
-#     axis_labels=["$\\sigma_{1}$", "$\\sigma_{12}$"], 
-#     plot_range=[(1e-2, 4), (1e-4, 1e1)],
-#     colors=['blue', 'purple']
+#     samples_list=[read_old_agn_data()], 
+#     sample_labels= ["AGN"], 
+#     axis_labels=["$\\sigma_{1}$", "$\\sigma_{12}$", "$\\xi_{\\mathrm{spin}}$"], 
+#     plot_range=[(1e-2, 4), (1e-4, 10), (0,1)],
+#     colors=[COLS['agn']]
 # )
-# fig.savefig("test.png")
+# fig.savefig("only_old_agn.png")
+
+
+# fig = overlaid_corner(
+#     samples_list=[read_fixed_xi_0(), read_fixed_xi_1()], 
+#     sample_labels= ["xi=0", "xi=1"], 
+#     axis_labels=["$\\sigma_{1}$", "$\\sigma_{12}$", "$\\xi_{\\mathrm{spin}}$"], 
+#     plot_range=[(1e-2, 4), (1e-4, 100), (0,1)],
+#     colors=[COLS['fixed_xi_0'],COLS['fixed_xi_1']]
+# )
+# fig.savefig("comparing_xi_edges.png")
+
+
+# fig = overlaid_corner(
+#     samples_list=[read_agn_data()[['sigma_1', 'sigma_12']]], 
+#     sample_labels= ["AGN"], 
+#     axis_labels=["$\\sigma_{1}$", "$\\sigma_{12}$"], 
+#     plot_range=[(1e-2, 4), (1e-4, 100)],
+#     colors=[COLS['agn']]
+# )
+# fig.savefig("only_agn_small.png")
+
+# fig = overlaid_corner(
+#     samples_list=[read_old_agn_data()[['sigma_1', 'sigma_12']]], 
+#     sample_labels= ["AGN"], 
+#     axis_labels=["$\\sigma_{1}$", "$\\sigma_{12}$"], 
+#     plot_range=[(1e-2, 4), (1e-4, 10)],
+#     colors=[COLS['agn']]
+# )
+# fig.savefig("only_old_agn_small.png")

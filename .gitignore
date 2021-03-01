@@ -5,7 +5,7 @@ data
 output
 *_outdir
 *.npy
-
+*test_dir*
 *condor/
 
 
