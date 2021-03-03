@@ -233,8 +233,7 @@ def main():
         fname="mix_and_agn.png"
     )
 
-    plot_params = list(set(agn_data.columns.values).union(set(lvc_data.columns.values)))
-    plot_params.pop('lamb')
+    plot_params = list(set(agn_data.columns.values).intersection(set(lvc_data.columns.values)))
     overlaid_corner(
         samples_list=[lvc_data, agn_data],
         sample_labels=["LVC", "AGN"],
@@ -279,8 +278,8 @@ def main():
         fname="simulated_and_lvc.png"
     )
 
-    plot_params = list(set(sim_data.columns.values).union(set(lvc_data.columns.values)))
-    plot_params.pop('lamb')
+    plot_params = list(set(sim_data.columns.values).intersection(set(lvc_data.columns.values)))
+
     overlaid_corner(
         samples_list=[lvc_data, sim_data],
         sample_labels=["LVC", "sim", "sim-truths"],
