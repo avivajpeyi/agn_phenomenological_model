@@ -12,10 +12,10 @@ import pandas as pd
 import seaborn as sns
 from matplotlib import rcParams
 
-MIXED = '../population_inference/mixed_pop_outdir/result/mixed_pop_mass_c_iid_mag_afm_tilt_powerlaw_redshift_samples.dat'
-AGN = '../population_inference/agn_pop_outdir/result/agn_pop_mass_c_iid_mag_agn_tilt_powerlaw_redshift_samples.dat'
-LVC = '../data/lvc_popinf/o1o2o3_mass_c_iid_mag_two_comp_iid_tilt_powerlaw_redshift_result.json'
-SIMULATED = './simulated_pop_inf_outdir/result/simulated_pop_mass_c_iid_mag_agn_tilt_powerlaw_redshift_samples.dat'
+MIXED = "../result_files/mix.dat"
+AGN = "../result_files/agn.dat"
+LVC = "../result_files/lvc.json"
+SIMULATED = "../result_files/sim.dat"
 
 warnings.filterwarnings("ignore")
 
@@ -110,11 +110,12 @@ def get_colors(num_colors: int, alpha: Optional[float] = 1) -> List[List[float]]
 
 
 COLS = {label: c for label, c in
-        zip(['agn', 'mix', 'lvc', 'sim', 'truths'], get_colors(5))}
-COLS['truths'] = 'gray'
+        zip(['mix', 'lvc', 'sim', 'agn', 'truths'], get_colors(5))}
+COLS['truths'] = 'black'
+
 
 def overlaid_corner(samples_list, sample_labels, params,
-                    samples_colors=[], fname="", title=None, truths={}):
+                    samples_colors, fname="", title=None, truths={}):
     """Plots multiple corners on top of each other"""
     print(f"plotting {fname}")
     # sort the sample columns
@@ -130,13 +131,11 @@ def overlaid_corner(samples_list, sample_labels, params,
     else:
         truths = [truths[k] for k in params]
 
-    if len(samples_colors) == 0:
-        samples_colors = get_colors(len(samples_list))
 
     # get some constants
     n = len(samples_list)
     _, ndim = samples_list[0].shape
-    min_len = min([len(s) for s in samples_list])
+    min_len = max([len(s) for s in samples_list])
 
     CORNER_KWARGS.update(
         range=plot_range,
@@ -163,7 +162,7 @@ def overlaid_corner(samples_list, sample_labels, params,
     plt.legend(
         handles=[
             mlines.Line2D([], [], color=samples_colors[i], label=sample_labels[i])
-            for i in range(n)
+            for i in range(len(sample_labels))
         ],
         fontsize=20, frameon=False,
         bbox_to_anchor=(1, ndim), loc="upper right"
@@ -200,14 +199,14 @@ def read_lvc_data():
     ['alpha' 'beta' 'mmax' 'mmin' 'lam' 'mpp' 'sigpp' 'delta_m'
     'mu_chi' 'sigma_chi' 'xi_spin' 'sigma_spin' 'amax' 'lamb']"""
     df = bilby.result.read_in_result(LVC).posterior
-    print(df.columns.values)
     df['xi_spin'] = 0
-    df['sigma_12'] = 0
+    df['sigma_12'] = 1e-4
     df['sigma_1'] = df['sigma_spin']
     df['sigma_2'] = df['sigma_spin']
-    print(df.describe().transpose())
+    trash = ['rate', 'log_10_rate', 'surveyed_hypervolume', 'n_effective', 'selection',
+             'log_prior', 'log_likelihood']
+    df = df.drop(trash, axis=1)
     return df
-
 
 
 def read_simulated_pop_data():
@@ -228,14 +227,12 @@ def main():
     plot_params = ['sigma_1', "sigma_12", "xi_spin"]
 
     overlaid_corner(
-        samples_list=[agn_data ,mix_data],
+        samples_list=[agn_data, mix_data],
         sample_labels=["AGN", "Mixture Model"],
         params=plot_params,
         samples_colors=[COLS['agn'], COLS['mix']],
         fname="mix_and_agn.png"
     )
-
-
 
     plot_params = ['sigma_1', "sigma_12"]
 
@@ -257,7 +254,7 @@ def main():
 
     overlaid_corner(
         samples_list=[sim_data],
-        sample_labels=["PI", "Truths"],
+        sample_labels=["Sim", "Truths"],
         params=plot_params,
         truths=SIMULATED_TRUTHS,
         samples_colors=[COLS['sim'], COLS['truths']],
@@ -266,21 +263,24 @@ def main():
 
     overlaid_corner(
         samples_list=[lvc_data, sim_data],
-        sample_labels=["LVC", "sim", "sim-truths"],
+        sample_labels=["LVC", "Sim", "Truths"],
         params=plot_params,
         truths=SIMULATED_TRUTHS,
         samples_colors=[COLS['lvc'], COLS['sim'], COLS['truths']],
         fname="simulated_and_lvc.png"
     )
 
-    plot_params = list(set(sim_data.columns.values).intersection(set(lvc_data.columns.values)))
+    plot_params = sorted(list(
+        set(sim_data.columns.values).intersection(set(lvc_data.columns.values))))
+    plot_params.remove("xi_spin")
+    plot_params.remove("sigma_12")
     print(f"plot parms {plot_params}")
 
-    plot_params.remove('lamb')
     overlaid_corner(
         samples_list=[lvc_data, sim_data],
-        sample_labels=["LVC", "sim", "sim-truths"],
+        sample_labels=["LVC", "Sim", "Truths"],
         params=plot_params,
+        truths=SIMULATED_TRUTHS,
         samples_colors=[COLS['lvc'], COLS['sim'], COLS['truths']],
         fname="simulated_and_lvc_all.png"
     )
@@ -292,7 +292,6 @@ def main():
         samples_colors=[COLS['lvc'], COLS['agn']],
         fname="lvc_and_agn.png"
     )
-
 
     print("done!")
 
