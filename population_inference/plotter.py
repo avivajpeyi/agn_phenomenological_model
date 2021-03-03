@@ -12,10 +12,10 @@ import pandas as pd
 import seaborn as sns
 from matplotlib import rcParams
 
-MIXED = '/home/avi.vajpeyi/projects/agn_phenomenological_model/population_inference/mixed_pop_outdir/result/mixed_pop_mass_c_iid_mag_afm_tilt_powerlaw_redshift_samples.dat'
-AGN = '/home/avi.vajpeyi/projects/agn_phenomenological_model/population_inference/agn_pop_outdir/result/agn_pop_mass_c_iid_mag_agn_tilt_powerlaw_redshift_samples.dat'
-LVC = '/home/avi.vajpeyi/projects/agn_phenomenological_model/data/lvc_popinf/o1o2o3_mass_c_iid_mag_two_comp_iid_tilt_powerlaw_redshift_result.json'
-SIMULATED = '/home/avi.vajpeyi/projects/agn_phenomenological_model/simulated_events/simulated_pop_inf_outdir/result/simulated_pop_mass_c_iid_mag_agn_tilt_powerlaw_redshift_samples.dat'
+MIXED = '../population_inference/mixed_pop_outdir/result/mixed_pop_mass_c_iid_mag_afm_tilt_powerlaw_redshift_samples.dat'
+AGN = '../population_inference/agn_pop_outdir/result/agn_pop_mass_c_iid_mag_agn_tilt_powerlaw_redshift_samples.dat'
+LVC = '../data/lvc_popinf/o1o2o3_mass_c_iid_mag_two_comp_iid_tilt_powerlaw_redshift_result.json'
+SIMULATED = './simulated_pop_inf_outdir/result/simulated_pop_mass_c_iid_mag_agn_tilt_powerlaw_redshift_samples.dat'
 
 warnings.filterwarnings("ignore")
 
@@ -274,7 +274,8 @@ def main():
     )
 
     plot_params = list(set(sim_data.columns.values).intersection(set(lvc_data.columns.values)))
-    print(plot_params)
+    print(f"plot parms {plot_params}")
+
     plot_params.remove('lamb')
     overlaid_corner(
         samples_list=[lvc_data, sim_data],
