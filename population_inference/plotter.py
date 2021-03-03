@@ -234,6 +234,7 @@ def main():
     )
 
     plot_params = list(set(agn_data.columns.values).union(set(lvc_data.columns.values)))
+    plot_params.pop('lamb')
     overlaid_corner(
         samples_list=[lvc_data, agn_data],
         sample_labels=["LVC", "AGN"],
@@ -279,6 +280,7 @@ def main():
     )
 
     plot_params = list(set(sim_data.columns.values).union(set(lvc_data.columns.values)))
+    plot_params.pop('lamb')
     overlaid_corner(
         samples_list=[lvc_data, sim_data],
         sample_labels=["LVC", "sim", "sim-truths"],
