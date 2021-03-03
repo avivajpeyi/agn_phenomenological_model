@@ -208,6 +208,7 @@ def read_lvc_data():
     return df
 
 
+
 def read_simulated_pop_data():
     df = pd.read_csv(SIMULATED, sep=' ')
     print(df.columns.values)
@@ -233,14 +234,7 @@ def main():
         fname="mix_and_agn.png"
     )
 
-    plot_params = list(set(agn_data.columns.values).intersection(set(lvc_data.columns.values)))
-    overlaid_corner(
-        samples_list=[lvc_data, agn_data],
-        sample_labels=["LVC", "AGN"],
-        params=plot_params,
-        samples_colors=[COLS['lvc'], COLS['agn']],
-        fname="lvc_and_agn.png"
-    )
+
 
     plot_params = ['sigma_1', "sigma_12"]
 
@@ -279,13 +273,22 @@ def main():
     )
 
     plot_params = list(set(sim_data.columns.values).intersection(set(lvc_data.columns.values)))
-
+    print(plot_params)
+    plot_params.remove('lamb')
     overlaid_corner(
         samples_list=[lvc_data, sim_data],
         sample_labels=["LVC", "sim", "sim-truths"],
         params=plot_params,
         samples_colors=[COLS['lvc'], COLS['sim'], COLS['truths']],
         fname="simulated_and_lvc_all.png"
+    )
+
+    overlaid_corner(
+        samples_list=[lvc_data, agn_data],
+        sample_labels=["LVC", "AGN"],
+        params=plot_params,
+        samples_colors=[COLS['lvc'], COLS['agn']],
+        fname="lvc_and_agn.png"
     )
 
 
