@@ -125,7 +125,7 @@ def overlaid_corner(samples_list, sample_labels, params,
     if len(truths) == 0:
         truths = None
     else:
-        truths = {k: truths[k] for k in params}
+        truths = [truths[k] for k in params]
 
     if len(samples_colors) == 0:
         samples_colors = get_colors(len(samples_list))
