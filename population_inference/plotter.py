@@ -205,6 +205,7 @@ def read_lvc_data():
     df['sigma_12'] = 0
     df['sigma_1'] = df['sigma_spin']
     df['sigma_2'] = df['sigma_spin']
+    print(df.describe().traspose)
     return df
 
 
