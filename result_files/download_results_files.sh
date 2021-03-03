@@ -1,1 +1,1 @@
-scp avi.vajpeyi@ldas-pcdev3.ligo.caltech.edu:/home/avi.vajpeyi/projects/agn_phenomenological_model/result_files/* .
+scp avi.vajpeyi@ldas-pcdev3.ligo.caltech.edu:/home/avi.vajpeyi/projects/agn_phenomenological_model/result_files/*{.dat,.json} .
