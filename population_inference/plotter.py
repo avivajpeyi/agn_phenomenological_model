@@ -108,7 +108,9 @@ def get_colors(num_colors: int, alpha: Optional[float] = 1) -> List[List[float]]
         cs[i].append(alpha)
     return cs
 
-COLS = {label: c for label, c in zip(['agn', 'mix', 'lvc', 'sim', 'truths'], get_colors(5))}
+
+COLS = {label: c for label, c in
+        zip(['agn', 'mix', 'lvc', 'sim', 'truths'], get_colors(5))}
 
 
 def overlaid_corner(samples_list, sample_labels, params,
@@ -177,9 +179,6 @@ def get_normalisation_weight(len_current_samples, len_of_longest_samples):
     return np.ones(len_current_samples) * (len_of_longest_samples / len_current_samples)
 
 
-
-
-
 def read_agn_data():
     df = pd.read_csv(AGN, sep=' ')
     df['xi_spin'] = 1
@@ -187,15 +186,25 @@ def read_agn_data():
 
 
 def read_mixture_data():
+    """
+    params:
+    ['alpha' 'beta' 'mmax' 'mmin' 'lam' 'mpp' 'sigpp' 'delta_m'
+    'mu_chi' 'sigma_chi' 'sigma_1' 'sigma_12']"""
     df = pd.read_csv(MIXED, sep=' ')
     return df
 
 
 def read_lvc_data():
+    """
+    params:
+    ['alpha' 'beta' 'mmax' 'mmin' 'lam' 'mpp' 'sigpp' 'delta_m'
+    'mu_chi' 'sigma_chi' 'xi_spin' 'sigma_spin' 'amax' 'lamb']"""
     df = bilby.result.read_in_result(LVC).posterior
     print(df.columns.values)
     df['xi_spin'] = 0
     df['sigma_12'] = 0
+    df['sigma_1'] = df['sigma_spin']
+    df['sigma_2'] = df['sigma_spin']
     return df
 
 
@@ -209,28 +218,42 @@ def read_simulated_pop_data():
 def main():
     print("Plotting...")
 
+    agn_data = read_agn_data()
+    mix_data = read_mixture_data()
+    sim_data = read_simulated_pop_data()
+    lvc_data = read_lvc_data()
+
     plot_params = ['sigma_1', "sigma_12", "xi_spin"]
 
     overlaid_corner(
-        samples_list=[read_agn_data(), read_mixture_data()],
+        samples_list=[agn_data ,mix_data],
         sample_labels=["AGN", "Mixture Model"],
         params=plot_params,
         samples_colors=[COLS['agn'], COLS['mix']],
         fname="mix_and_agn.png"
     )
 
+    plot_params = list(set(agn_data.columns.values).union(set(lvc_data.colums.values)))
+    overlaid_corner(
+        samples_list=[lvc_data, agn_data],
+        sample_labels=["LVC", "AGN"],
+        params=plot_params,
+        samples_colors=[COLS['lvc'], COLS['agn']],
+        fname="lvc_and_agn.png"
+    )
+
     plot_params = ['sigma_1', "sigma_12"]
 
     overlaid_corner(
-        samples_list=[read_mixture_data()],
-        sample_labels=["Mixture Model"],
+        samples_list=[mix_data],
+        sample_labels=["Mix"],
         params=plot_params,
         samples_colors=[COLS['mix']],
         fname="only_mix.png",
     )
 
     overlaid_corner(
-        samples_list=[read_agn_data()],
+        samples_list=[agn_data],
         sample_labels=["AGN"],
         params=plot_params,
         samples_colors=[COLS['agn']],
@@ -238,7 +261,7 @@ def main():
     )
 
     overlaid_corner(
-        samples_list=[read_simulated_pop_data()],
+        samples_list=[sim_data],
         sample_labels=["PI", "Truths"],
         params=plot_params,
         truths=SIMULATED_TRUTHS,
@@ -247,13 +270,24 @@ def main():
     )
 
     overlaid_corner(
-        samples_list=[read_lvc_data(), read_simulated_pop_data()],
+        samples_list=[lvc_data, sim_data],
         sample_labels=["LVC", "sim", "sim-truths"],
         params=plot_params,
         truths=SIMULATED_TRUTHS,
         samples_colors=[COLS['lvc'], COLS['sim'], "tab:orange"],
         fname="simulated_and_lvc.png"
     )
+
+    plot_params = list(set(sim_data.columns.values).union(set(lvc_data.colums.values)))
+    overlaid_corner(
+        samples_list=[lvc_data, sim_data],
+        sample_labels=["LVC", "sim", "sim-truths"],
+        params=plot_params,
+        samples_colors=[COLS['lvc'], COLS['sim'], "tab:orange"],
+        fname="simulated_and_lvc_all.png"
+    )
+
+
     print("done!")
 
 
