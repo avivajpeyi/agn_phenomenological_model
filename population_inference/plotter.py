@@ -116,7 +116,7 @@ COLS['truths'] = 'gray'
 def overlaid_corner(samples_list, sample_labels, params,
                     samples_colors=[], fname="", title=None, truths={}):
     """Plots multiple corners on top of each other"""
-
+    print(f"plotting {fname}")
     # sort the sample columns
     samples_list = [s[params] for s in samples_list]
 
