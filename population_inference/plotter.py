@@ -111,7 +111,7 @@ def get_colors(num_colors: int, alpha: Optional[float] = 1) -> List[List[float]]
 
 COLS = {label: c for label, c in
         zip(['agn', 'mix', 'lvc', 'sim', 'truths'], get_colors(5))}
-
+COLS['truths'] = 'gray'
 
 def overlaid_corner(samples_list, sample_labels, params,
                     samples_colors=[], fname="", title=None, truths={}):
@@ -274,7 +274,7 @@ def main():
         sample_labels=["LVC", "sim", "sim-truths"],
         params=plot_params,
         truths=SIMULATED_TRUTHS,
-        samples_colors=[COLS['lvc'], COLS['sim'], "tab:orange"],
+        samples_colors=[COLS['lvc'], COLS['sim'], COLS['truths']],
         fname="simulated_and_lvc.png"
     )
 
@@ -283,7 +283,7 @@ def main():
         samples_list=[lvc_data, sim_data],
         sample_labels=["LVC", "sim", "sim-truths"],
         params=plot_params,
-        samples_colors=[COLS['lvc'], COLS['sim'], "tab:orange"],
+        samples_colors=[COLS['lvc'], COLS['sim'], COLS['truths']],
         fname="simulated_and_lvc_all.png"
     )
 
