@@ -111,11 +111,16 @@ def get_colors(num_colors: int, alpha: Optional[float] = 0) -> List[List[float]]
 
 
 def overlaid_corner(samples_list, sample_labels, params, plot_range=[],
-                    samples_colors=[], fname="", title=None, truths=[]):
+                    samples_colors=[], fname="", title=None, truths={}):
     """Plots multiple corners on top of each other"""
 
     # sort the sample columns
     samples_list = [s[params] for s in samples_list]
+
+    if len(truths) ==0 :
+        truths = None
+    else:
+        truths = {k:truths[k] for k in params}
 
     if len(plot_range) == 0:
         plot_range = None
@@ -187,6 +192,7 @@ def read_mixture_data():
 def read_lvc_data():
     df = bilby.result.read_in_result(LVC).posterior
     df['xi_spin'] = 0
+    df['sigma_12'] = 0
     return df
 
 
