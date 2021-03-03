@@ -191,6 +191,7 @@ def read_mixture_data():
 
 def read_lvc_data():
     df = bilby.result.read_in_result(LVC).posterior
+    print(df)
     df['xi_spin'] = 0
     df['sigma_12'] = 0
     return df
