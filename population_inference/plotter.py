@@ -75,24 +75,24 @@ SIMULATED_TRUTHS = {
     "lamb": 0.0,
 }
 
-LATEX = {
-    'alpha': '$\\alpha$',
-    'beta': '$\\beta_{q}$',
-    'mmax': '$m_{\\max}$',
-    'mmin': '$m_{\\min}$',
-    'lam': '$\\lambda_{m}$',
-    'mpp': '$\\mu_{m}$',
-    'sigpp': '$\\sigma_{m}$',
-    'delta_m': '$\\delta_{m}$',
-    'amax': None,
-    'mu_chi': '$\\mu_{\\chi}$',
-    'sigma_chi': '$\\sigma^{2}_{\\chi}$',
-    'alpha_chi': '$\\alpha_{\\chi}$',
-    'beta_chi': '$\\beta{\\chi}$',
-    'sigma_1': '$\\sigma_{1}$',
-    'sigma_2': '$\\sigma_{2}$',
-    'sigma_12': '$\\sigma_{12}$',
-    'xi_spin': '$\\xi$'
+PARAMS = {
+    'alpha': dict(minimum=-4, maximum=12, latex_label='$\\alpha$'),
+    'beta': dict(minimum=-4, maximum=12, latex_label='$\\beta_{q}$'),
+    'mmax': dict(minimum=30, maximum=100, latex_label='$m_{\\max}$'),
+    'mmin': dict(minimum=2, maximum=10, latex_label='$m_{\\min}$'),
+    'lam': dict(minimum=0, maximum=1, latex_label='$\\lambda_{m}$'),
+    'mpp': dict(minimum=20, maximum=50, latex_label='$\\mu_{m}$'),
+    'sigpp': dict(minimum=1, maximum=10, latex_label='$\\sigma_{m}$'),
+    'delta_m': dict(minimum=0, maximum=10, latex_label='$\\delta_{m}$'),
+    'amax': dict(minimum=1, maximum=1, latex_label="$\\a_{max}$"),
+    'mu_chi': dict(minimum=0, maximum=1, latex_label='$\\mu_{\\chi}$'),
+    'sigma_chi': dict(minimum=0, maximum=0.25, latex_label='$\\sigma^{2}_{\\chi}$'),
+    'alpha_chi': dict(minimum=1, maximum=100000, latex_label='$\\alpha_{\\chi}$'),
+    'beta_chi': dict(minimum=1, maximum=100000, latex_label='$\\beta{\\chi}$'),
+    'sigma_1': dict(minimum=0.01, maximum=4, latex_label='$\\sigma_{1}$'),
+    'sigma_2': dict(minimum=0.01, maximum=4, latex_label='$\\sigma_{2}$'),
+    'sigma_12': dict(minimum=0.0001, maximum=4, latex_label='$\\sigma_{12}$'),
+    'xi_spin': dict(minimum=0, maximum=1, latex_label='$\\xi$')
 }
 
 
@@ -110,20 +110,22 @@ def get_colors(num_colors: int, alpha: Optional[float] = 0) -> List[List[float]]
     return cs
 
 
-def overlaid_corner(samples_list, sample_labels, params, plot_range=[],
+def overlaid_corner(samples_list, sample_labels, params,
                     samples_colors=[], fname="", title=None, truths={}):
     """Plots multiple corners on top of each other"""
 
     # sort the sample columns
     samples_list = [s[params] for s in samples_list]
 
-    if len(truths) ==0 :
+    # get plot range, latex labels, colors and truths
+    plot_range = [(PARAMS[p]['minimum'], PARAMS[p]['maximum']) for p in params]
+
+    axis_labels = [PARAMS[p]['latex_label'] for p in params]
+
+    if len(truths) == 0:
         truths = None
     else:
-        truths = {k:truths[k] for k in params}
-
-    if len(plot_range) == 0:
-        plot_range = None
+        truths = {k: truths[k] for k in params}
 
     if len(samples_colors) == 0:
         samples_colors = get_colors(len(samples_list))
@@ -132,8 +134,6 @@ def overlaid_corner(samples_list, sample_labels, params, plot_range=[],
     n = len(samples_list)
     _, ndim = samples_list[0].shape
     min_len = min([len(s) for s in samples_list])
-
-    axis_labels = [LATEX[p] for p in params]
 
     CORNER_KWARGS.update(
         range=plot_range,
@@ -211,7 +211,6 @@ def main():
         samples_list=[read_agn_data(), read_mixture_data()],
         sample_labels=["AGN", "Mixture Model"],
         params=plot_params,
-        plot_range=[(1e-2, 4), (1e-4, 4), (0, 1)],
         samples_colors=[COLS['agn'], COLS['mix']],
         fname="mix_and_agn.png"
     )
@@ -222,7 +221,6 @@ def main():
         samples_list=[read_mixture_data()],
         sample_labels=["Mixture Model"],
         params=plot_params,
-        plot_range=[(1e-2, 4), (1e-4, 4)],
         samples_colors=[COLS['mix']],
         fname="only_mix.png",
     )
@@ -231,7 +229,6 @@ def main():
         samples_list=[read_agn_data()],
         sample_labels=["AGN"],
         params=plot_params,
-        plot_range=[(1e-2, 4), (1e-4, 4)],
         samples_colors=[COLS['agn']],
         fname="only_agn.png"
     )
@@ -240,7 +237,6 @@ def main():
         samples_list=[read_simulated_pop_data()],
         sample_labels=["PI", "Truths"],
         params=plot_params,
-        plot_range=[(1e-2, 4), (1e-4, 4)],
         truths=SIMULATED_TRUTHS,
         samples_colors=[COLS['sim'], "tab:orange"],
         fname="only_simulated.png"
@@ -250,7 +246,6 @@ def main():
         samples_list=[read_lvc_data(), read_simulated_pop_data()],
         sample_labels=["LVC", "sim", "sim-truths"],
         params=plot_params,
-        plot_range=[(1e-2, 4), (1e-4, 4)],
         truths=SIMULATED_TRUTHS,
         samples_colors=[COLS['lvc'], COLS['sim'], "tab:orange"],
         fname="simulated_and_lvc.png"
