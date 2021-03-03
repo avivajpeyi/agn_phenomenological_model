@@ -13,8 +13,8 @@ delta_m = Uniform(minimum=0, maximum=10, name='delta_m', latex_label='$\\delta_{
 amax = 1
 mu_chi = Uniform(minimum=0, maximum=1, name='mu_chi', latex_label='$\\mu_{\\chi}$')
 sigma_chi = Uniform(minimum=0, maximum=0.25, name='sigma_chi', latex_label='$\\sigma^{2}_{\\chi}$')
-alpha_chi = Constraint(minimum=1, maximum=1e5)
-beta_chi = Constraint(minimum=1, maximum=1e5)
+alpha_chi = Constraint(minimum=1, maximum=1e5, latex_label='$\\alpha_{\\chi}$')
+beta_chi = Constraint(minimum=1, maximum=1e5, latex_label='$\\beta{\\chi}$')
 
 # SPIN ORIENTATION (agn --> sigma_1, sigma_12)
 sigma_1 =  Uniform(minimum=1e-2, maximum=4, name='sigma_1', latex_label='$\\sigma_{1}$')
