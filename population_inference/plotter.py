@@ -216,6 +216,8 @@ def main():
         fname="mix_and_agn.png"
     )
 
+    plot_params = ['sigma_1', "sigma_12"]
+
     overlaid_corner(
         samples_list=[read_mixture_data()],
         sample_labels=["Mixture Model"],
