@@ -47,7 +47,6 @@ CORNER_KWARGS = dict(
     smooth=0.99,
     label_kwargs=dict(fontsize=30),
     title_kwargs=dict(fontsize=16),
-    truth_color='tab:orange',
     quantiles=(0.16, 0.84),
     levels=(1 - np.exp(-0.5), 1 - np.exp(-2), 1 - np.exp(-9 / 2.)),
     plot_density=False,
@@ -109,6 +108,8 @@ def get_colors(num_colors: int, alpha: Optional[float] = 1) -> List[List[float]]
         cs[i].append(alpha)
     return cs
 
+COLS = {label: c for label, c in zip(['agn', 'mix', 'lvc', 'sim', 'truths'], get_colors(5))}
+
 
 def overlaid_corner(samples_list, sample_labels, params,
                     samples_colors=[], fname="", title=None, truths={}):
@@ -138,7 +139,8 @@ def overlaid_corner(samples_list, sample_labels, params,
     CORNER_KWARGS.update(
         range=plot_range,
         labels=axis_labels,
-        truths=truths
+        truths=truths,
+        truth_color=COLS['truths'],
     )
 
     fig = corner.corner(
@@ -175,7 +177,7 @@ def get_normalisation_weight(len_current_samples, len_of_longest_samples):
     return np.ones(len_current_samples) * (len_of_longest_samples / len_current_samples)
 
 
-COLS = {label: c for label, c in zip(['agn', 'mix', 'lvc', 'sim'], get_colors(4))}
+
 
 
 def read_agn_data():
@@ -191,7 +193,7 @@ def read_mixture_data():
 
 def read_lvc_data():
     df = bilby.result.read_in_result(LVC).posterior
-    print(df)
+    print(df.columns.values)
     df['xi_spin'] = 0
     df['sigma_12'] = 0
     return df
@@ -199,6 +201,7 @@ def read_lvc_data():
 
 def read_simulated_pop_data():
     df = pd.read_csv(SIMULATED, sep=' ')
+    print(df.columns.values)
     df['xi_spin'] = 1
     return df
 
@@ -239,7 +242,7 @@ def main():
         sample_labels=["PI", "Truths"],
         params=plot_params,
         truths=SIMULATED_TRUTHS,
-        samples_colors=[COLS['sim'], "tab:orange"],
+        samples_colors=[COLS['sim'], COLS['truths']],
         fname="only_simulated.png"
     )
 
