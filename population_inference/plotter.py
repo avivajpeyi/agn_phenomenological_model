@@ -96,7 +96,7 @@ PARAMS = {
 }
 
 
-def get_colors(num_colors: int, alpha: Optional[float] = 0) -> List[List[float]]:
+def get_colors(num_colors: int, alpha: Optional[float] = 1) -> List[List[float]]:
     """Get a list of colorblind samples_colors,
     :param num_colors: Number of samples_colors.
     :param alpha: The transparency
