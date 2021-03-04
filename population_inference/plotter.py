@@ -112,9 +112,18 @@ def get_colors(num_colors: int, alpha: Optional[float] = 1) -> List[List[float]]
     return cs
 
 
-COLS = {label: c for label, c in
-        zip(['mix', 'lvc', 'sim', 'agn', 'truths'], get_colors(5))}
-COLS['truths'] = 'black'
+COLS = dict(
+    mix='seagreen',
+    lvc='mediumpurple',
+    sim='dodgerblue',
+    agn='orangered',
+    truths='crimson'
+)
+
+
+# COLS = {label: c for label, c in
+#         zip(['mix', 'lvc', 'sim', 'agn', 'truths'], get_colors(5))}
+# COLS['truths'] = 'black'
 
 
 def overlaid_corner(samples_list, sample_labels, params,
