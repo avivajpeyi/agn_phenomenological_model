@@ -11,7 +11,10 @@ import numpy as np
 import pandas as pd
 import seaborn as sns
 from matplotlib import rcParams
+import os
+import shutil
 
+import glob
 MIXED = "../result_files/mix.dat"
 AGN = "../result_files/agn.dat"
 LVC = "../result_files/lvc.json"
@@ -300,6 +303,11 @@ def main():
         samples_colors=[COLS['lvc'], COLS['truths']],
         fname="lvc_with_my_injection.png"
     )
+
+    dest_folder = "/home/avi.vajpeyi/public_html/agn_pop/pop_inf/"
+    if os.path.isdir(dest_folder):
+        for f in glob.glob("*.png"):
+            shutil.copy(f, dest_folder)
 
     print("done!")
 
