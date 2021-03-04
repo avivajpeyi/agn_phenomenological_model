@@ -11,6 +11,42 @@ import os
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
+import warnings
+from matplotlib import rcParams
+
+warnings.filterwarnings("ignore")
+
+rcParams["font.size"] = 20
+rcParams["font.family"] = "serif"
+rcParams["font.sans-serif"] = ["Computer Modern Sans"]
+rcParams["text.usetex"] = True
+rcParams['axes.labelsize'] = 30
+rcParams['axes.titlesize'] = 30
+rcParams['axes.labelpad'] = 20
+rcParams["font.size"] = 30
+rcParams["font.family"] = "serif"
+rcParams["font.sans-serif"] = ["Computer Modern Sans"]
+rcParams["text.usetex"] = True
+rcParams['axes.labelsize'] = 30
+rcParams['axes.titlesize'] = 30
+rcParams['axes.labelpad'] = 10
+rcParams['axes.linewidth'] = 2.5
+rcParams['axes.edgecolor'] = 'black'
+rcParams['xtick.labelsize'] = 25
+rcParams['xtick.major.size'] = 10.0
+rcParams['xtick.minor.size'] = 5.0
+rcParams['ytick.labelsize'] = 25
+rcParams['ytick.major.size'] = 10.0
+rcParams['ytick.minor.size'] = 5.0
+plt.rcParams['xtick.direction'] = 'in'
+plt.rcParams['ytick.direction'] = 'in'
+plt.rcParams['xtick.minor.width'] = 1
+plt.rcParams['xtick.major.width'] = 3
+plt.rcParams['ytick.minor.width'] = 1
+plt.rcParams['ytick.major.width'] = 2.5
+plt.rcParams['xtick.top'] = True
+plt.rcParams['ytick.right'] = True
+
 
 HYPER_PARAM_VALS = {
     "alpha": 2.62,
@@ -51,7 +87,7 @@ def load_true_values(injection_dat):
 def plot_masses(posteriors, events, truths):
     print(f"Making box plot for {len(posteriors)} posteriors")
     data = [post["mass_1"] for post in posteriors]
-    truths = [[t["mass_1"]] for t in truths]
+    truths = [[t["mass_1_source"]] for t in truths]
     fig = plt.figure(figsize=(len(posteriors), 5))
     plt.violinplot(data)
     plt.violinplot(truths)
@@ -59,7 +95,9 @@ def plot_masses(posteriors, events, truths):
     plt.hlines(y=HYPER_PARAM_VALS['mmin'], xmin=0, xmax=len(events) + 1)
     plt.ylabel("mass 1 source")
     plt.xticks(np.arange(1, len(events) + 1), events, rotation=90)
+    plt.xlim(0,  len(events) + 1)
     plt.tight_layout()
+    plt.grid()
     plt.savefig("mass_posteriors.png")
     plt.close(fig)
 
@@ -67,12 +105,14 @@ def plot_masses(posteriors, events, truths):
 def get_data():
     posterior_dict = load_posteriors(run_dir="simulated_pop_inf_outdir/",
                                      data_label="posteriors")
-    true_val_dict = load_true_values(injection_dat="injection_samples.dat")
+    true_val_dict = load_true_values(injection_dat="injection_samples_all_params.dat")
     events, posteriors, truths = [], [], []
-    for event_key in posterior_dict.keys():
-        events.append(event_key)
-        posteriors.append(posterior_dict[event_key])
-        truths.append(true_val_dict[event_key])
+    for i in range(200):
+        event_key = f"data{i}"
+        if event_key in posterior_dict:
+            events.append(event_key)
+            posteriors.append(posterior_dict[event_key])
+            truths.append(true_val_dict[event_key])
     return posteriors, events, truths
 
 
