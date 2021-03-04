@@ -293,6 +293,14 @@ def main():
         fname="lvc_and_agn.png"
     )
 
+    overlaid_corner(
+        samples_list=[lvc_data],
+        sample_labels=["LVC", "Truths"],
+        params=plot_params,
+        samples_colors=[COLS['lvc'], COLS['truths']],
+        fname="lvc_with_my_injection.png"
+    )
+
     print("done!")
 
 

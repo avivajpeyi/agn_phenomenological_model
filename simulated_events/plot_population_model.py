@@ -327,7 +327,6 @@ def convert_to_bbh_params(samples):
     print(samples)
     s1x, s1y, s1z = get_isotropic_vectors(num_points=1000)
     s2x, s2y, s2z = get_isotropic_vectors(num_points=1000)
-    s1_dot_s2
 
     df['s1x'], df['s1y'], df['s1z'] = df['spin_1x'], df['spin_1y'], df['spin_1z']
     df['s2x'], df['s2y'], df['s2z'] = df['spin_2x'], df['spin_2y'], df['spin_2z']
@@ -352,4 +351,4 @@ def convert_to_bbh_params(samples):
 
 
 if __name__ == "__main__":
-    main()
+    pretty_plots()
