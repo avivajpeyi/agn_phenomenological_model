@@ -227,80 +227,81 @@ def main():
     sim_data = read_simulated_pop_data()
     lvc_data = read_lvc_data()
 
-    plot_params = ['sigma_1', "sigma_12", "xi_spin"]
-
-    overlaid_corner(
-        samples_list=[agn_data, mix_data],
-        sample_labels=["AGN", "Mixture Model"],
-        params=plot_params,
-        samples_colors=[COLS['agn'], COLS['mix']],
-        fname="mix_and_agn.png"
-    )
-
-    plot_params = ['sigma_1', "sigma_12"]
-
-    overlaid_corner(
-        samples_list=[mix_data],
-        sample_labels=["Mix"],
-        params=plot_params,
-        samples_colors=[COLS['mix']],
-        fname="only_mix.png",
-    )
-
-    overlaid_corner(
-        samples_list=[agn_data],
-        sample_labels=["AGN"],
-        params=plot_params,
-        samples_colors=[COLS['agn']],
-        fname="only_agn.png"
-    )
-
-    overlaid_corner(
-        samples_list=[sim_data],
-        sample_labels=["Sim", "Truths"],
-        params=plot_params,
-        truths=SIMULATED_TRUTHS,
-        samples_colors=[COLS['sim'], COLS['truths']],
-        fname="only_simulated.png"
-    )
-
-    overlaid_corner(
-        samples_list=[lvc_data, sim_data],
-        sample_labels=["LVC", "Sim", "Truths"],
-        params=plot_params,
-        truths=SIMULATED_TRUTHS,
-        samples_colors=[COLS['lvc'], COLS['sim'], COLS['truths']],
-        fname="simulated_and_lvc.png"
-    )
-
+    # plot_params = ['sigma_1', "sigma_12", "xi_spin"]
+    #
+    # overlaid_corner(
+    #     samples_list=[agn_data, mix_data],
+    #     sample_labels=["AGN", "Mixture Model"],
+    #     params=plot_params,
+    #     samples_colors=[COLS['agn'], COLS['mix']],
+    #     fname="mix_and_agn.png"
+    # )
+    #
+    # plot_params = ['sigma_1', "sigma_12"]
+    #
+    # overlaid_corner(
+    #     samples_list=[mix_data],
+    #     sample_labels=["Mix"],
+    #     params=plot_params,
+    #     samples_colors=[COLS['mix']],
+    #     fname="only_mix.png",
+    # )
+    #
+    # overlaid_corner(
+    #     samples_list=[agn_data],
+    #     sample_labels=["AGN"],
+    #     params=plot_params,
+    #     samples_colors=[COLS['agn']],
+    #     fname="only_agn.png"
+    # )
+    #
+    # overlaid_corner(
+    #     samples_list=[sim_data],
+    #     sample_labels=["Sim", "Truths"],
+    #     params=plot_params,
+    #     truths=SIMULATED_TRUTHS,
+    #     samples_colors=[COLS['sim'], COLS['truths']],
+    #     fname="only_simulated.png"
+    # )
+    #
+    # overlaid_corner(
+    #     samples_list=[lvc_data, sim_data],
+    #     sample_labels=["LVC", "Sim", "Truths"],
+    #     params=plot_params,
+    #     truths=SIMULATED_TRUTHS,
+    #     samples_colors=[COLS['lvc'], COLS['sim'], COLS['truths']],
+    #     fname="simulated_and_lvc.png"
+    # )
+    #
     plot_params = sorted(list(
         set(sim_data.columns.values).intersection(set(lvc_data.columns.values))))
-    plot_params.remove("xi_spin")
-    plot_params.remove("sigma_12")
-    print(f"plot parms {plot_params}")
-
-    overlaid_corner(
-        samples_list=[lvc_data, sim_data],
-        sample_labels=["LVC", "Sim", "Truths"],
-        params=plot_params,
-        truths=SIMULATED_TRUTHS,
-        samples_colors=[COLS['lvc'], COLS['sim'], COLS['truths']],
-        fname="simulated_and_lvc_all.png"
-    )
-
-    overlaid_corner(
-        samples_list=[lvc_data, agn_data],
-        sample_labels=["LVC", "AGN"],
-        params=plot_params,
-        samples_colors=[COLS['lvc'], COLS['agn']],
-        fname="lvc_and_agn.png"
-    )
+    # plot_params.remove("xi_spin")
+    # plot_params.remove("sigma_12")
+    # print(f"plot parms {plot_params}")
+    #
+    # overlaid_corner(
+    #     samples_list=[lvc_data, sim_data],
+    #     sample_labels=["LVC", "Sim", "Truths"],
+    #     params=plot_params,
+    #     truths=SIMULATED_TRUTHS,
+    #     samples_colors=[COLS['lvc'], COLS['sim'], COLS['truths']],
+    #     fname="simulated_and_lvc_all.png"
+    # )
+    #
+    # overlaid_corner(
+    #     samples_list=[lvc_data, agn_data],
+    #     sample_labels=["LVC", "AGN"],
+    #     params=plot_params,
+    #     samples_colors=[COLS['lvc'], COLS['agn']],
+    #     fname="lvc_and_agn.png"
+    # )
 
     overlaid_corner(
         samples_list=[lvc_data],
         sample_labels=["LVC", "Truths"],
         params=plot_params,
         samples_colors=[COLS['lvc'], COLS['truths']],
+        truths=SIMULATED_TRUTHS,
         fname="lvc_with_my_injection.png"
     )
 
