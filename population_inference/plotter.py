@@ -275,8 +275,8 @@ def main():
     #
     plot_params = sorted(list(
         set(sim_data.columns.values).intersection(set(lvc_data.columns.values))))
-    # plot_params.remove("xi_spin")
-    # plot_params.remove("sigma_12")
+    plot_params.remove("xi_spin")
+    plot_params.remove("sigma_12")
     # print(f"plot parms {plot_params}")
     #
     # overlaid_corner(
