@@ -36,4 +36,4 @@ def run_bilby_pipe_jobs(dat):
 
 
 if __name__ == "__main__":
-    run_bilby_pipe_jobs("injection_samples_all_param.dat")
+    run_bilby_pipe_jobs("injection_samples_all_params.dat")
