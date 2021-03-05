@@ -31,8 +31,8 @@ def run_bilby_pipe_jobs(dat):
             f"--duration {duration} "
             f"--generation-seed {i} "
             f"--injection-numbers {i} "
-            f"--label data{i} "
-            f"--outdir outdir_data{i} \n"
+            f"--label inj{i} "
+            f"--outdir outdir_inj{i} \n"
         )
         print(command)
         f.write(command)
