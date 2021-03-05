@@ -29,9 +29,10 @@ def run_bilby_pipe_jobs(dat):
             f"bilby_pipe injection_study_bilby_pipe.ini"
             f"--duration {duration} "
             f"--generation-seed {i} "
-            f"--injection-numbers [{i}]"
+            f"--injection-numbers [{i}] "
+            f"--label data{i}"
         )
 
 
 if __name__ == "__main__":
-    main()
+    run_bilby_pipe_jobs("injection_samples_all_param.dat")
