@@ -83,6 +83,7 @@ def plot_masses(posteriors, events, ignore_list, mmin):
     plt.xlim(0, len(events) + 1)
     plt.tight_layout()
     plt.grid()
+    plt.suptitle(f"Mass Min = {mmin} (Solar mass)")
     plt.savefig(f"mass_posteriors_above_{mmin}.png")
     plt.close(fig)
 
