@@ -47,7 +47,6 @@ plt.rcParams['ytick.major.width'] = 2.5
 plt.rcParams['xtick.top'] = True
 plt.rcParams['ytick.right'] = True
 
-MIN_MASS = 45
 QUANTILES = [.16, .84]
 
 import pandas as pd
@@ -78,7 +77,7 @@ def plot_masses(posteriors, events, ignore_list, mmin):
             adjust_colors_for_violin(violin_parts, idx, color='red')
 
     plt.ylim(0, 100)
-    plt.hlines(y=MIN_MASS, xmin=0, xmax=len(events) + 1, colors="gray", linestyles="dashed")
+    plt.hlines(y=mmin, xmin=0, xmax=len(events) + 1, colors="gray", linestyles="dashed")
     plt.ylabel("mass 1 source")
     plt.xticks(np.arange(1, len(events) + 1), events, rotation=90)
     plt.xlim(0, len(events) + 1)
