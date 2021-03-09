@@ -11,9 +11,7 @@ import warnings
 
 import matplotlib.pyplot as plt
 import numpy as np
-from configargparse import Namespace
 from corner import quantile
-from gwpopulation_pipe.data_collection import get_event_name, load_o3a_events
 from matplotlib import rcParams
 
 warnings.filterwarnings("ignore")
@@ -52,16 +50,17 @@ plt.rcParams['ytick.right'] = True
 MIN_MASS = 45
 QUANTILES = [.16, .84]
 
+import pandas as pd
 
-def load_posteriors(run_dir=".", o3a_samples_regex=""):
-    """
-    :return {even_name: samples df}
-    """
-    posts = load_o3a_events(args=Namespace(
-        o3a_samples_regex="/home/shanika.galaudage/O3/population/o3a_pe_samples_release/S*.h5",
-        run_dir=""
-    ))
-    return {get_event_name(f): samples for f, samples in posts.items()}
+
+def load_posteriors(psterior_pkl, posterior_fname_file):
+    posteriors = pd.read_pickle(psterior_pkl)
+    print(f"Loaded {len(posteriors)} posteriors")
+    event_ids = list()
+    with open(posterior_fname_file, "r") as ff:
+        for line in ff.readlines():
+            event_ids.append(line.split(":")[0])
+    return posteriors, event_ids
 
 
 def is_quant_above_mmin(masses, quantiles):
@@ -88,15 +87,14 @@ def plot_masses(posteriors, events, ignore_list):
 
 
 def get_data():
-    posterior_dict = load_posteriors()
-
-    events, posteriors, ignore_list = [], [], []
-    for event, post in posterior_dict.items():
+    posteriors, events = load_posteriors(
+        psterior_pkl="/home/avi.vajpeyi/projects/agn_phenomenological_model/population_inference/agn_pop_outdir/data/posteriors.pkl",
+        posterior_fname_file="/home/avi.vajpeyi/projects/agn_phenomenological_model/population_inference/agn_pop_outdir/data/posteriors_posterior_files.txt")
+    ignore_list = []
+    for event, post in zip(events, posteriors):
         valid = is_quant_above_mmin(post.mass_1, QUANTILES)
         if not valid:
             ignore_list.append(event)
-        events.append(event)
-        posteriors.append(post)
     print(f"Ignore: {ignore_list}")
     return posteriors, events, ignore_list
 
