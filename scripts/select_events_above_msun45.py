@@ -63,11 +63,11 @@ def load_posteriors(psterior_pkl, posterior_fname_file):
     return posteriors, event_ids
 
 
-def is_quant_above_mmin(masses, quantiles):
-    return min(quantile(masses, q=quantiles)) > MIN_MASS
+def is_quant_above_mmin(masses, quantiles, mmin):
+    return min(quantile(masses, q=quantiles)) > mmin
 
 
-def plot_masses(posteriors, events, ignore_list):
+def plot_masses(posteriors, events, ignore_list, mmin):
     print(f"Making box plot for {len(posteriors)} posteriors")
     data = [post["mass_1"] for post in posteriors]
     fig = plt.figure(figsize=(len(posteriors), 5))
@@ -84,7 +84,7 @@ def plot_masses(posteriors, events, ignore_list):
     plt.xlim(0, len(events) + 1)
     plt.tight_layout()
     plt.grid()
-    plt.savefig("mass_posteriors_above_mmin_threshold.png")
+    plt.savefig(f"mass_posteriors_above_{mmin}.png")
     plt.close(fig)
 
 
@@ -95,21 +95,25 @@ def adjust_colors_for_violin(violin_parts, idx, color):
     #     violin_parts[partname][idx].set_edgecolor("red")
 
 
-def get_data():
+def get_data(mmin):
     posteriors, events = load_posteriors(
         psterior_pkl="/home/avi.vajpeyi/projects/agn_phenomenological_model/population_inference/agn_pop_outdir/data/posteriors.pkl",
         posterior_fname_file="/home/avi.vajpeyi/projects/agn_phenomenological_model/population_inference/agn_pop_outdir/data/posteriors_posterior_files.txt")
     ignore_list = []
     for event, post in zip(events, posteriors):
-        valid = is_quant_above_mmin(post.mass_1, QUANTILES)
+        valid = is_quant_above_mmin(post.mass_1, QUANTILES, mmin)
         if not valid:
             ignore_list.append(event)
+    print(f"MMIN={mmin}")
     print(f"Ignore {len(ignore_list)}/{len(events)}: {ignore_list}")
+    print(f"Keep {len(events)-len(ignore_list)}/{len(events)}")
     return posteriors, events, ignore_list
 
 
 def main():
-    plot_masses(*get_data())
+    for mmin in [45, 40, 35]:
+        posteriors, events, ignore_list = get_data(mmin)
+        plot_masses(posteriors, events, ignore_list, mmin)
 
 
 if __name__ == "__main__":
