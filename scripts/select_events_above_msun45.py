@@ -68,7 +68,7 @@ def is_quant_above_mmin(masses, quantiles):
 
 
 def plot_masses(posteriors, events, ignore_list):
-    print(f"Making box plot for {len(posteriors)} posterimgact ../iors")
+    print(f"Making box plot for {len(posteriors)} posteriors")
     data = [post["mass_1"] for post in posteriors]
     fig = plt.figure(figsize=(len(posteriors), 5))
     violin_parts = plt.violinplot(data,
@@ -90,8 +90,9 @@ def plot_masses(posteriors, events, ignore_list):
 
 def adjust_colors_for_violin(violin_parts, idx, color):
     violin_parts['bodies'][idx].set_facecolor(color)
-    for partname in ('cbars', 'cmins', 'cmaxes', 'cmeans', 'cmedians', 'bodies'):
-        violin_parts[partname][idx].set_edgecolor("red")
+    violin_parts['bodies'][idx].set_edgecolor(color)
+    # for partname in ('cbars', 'cmins', 'cmaxes', 'cmeans', 'cmedians', 'bodies'):
+    #     violin_parts[partname][idx].set_edgecolor("red")
 
 
 def get_data():
