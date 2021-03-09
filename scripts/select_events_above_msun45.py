@@ -73,10 +73,10 @@ def plot_masses(posteriors, events, ignore_list):
     fig = plt.figure(figsize=(len(posteriors), 5))
     violin_parts = plt.violinplot(data,
                                   quantiles=[QUANTILES for _ in range(len(posteriors))])
-    for pc, event in zip(violin_parts['bodies'], events):
+    for idx, event in enumerate(events):
         if event in ignore_list:
-            pc.set_facecolor('red')
-            pc.set_edgecolor('red')
+            adjust_colors_for_violin(violin_parts, idx, color='red')
+
     plt.ylim(0, 100)
     plt.hlines(y=MIN_MASS, xmin=0, xmax=len(events) + 1, colors="gray", linestyles="dashed")
     plt.ylabel("mass 1 source")
@@ -86,6 +86,12 @@ def plot_masses(posteriors, events, ignore_list):
     plt.grid()
     plt.savefig("mass_posteriors_above_mmin_threshold.png")
     plt.close(fig)
+
+
+def adjust_colors_for_violin(violin_parts, idx, color):
+    violin_parts['bodies'][idx].set_facecolor(color)
+    for partname in ('cbars', 'cmins', 'cmaxes', 'cmeans', 'cmedians', 'bodies'):
+        violin_parts[partname][idx].set_edgecolor("red")
 
 
 def get_data():
