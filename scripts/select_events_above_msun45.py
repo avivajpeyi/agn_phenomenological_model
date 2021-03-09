@@ -97,7 +97,7 @@ def get_data():
         valid = is_quant_above_mmin(post.mass_1, QUANTILES)
         if not valid:
             ignore_list.append(event)
-    print(f"Ignore: {ignore_list}")
+    print(f"Ignore {len(ignore_list)}/{len(events)}: {ignore_list}")
     return posteriors, events, ignore_list
 
 
