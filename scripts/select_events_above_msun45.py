@@ -68,7 +68,7 @@ def is_quant_above_mmin(masses, quantiles):
 
 
 def plot_masses(posteriors, events, ignore_list):
-    print(f"Making box plot for {len(posteriors)} posteriors")
+    print(f"Making box plot for {len(posteriors)} posterimgact ../iors")
     data = [post["mass_1"] for post in posteriors]
     fig = plt.figure(figsize=(len(posteriors), 5))
     violin_parts = plt.violinplot(data,
@@ -76,8 +76,8 @@ def plot_masses(posteriors, events, ignore_list):
     for pc, event in zip(violin_parts['bodies'], events):
         if event in ignore_list:
             pc.set_facecolor('red')
-
-    plt.hlines(y=MIN_MASS, xmin=0, xmax=len(events) + 1)
+    plt.ylim(100)
+    plt.hlines(y=MIN_MASS, xmin=0, xmax=len(events) + 1, colors="gray", linestyles="dashed")
     plt.ylabel("mass 1 source")
     plt.xticks(np.arange(1, len(events) + 1), events, rotation=90)
     plt.xlim(0, len(events) + 1)
