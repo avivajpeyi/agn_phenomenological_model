@@ -6,7 +6,7 @@ from bilby.gw.result import CBCResult
 from tqdm import tqdm
 
 DAT_OUTDIR = "simulated_event_samples"
-JSON_REGEX = "bibly_pipe_jobs/out*/result/*result.json"
+JSON_REGEX = "bilby_pipe_jobs/out*/result/*result.json"
 
 PARAM = [
     'a_1',
