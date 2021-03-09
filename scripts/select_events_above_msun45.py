@@ -76,7 +76,8 @@ def plot_masses(posteriors, events, ignore_list):
     for pc, event in zip(violin_parts['bodies'], events):
         if event in ignore_list:
             pc.set_facecolor('red')
-    plt.ylim(100)
+            pc.set_edgecolor('red')
+    plt.ylim(0, 100)
     plt.hlines(y=MIN_MASS, xmin=0, xmax=len(events) + 1, colors="gray", linestyles="dashed")
     plt.ylabel("mass 1 source")
     plt.xticks(np.arange(1, len(events) + 1), events, rotation=90)
