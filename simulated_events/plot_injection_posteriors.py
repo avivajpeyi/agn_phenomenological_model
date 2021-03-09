@@ -105,7 +105,7 @@ def plot_masses(posteriors, events, truths):
 def get_data():
     posterior_dict = load_posteriors(run_dir="simulated_pop_inf_outdir/",
                                      data_label="posteriors")
-    true_val_dict = load_true_values(injection_dat="injection_samples_all_params.dat")
+    true_val_dict = load_true_values(injection_dat="bilby_pipe_jobs/injection_samples_all_params.dat")
     events, posteriors, truths = [], [], []
     for i in range(200):
         event_key = f"data{i}"
