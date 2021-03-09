@@ -71,7 +71,8 @@ def plot_masses(posteriors, events, ignore_list):
     print(f"Making box plot for {len(posteriors)} posteriors")
     data = [post["mass_1"] for post in posteriors]
     fig = plt.figure(figsize=(len(posteriors), 5))
-    violin_parts = plt.violinplot(data, quantiles=QUANTILES)
+    violin_parts = plt.violinplot(data,
+                                  quantiles=[QUANTILES for _ in range(len(posteriors))])
     for pc, event in zip(violin_parts['bodies'], events):
         if event in ignore_list:
             pc.set_facecolor('red')
