@@ -30,7 +30,10 @@ def main():
     res_fnames = glob.glob(JSON_REGEX)
     print(f"Converting {len(res_fnames)} result json-->dat")
     for fn in tqdm(res_fnames, desc="Converting File", total=len(res_fnames)):
-        save_cbc_dat(CBCResult.from_json(fn).posterior, fn)
+        try:
+            save_cbc_dat(CBCResult.from_json(fn).posterior, fn)
+        except Exception as e:
+            print(f"ERROR PROCESSING {fn}: {e}. SKIPPING")
     print("COMPLETE.")
 
 
