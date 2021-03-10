@@ -81,7 +81,7 @@ def load_posteriors(run_dir, data_label):
 
 def load_true_values(injection_dat):
     true_vals = pd.read_csv(injection_dat, sep=" ").to_dict('records')
-    return {f"data{i}": true_vals[i] for i in range(len(true_vals))}
+    return {f"inj{i}": true_vals[i] for i in range(len(true_vals))}
 
 
 def plot_masses(posteriors, events, truths):
@@ -108,7 +108,7 @@ def get_data():
     true_val_dict = load_true_values(injection_dat="bilby_pipe_jobs/injection_samples_all_params.dat")
     events, posteriors, truths = [], [], []
     for i in range(200):
-        event_key = f"data{i}"
+        event_key = f"inj{i}"
         if event_key in posterior_dict:
             events.append(event_key)
             posteriors.append(posterior_dict[event_key])
