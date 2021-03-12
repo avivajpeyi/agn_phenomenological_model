@@ -7,11 +7,11 @@ Example usage:
 
 """
 import os
+import warnings
 
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
-import warnings
 from matplotlib import rcParams
 
 warnings.filterwarnings("ignore")
@@ -46,7 +46,6 @@ plt.rcParams['ytick.minor.width'] = 1
 plt.rcParams['ytick.major.width'] = 2.5
 plt.rcParams['xtick.top'] = True
 plt.rcParams['ytick.right'] = True
-
 
 HYPER_PARAM_VALS = {
     "alpha": 2.62,
@@ -90,20 +89,25 @@ def plot_masses(posteriors, events, truths):
     mass_truths = [[t["mass_1_source"]] for t in truths]
     spin_data = [post["cos_theta_12"] for post in posteriors]
     spin_truths = [[t["cos_theta_12"]] for t in truths]
+    snr_truths = [t["network_snr"] for t in truths]
 
-    fig, axs = plt.subplots(nrow=2, ncols=1, sharex=True, figsize=(len(posteriors), 12))
+    fig, axs = plt.subplots(3, 1, sharex=True, figsize=(len(posteriors), 12))
     axs[0].violinplot(mass_data)
     axs[0].violinplot(mass_truths)
     axs[1].violinplot(spin_data)
     axs[1].violinplot(spin_truths)
+    axs[2].bar(events, snr_truths)
     axs[0].hlines(y=HYPER_PARAM_VALS['mmax'], xmin=0, xmax=len(events) + 1)
     axs[0].hlines(y=HYPER_PARAM_VALS['mmin'], xmin=0, xmax=len(events) + 1)
     axs[0].set_ylabel("mass 1 source")
     axs[1].set_ylabel("cos theta 12")
-    axs[1].set_xticks(np.arange(1, len(events) + 1), events, rotation=90)
-    axs[1].set_xlim(0,  len(events) + 1)
+    axs[2].set_ylabel("snr")
+    axs[2].set_xticks(np.arange(1, len(events) + 1), events, rotation=90)
+    axs[2].set_xlim(0, len(events) + 1)
     plt.tight_layout()
-    plt.grid()
+    axs[0].grid()
+    axs[1].grid()
+    axs[2].grid()
     plt.savefig("pe_posteriors.png")
     plt.close(fig)
 
@@ -111,7 +115,8 @@ def plot_masses(posteriors, events, truths):
 def get_data():
     posterior_dict = load_posteriors(run_dir="simulated_pop_inf_outdir/",
                                      data_label="posteriors")
-    true_val_dict = load_true_values(injection_dat="bilby_pipe_jobs/injection_samples_all_params.dat")
+    true_val_dict = load_true_values(
+        injection_dat="bilby_pipe_jobs/injection_samples_all_params.dat")
     events, posteriors, truths = [], [], []
     for i in range(200):
         event_key = f"inj{i}"
