@@ -32,6 +32,7 @@ def make_summary_for_event(event_path, outdir, email):
     print(f"Making summary page for event: {event_path}")
     event_name = get_event_name(event_path)
     event_outdir = os.path.join(outdir, event_name)
+    gw_data_path = glob.glob(event_path.split('/result/')[0] + "/data/*.pickle")[0]
     os.makedirs(event_outdir, exist_ok=True)
     event_labels = event_name
     event_paths = event_path
@@ -43,6 +44,8 @@ def make_summary_for_event(event_path, outdir, email):
     --no_ligo_skymap
     --email {email}
     --webdir {event_outdir}
+    --aapproximant IMRPhenomXPHM
+    --gwdata {gw_data_path}
     """.replace("\n", " ")
     print(f"Running: {command}")
     os.system(command)
