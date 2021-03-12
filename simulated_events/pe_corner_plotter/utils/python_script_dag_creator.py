@@ -52,11 +52,11 @@ def create_python_script_jobs(
     :param job_names_list: list of the individual job names
     :return: None
     """
-    run_dir = os.path.abspath(run_dir)
+    run_dir = os.path.abspath(main_job_name)
     python_script = os.path.abspath(python_script)
     print(f"Making jobs for {python_script}.")
     subdir = os.path.join(run_dir, "submit")
-    logdir = os.path.join(run_dir, "logs")
+    logdir = os.path.join(run_dir, f"logs")
     dag = pycondor.Dagman(
         name=main_job_name,
         submit=subdir,

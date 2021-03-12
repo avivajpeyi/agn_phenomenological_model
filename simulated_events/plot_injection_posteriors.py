@@ -86,19 +86,25 @@ def load_true_values(injection_dat):
 
 def plot_masses(posteriors, events, truths):
     print(f"Making box plot for {len(posteriors)} posteriors")
-    data = [post["mass_1"] for post in posteriors]
-    truths = [[t["mass_1_source"]] for t in truths]
-    fig = plt.figure(figsize=(len(posteriors), 5))
-    plt.violinplot(data)
-    plt.violinplot(truths)
-    plt.hlines(y=HYPER_PARAM_VALS['mmax'], xmin=0, xmax=len(events) + 1)
-    plt.hlines(y=HYPER_PARAM_VALS['mmin'], xmin=0, xmax=len(events) + 1)
-    plt.ylabel("mass 1 source")
-    plt.xticks(np.arange(1, len(events) + 1), events, rotation=90)
-    plt.xlim(0,  len(events) + 1)
+    mass_data = [post["mass_1"] for post in posteriors]
+    mass_truths = [[t["mass_1_source"]] for t in truths]
+    spin_data = [post["cos_theta_12"] for post in posteriors]
+    spin_truths = [[t["cos_theta_12"]] for t in truths]
+
+    fig, axs = plt.subplots(nrow=2, ncols=1, sharex=True, figsize=(len(posteriors), 12))
+    axs[0].violinplot(mass_data)
+    axs[0].violinplot(mass_truths)
+    axs[1].violinplot(spin_data)
+    axs[1].violinplot(spin_truths)
+    axs[0].hlines(y=HYPER_PARAM_VALS['mmax'], xmin=0, xmax=len(events) + 1)
+    axs[0].hlines(y=HYPER_PARAM_VALS['mmin'], xmin=0, xmax=len(events) + 1)
+    axs[0].set_ylabel("mass 1 source")
+    axs[1].set_ylabel("cos theta 12")
+    axs[1].set_xticks(np.arange(1, len(events) + 1), events, rotation=90)
+    axs[1].set_xlim(0,  len(events) + 1)
     plt.tight_layout()
     plt.grid()
-    plt.savefig("mass_posteriors.png")
+    plt.savefig("pe_posteriors.png")
     plt.close(fig)
 
 
