@@ -8,6 +8,7 @@ from __future__ import print_function
 import argparse
 import os
 import glob
+import re
 
 from utils import (
     create_python_script_jobs,
@@ -16,12 +17,24 @@ from utils import (
 SUMMARY_EXE = "/cvmfs/oasis.opensciencegrid.org/ligo/sw/conda/envs/igwn-py37-20210107/bin/summarypages"
 
 
+def get_event_name(fname):
+    name = re.findall(r"(\w*\d{6}[a-z]*)", fname)
+    if len(name)==0:
+        name = re.findall(r"inj\d+", fname)
+    if len(name)==0:
+        name = re.findall(r"data\d+", fname)
+    if len(name) == 0:
+        name = os.path.basename(fname).split(".")
+    return name[0]
+
+
 def make_summary_for_event(event_path, outdir, email):
     print(f"Making summary page for event: {event_path}")
-    event_outdir = os.path.join(outdir, event_path)
+    event_name = get_event_name(event_path)
+    event_outdir = os.path.join(outdir, event_name)
     os.makedirs(event_outdir, exist_ok=True)
-    event_labels = " ".join([name for name in event_paths.keys()])
-    event_paths = " ".join([p for p in event_paths.values()])
+    event_labels = event_name
+    event_paths = event_path
     command = f"""
    {SUMMARY_EXE}
     --samples {event_paths} 
@@ -49,16 +62,17 @@ def create_parser_and_read_args():
 
 
 def make_summary_dag(outdir, email):
-    nr_surr_events = get_names_of_analysed_events()
+    paths = glob.glob("../bilby_pipe_jobs/out*/result/*result.json")
+    names = [get_event_name(f) for f in paths]
     if not os.path.isdir(outdir):
         os.makedirs(outdir)
-    args = [{"event-path": n, "outdir": outdir, "email": email} for n in nr_surr_events]
+    args = [{"event-path": n, "outdir": outdir, "email": email} for n in paths]
     create_python_script_jobs(
         main_job_name="summary_generator",
         run_dir=".",
         python_script=os.path.abspath(__file__),
         job_args_list=args,
-        job_names_list=nr_surr_events
+        job_names_list=names
     )
 
 
