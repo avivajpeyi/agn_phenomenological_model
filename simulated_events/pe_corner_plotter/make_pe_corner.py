@@ -20,7 +20,8 @@ def plot_event(event_path, outdir):
     result = CBCResult.from_json(event_path, outdir)
     result.plot_corner(filename=os.path.join(outdir,
                                              os.path.basename(event_path).replace(
-                                                 ".json", ".png")))
+                                                 ".json", ".png")), priors=True)
+
     print("Saved fig")
 
 
