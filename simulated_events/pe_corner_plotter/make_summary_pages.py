@@ -14,7 +14,7 @@ from utils import (
     create_python_script_jobs,
 )
 
-SUMMARY_EXE = "/cvmfs/oasis.opensciencegrid.org/ligo/sw/conda/envs/igwn-py37-20210107/bin/summarypages"
+SUMMARY_EXE = "/cvmfs/oasis.opensciencegrid.org/ligo/sw/conda/envs/igwn-py36-20201027/bin/summarypages"
 
 
 def get_event_name(fname):
