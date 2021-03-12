@@ -38,7 +38,7 @@ def create_parser_and_read_args():
 def make_plotter_dag(outdir):
     if not os.path.isdir(outdir):
         os.makedirs(outdir)
-    paths = glob.glob("../outdir_agn_injections/result/*result.json")
+    paths = glob.glob("../bilby_pipe_jobs/out*/result/*result.json")
     args = [{"event-path": n, "outdir": outdir} for n in paths]
     create_python_script_jobs(
         main_job_name="corner_plotter",

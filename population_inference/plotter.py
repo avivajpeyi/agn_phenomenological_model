@@ -19,6 +19,7 @@ MIXED = "../result_files/mix.dat"
 AGN = "../result_files/agn.dat"
 LVC = "../result_files/lvc.json"
 SIMULATED = "../result_files/sim.dat"
+HIGH_MASS = "../result_files/high_mass_agn.dat"
 
 warnings.filterwarnings("ignore")
 
@@ -227,6 +228,11 @@ def read_simulated_pop_data():
     return df
 
 
+def read_high_mass_data():
+    df = pd.read_csv(HIGH_MASS, sep=' ')
+    df['xi_spin'] = 1
+    return df
+
 def main():
     print("Plotting...")
 
@@ -234,6 +240,7 @@ def main():
     mix_data = read_mixture_data()
     sim_data = read_simulated_pop_data()
     lvc_data = read_lvc_data()
+    high_mass_data = read_high_mass_data()
 
     plot_params = ['sigma_1', "sigma_12", "xi_spin"]
 
@@ -262,6 +269,15 @@ def main():
         samples_colors=[COLS['agn']],
         fname="only_agn.png"
     )
+
+    overlaid_corner(
+        samples_list=[high_mass_data],
+        sample_labels=["High-mass"],
+        params=plot_params,
+        samples_colors=[COLS['agn']],
+        fname="only_highmass_agn.png"
+    )
+
 
     overlaid_corner(
         samples_list=[sim_data],
@@ -302,6 +318,14 @@ def main():
         params=plot_params,
         samples_colors=[COLS['lvc'], COLS['agn']],
         fname="lvc_and_agn.png"
+    )
+
+    overlaid_corner(
+        samples_list=[lvc_data, high_mass_data],
+        sample_labels=["LVC", "High-Mass"],
+        params=plot_params,
+        samples_colors=[COLS['lvc'], COLS['agn']],
+        fname="lvc_and_highmass_agn.png"
     )
 
     overlaid_corner(
