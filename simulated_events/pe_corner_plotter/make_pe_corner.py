@@ -6,6 +6,7 @@ Given a GW event name, gets the NRsur and LVC result and plots the samples on a 
 from __future__ import print_function
 
 import argparse
+from pprint import pprint
 import glob
 import os
 import re
@@ -249,6 +250,7 @@ def load_true_values(params):
 
 def load_res(event_path, params):
     result = CBCResult.from_json(event_path)
+    pprint(result.injection_parameters)
     truths = truncate_samples(result.injection_parameters, params)
     posterior = truncate_samples(result.posterior, params)
     return posterior, truths
