@@ -208,7 +208,7 @@ def main():
     if args.make_dag:
         make_plotter_dag(args.outdir)
     else:
-        plot_event(event_name=args.even_name, outdir=args.outdir, params=[
+        plot_event(event_name=args.event_name, outdir=args.outdir, params=[
             p for p in PARAMS.keys()
         ])
 
