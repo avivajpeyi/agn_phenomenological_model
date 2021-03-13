@@ -28,6 +28,7 @@ def run_bilby_pipe_jobs(dat):
         duration = df.iloc[i]['duration']
         command = (
             f"bilby_pipe injection_study_bilby_pipe.ini "
+            f"--injection-file {dat} "
             f"--duration {duration} "
             f"--generation-seed {i} "
             f"--injection-numbers {i} "
