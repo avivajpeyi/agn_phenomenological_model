@@ -181,7 +181,7 @@ def create_parser_and_read_args():
     parser = argparse.ArgumentParser()
     parser.add_argument("--make-dag", help="Make dag", action="store_true")
     parser.add_argument("--outdir", help="outdir for plot", type=str, default=".")
-    parser.add_argument("--event-path", help="path", type=str,
+    parser.add_argument("--event-name", help="path", type=str,
                         default="GW150914")
 
     args = parser.parse_args()
