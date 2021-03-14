@@ -54,14 +54,16 @@ plt.rcParams['xtick.top'] = True
 plt.rcParams['ytick.right'] = True
 
 CORNER_KWARGS = dict(
-    smooth=0.99,
+    smooth=2,
     label_kwargs=dict(fontsize=30),
     title_kwargs=dict(fontsize=16),
-    quantiles=(0.16, 0.84),
-    levels=(1 - np.exp(-0.5), 1 - np.exp(-2), 1 - np.exp(-9 / 2.)),
+    # quantiles=(0.16, 0.84),
+    show_title=True,
+    levels=(0.2, 0.2, 0.2),
     plot_density=False,
     plot_datapoints=False,
-    fill_contours=True,
+    # fill_contours=False,
+    no_fill_contours=True,
     max_n_ticks=3,
     verbose=False,
     use_math_text=True,
@@ -105,10 +107,10 @@ def overlaid_corner(samples_list, sample_labels, params,
         labels=[PARAMS[k]['latex_label'] for k in params],
         range=[PARAMS[k]['range'] for k in params],
         truth_color='lightgray',
+        quantiles=None,
     )
 
     fig = corner.corner(
-        quantiles=None,
         samples_list[0],
         color=samples_colors[0],
         **CORNER_KWARGS,
