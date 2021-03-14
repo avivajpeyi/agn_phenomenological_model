@@ -388,7 +388,8 @@ def main_inj_plotter():
     res_dfs = {}
     for r in res_files:
         res_inj_label = get_event_name(r)
-        res = pd.read_csv(AGN, sep=' ')
+        res = pd.read_csv(r, sep=' ')
+
         res = add_agn_samples_to_df(res)
         res['chi_eff'] = (res['spin_1z'] +
                                     res['spin_2z'] *
