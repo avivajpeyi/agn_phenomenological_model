@@ -59,11 +59,10 @@ CORNER_KWARGS = dict(
     title_kwargs=dict(fontsize=16),
     # quantiles=(0.16, 0.84),
     show_title=True,
-    levels=(0.2, 0.2, 0.2),
+    levels=(1 - np.exp(-0.5), 1 - np.exp(-2), 1 - np.exp(-9 / 2.)),
     plot_density=False,
     plot_datapoints=False,
-    # fill_contours=False,
-    no_fill_contours=True,
+    fill_contours=True,
     max_n_ticks=3,
     verbose=False,
     use_math_text=True,
@@ -225,14 +224,16 @@ def main_inj_plotter():
             res_orderd.update({label: res_dfs[label]})
         except:
             pass
-    overlaid_corner(
-        samples_list=[df for df in res_orderd.values()],
-        sample_labels=[l for l in res_orderd.keys()],
-        params=["cos_theta_12", "chi_p", "chi_eff", "cos_tilt_1", "mass_1",
-                "luminosity_distance"],
-        samples_colors=get_colors(len(res_dfs)),
-        fname="different_snrs",
-    )
+    cols = get_colors(len(res_dfs))
+    for res_label, df, col in zip(list(res_orderd.keys()), list(res_orderd.values()), cols):
+        overlaid_corner(
+            samples_list=[df],
+            sample_labels=[res_label],
+            params=["cos_theta_12", "chi_p", "chi_eff", "cos_tilt_1", "mass_1",
+                    "luminosity_distance"],
+            samples_colors=col,
+            fname=f"different_snrs_{res_label}",
+        )
 
     copy_to_outdir(".",
                    "/home/avi.vajpeyi/public_html/agn_pop/finding_events_with_theta12")
