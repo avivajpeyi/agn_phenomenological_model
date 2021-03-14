@@ -108,6 +108,7 @@ def overlaid_corner(samples_list, sample_labels, params,
     )
 
     fig = corner.corner(
+        quantiles=None,
         samples_list[0],
         color=samples_colors[0],
         **CORNER_KWARGS,
