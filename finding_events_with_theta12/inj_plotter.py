@@ -15,11 +15,17 @@ import pandas as pd
 import seaborn as sns
 from matplotlib import rcParams
 
-MIXED = "../result_files/mix.dat"
-AGN = "../result_files/agn.dat"
-LVC = "../result_files/lvc.json"
-SIMULATED = "../result_files/sim.dat"
-HIGH_MASS = "../result_files/high_mass_agn.dat"
+PARAMS = {
+    'chirp_mass': dict(latex_label="$M_{c}$", range=(5, 200)),
+    'mass_1': dict(latex_label='$m_1^{\\mathrm{source}}$', range=(0, 200)),
+    'mass_2': dict(latex_label='$m_2^{\\mathrm{source}}$', range=(0, 200)),
+    'cos_tilt_1': dict(latex_label='$\\cos \\mathrm{tilt}_1$', range=(-1, 1)),
+    'cos_tilt_2': dict(latex_label='$\\cos \\mathrm{tilt}_2$', range=(-1, 1)),
+    'cos_theta_12': dict(latex_label='$\\cos \\theta_{12}$', range=(-1, 1)),
+    'chi_p': dict(latex_label='$\\chi_p$', range=(0, 1)),
+    'chi_eff': dict(latex_label='$\\chi_{\\rm{eff}}$', range=(-1, 1)),
+    'luminosity_distance': dict(latex_label='$d_L$', range=(50, 20000)),
+}
 
 warnings.filterwarnings("ignore")
 
@@ -81,8 +87,6 @@ def get_colors(num_colors: int, alpha: Optional[float] = 1) -> List[List[float]]
     return cs
 
 
-
-
 def overlaid_corner(samples_list, sample_labels, params,
                     samples_colors, fname="", title=None, truths={}):
     """Plots multiple corners on top of each other"""
@@ -90,7 +94,6 @@ def overlaid_corner(samples_list, sample_labels, params,
     print(f"Cols in samples: {samples_list[0].columns.values}")
     # sort the sample columns
     samples_list = [s[params] for s in samples_list]
-    truths = [TRUTHS.get(k, None) for k in params]
 
     # get some constants
     n = len(samples_list)
@@ -98,7 +101,9 @@ def overlaid_corner(samples_list, sample_labels, params,
     min_len = max([len(s) for s in samples_list])
 
     CORNER_KWARGS.update(
-        truths=truths,
+        truths=[TRUTHS.get(k, None) for k in params],
+        labels=[PARAMS[k]['latex_label'] for k in params],
+        range=[PARAMS[k]['range'] for k in params],
         truth_color='lightgray',
     )
 
@@ -159,6 +164,7 @@ def get_event_name(fname):
 
 from collections import OrderedDict
 
+
 def add_agn_samples_to_df(df):
     df['s1x'], df['s1y'], df['s1z'] = df['spin_1x'], df['spin_1y'], df['spin_1z']
     df['s2x'], df['s2y'], df['s2z'] = df['spin_2x'], df['spin_2y'], df['spin_2z']
@@ -178,7 +184,6 @@ def add_agn_samples_to_df(df):
     return df
 
 
-
 def main_inj_plotter():
     res_files = glob.glob("../finding_events_with_theta12/out*/res_dats/*result.dat")
     res_dfs = {}
@@ -188,9 +193,9 @@ def main_inj_plotter():
 
         res = add_agn_samples_to_df(res)
         res['chi_eff'] = (res['spin_1z'] +
-                                    res['spin_2z'] *
-                                    res['mass_ratio']) / \
-                                   (1 + res['mass_ratio'])
+                          res['spin_2z'] *
+                          res['mass_ratio']) / \
+                         (1 + res['mass_ratio'])
 
         res['chi_1_in_plane'] = np.sqrt(
             res['spin_1x'] ** 2 + res['spin_1y'] ** 2
@@ -205,18 +210,23 @@ def main_inj_plotter():
             (3 * res['mass_ratio'] + 4) * res['mass_ratio'] *
             res['chi_2_in_plane'])
         res['xi_spin'] = 1
+        res[
+            'luminosity_distance'] = bilby.gw.conversion.redshift_to_luminosity_distance(
+            res['redshift'])
         res_dfs.update({res_inj_label: res})
-    res_orderd  = OrderedDict()
+
+    res_orderd = OrderedDict()
     for i in range(len(res_dfs)):
         label = f'inj{i}'
         try:
-            res_orderd.update({label:res_dfs[label]})
+            res_orderd.update({label: res_dfs[label]})
         except:
             pass
     overlaid_corner(
-        samples_list = [df for df in res_orderd.values()],
-        sample_labels = [l for l in res_orderd.keys()],
-        params=["cos_theta_12", "chi_p", "chi_eff", "cos_tilt_1", "mass_1", "redshift"],
+        samples_list=[df for df in res_orderd.values()],
+        sample_labels=[l for l in res_orderd.keys()],
+        params=["cos_theta_12", "chi_p", "chi_eff", "cos_tilt_1", "mass_1",
+                "luminosity_distance"],
         samples_colors=get_colors(len(res_dfs)),
         fname="different_snrs",
     )
