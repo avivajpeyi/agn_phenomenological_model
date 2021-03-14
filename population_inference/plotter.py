@@ -1,5 +1,8 @@
 from __future__ import print_function
 
+import glob
+import os
+import shutil
 import warnings
 from typing import List, Optional
 
@@ -11,10 +14,7 @@ import numpy as np
 import pandas as pd
 import seaborn as sns
 from matplotlib import rcParams
-import os
-import shutil
 
-import glob
 MIXED = "../result_files/mix.dat"
 AGN = "../result_files/agn.dat"
 LVC = "../result_files/lvc.json"
@@ -144,7 +144,6 @@ def overlaid_corner(samples_list, sample_labels, params,
     else:
         truths = [truths[k] for k in params]
 
-
     # get some constants
     n = len(samples_list)
     _, ndim = samples_list[0].shape
@@ -233,6 +232,7 @@ def read_high_mass_data():
     df['xi_spin'] = 1
     return df
 
+
 def main():
     print("Plotting...")
 
@@ -278,7 +278,6 @@ def main():
         fname="only_highmass_agn.png"
     )
 
-
     overlaid_corner(
         samples_list=[sim_data],
         sample_labels=["Sim", "Truths"],
@@ -301,7 +300,6 @@ def main():
         set(sim_data.columns.values).intersection(set(lvc_data.columns.values))))
     plot_params.remove("xi_spin")
     plot_params.remove("sigma_12")
-
 
     overlaid_corner(
         samples_list=[lvc_data, sim_data],
@@ -337,13 +335,58 @@ def main():
         fname="lvc_with_my_injection.png"
     )
 
-    dest_folder = "/home/avi.vajpeyi/public_html/agn_pop/pop_inf/"
-    if os.path.isdir(dest_folder):
-        for f in glob.glob("*.png"):
-            shutil.copy(f, dest_folder)
+    copy_to_outdir(".", "/home/avi.vajpeyi/public_html/agn_pop/pop_inf/")
 
     print("done!")
 
 
+def copy_to_outdir(start_dir, end_dir):
+    if not os.path.isdir(end_dir):
+        os.makedirs(end_dir, exist_ok=True)
+    for f in glob.glob(os.path.join(start_dir, "*.png")):
+        shutil.copy(f, end_dir)
+
+
+import re
+
+
+def get_event_name(fname):
+    name = re.findall(r"(\w*\d{6}[a-z]*)", fname)
+    if len(name) == 0:
+        name = re.findall(r"inj\d+", fname)
+    if len(name) == 0:
+        name = re.findall(r"data\d+", fname)
+    if len(name) == 0:
+        name = os.path.basename(fname).split(".")
+    return name[0]
+
+
+from collections import OrderedDict
+
+def main_inj_plotter():
+    res_files = glob.glob("../finding_events_with_theta12/out*/res_dats/*result.dat")
+    res_dfs = {}
+    for r in res_files:
+        res_inj_label = get_event_name(r)
+        res = pd.read_csv(AGN, sep=' ')
+        res['xi_spin'] = 1
+        res_dfs.update({res_inj_label:res})
+    res_orderd  = OrderedDict()
+    for i in range(len(res_dfs)):
+        label = f'inj{i}'
+        res_orderd.update({label:res_dfs[label]})
+    overlaid_corner(
+        samples_list = [df for df in res_orderd.values()],
+        sample_labels = [l for l in res_orderd.keys()],
+        params=["cos_theta_12", "mass_1", "redshift"],
+        samples_colors=get_colors(len(res_dfs)),
+        fname="different_snrs",
+    )
+
+    copy_to_outdir(".",
+                   "/home/avi.vajpeyi/public_html/agn_pop/finding_events_with_theta12")
+
+
 if __name__ == '__main__':
-    main()
+    # main()
+    main_inj_plotter()
