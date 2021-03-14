@@ -131,6 +131,7 @@ def overlaid_corner(samples_list, sample_labels, params,
                     samples_colors, fname="", title=None, truths={}):
     """Plots multiple corners on top of each other"""
     print(f"plotting {fname}")
+    print(f"Cols in samples: {samples_list[0].columns.values}")
     # sort the sample columns
     samples_list = [s[params] for s in samples_list]
 
@@ -409,7 +410,7 @@ def main_inj_plotter():
             (3 * res['mass_ratio'] + 4) * res['mass_ratio'] *
             res['chi_2_in_plane'])
         res['xi_spin'] = 1
-        res_dfs.update({res_inj_label:res})
+        res_dfs.update({res_inj_label: res})
     res_orderd  = OrderedDict()
     for i in range(len(res_dfs)):
         label = f'inj{i}'
