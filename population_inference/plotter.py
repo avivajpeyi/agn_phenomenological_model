@@ -374,7 +374,10 @@ def main_inj_plotter():
     res_orderd  = OrderedDict()
     for i in range(len(res_dfs)):
         label = f'inj{i}'
-        res_orderd.update({label:res_dfs[label]})
+        try:
+            res_orderd.update({label:res_dfs[label]})
+        except:
+            pass
     overlaid_corner(
         samples_list = [df for df in res_orderd.values()],
         sample_labels = [l for l in res_orderd.keys()],
