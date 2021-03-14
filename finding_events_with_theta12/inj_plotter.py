@@ -231,7 +231,7 @@ def main_inj_plotter():
             sample_labels=[res_label],
             params=["cos_theta_12", "chi_p", "chi_eff", "cos_tilt_1", "mass_1",
                     "luminosity_distance"],
-            samples_colors=col,
+            samples_colors=[col],
             fname=f"different_snrs_{res_label}",
         )
 
