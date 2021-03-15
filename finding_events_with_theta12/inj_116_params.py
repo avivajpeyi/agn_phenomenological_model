@@ -117,7 +117,10 @@ def create_injections(num=10):
         inj_params.append(params)
         _, _, snr = get_injection_snr(**params)
         df.append(dict(dist=d, m1=m, snr=snr))
-    print(pd.DataFrame(df))
+    snr_info = pd.DataFrame(df)
+    print(snr_info)
+    snr_info.to_csv("SNR_info.csv", index=False)
+
     pd.DataFrame(inj_params).to_csv("similar_orientation_injections.dat", sep=" ", index=False)
 
 

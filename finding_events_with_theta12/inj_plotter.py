@@ -54,11 +54,11 @@ plt.rcParams['xtick.top'] = True
 plt.rcParams['ytick.right'] = True
 
 CORNER_KWARGS = dict(
-    smooth=2,
+    smooth=0.5,
     label_kwargs=dict(fontsize=30),
     title_kwargs=dict(fontsize=16),
     # quantiles=(0.16, 0.84),
-    show_title=True,
+    show_titles=True,
     levels=(1 - np.exp(-0.5), 1 - np.exp(-2), 1 - np.exp(-9 / 2.)),
     plot_density=False,
     plot_datapoints=False,
@@ -67,6 +67,7 @@ CORNER_KWARGS = dict(
     verbose=False,
     use_math_text=True,
 )
+
 
 TRUTHS = {
     'cos_tilt_1': 0.9328944117496468,
@@ -102,7 +103,7 @@ def overlaid_corner(samples_list, sample_labels, params,
     min_len = max([len(s) for s in samples_list])
 
     CORNER_KWARGS.update(
-        truths=[TRUTHS.get(k, None) for k in params],
+        truths=[truths.get(k, None) for k in params],
         labels=[PARAMS[k]['latex_label'] for k in params],
         range=[PARAMS[k]['range'] for k in params],
         truth_color='lightgray',
@@ -218,17 +219,24 @@ def main_inj_plotter():
         res_dfs.update({res_inj_label: res})
 
     res_orderd = OrderedDict()
+    injection_info = pd.read_csv("SNR_info.csv").to_dict('records')
+    injection_truths = []
     for i in range(len(res_dfs)):
         label = f'inj{i}'
         try:
             res_orderd.update({label: res_dfs[label]})
+            injection_truths.append(injection_info[i])
         except:
             pass
     cols = get_colors(len(res_dfs))
-    for res_label, df, col in zip(list(res_orderd.keys()), list(res_orderd.values()), cols):
+
+    for res_label, df, col, inj_truth in zip(list(res_orderd.keys()), list(res_orderd.values()), cols, injection_truths):
+        truths = TRUTHS.copy()
+        truths['mass_1'] = inj_truth['m1']
+        truths['luminosity_distance'] = inj_truth['dist']
         overlaid_corner(
             samples_list=[df],
-            sample_labels=[res_label],
+            sample_labels=[res_label +" SNR " + f"{truths['snr']:.2f}"],
             params=["cos_theta_12", "chi_p", "chi_eff", "cos_tilt_1", "mass_1",
                     "luminosity_distance"],
             samples_colors=[col],
