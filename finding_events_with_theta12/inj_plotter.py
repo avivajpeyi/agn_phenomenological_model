@@ -236,7 +236,7 @@ def main_inj_plotter():
         truths['luminosity_distance'] = inj_truth['dist']
         overlaid_corner(
             samples_list=[df],
-            sample_labels=[res_label +" SNR " + f"{truths['snr']:.2f}"],
+            sample_labels=[res_label +" SNR " + f"{inj_truth['snr']:.2f}"],
             params=["cos_theta_12", "chi_p", "chi_eff", "cos_tilt_1", "mass_1",
                     "luminosity_distance"],
             samples_colors=[col],
