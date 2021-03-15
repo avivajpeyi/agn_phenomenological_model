@@ -74,6 +74,34 @@ TRUTHS = {
     'cos_theta_12': -0.3196925946941709,
 }
 
+import os
+from PIL import Image
+from fpdf import FPDF
+
+
+def combine_images_to_pdf():
+    pdf = FPDF()
+    sdir = "/home/avi.vajpeyi/public_html/agn_pop/finding_events_with_theta12/"
+    w, h = 0, 0
+
+
+    for i in range(1, 100):
+        fname = sdir + f"different_snrs_inj{i}.png"
+        if os.path.exists(fname):
+            if i == 1:
+                cover = Image.open(fname)
+                w,h = cover.size
+                pdf = FPDF(unit = "pt", format = [w,h])
+            image = fname
+            pdf.add_page()
+            pdf.image(image,0,0,w,h)
+        else:
+            print("File not found:", fname)
+        print("processed %d" % i)
+    pdf.output(sdir + "output.pdf", "F")
+    print("done")
+
+
 
 def get_colors(num_colors: int, alpha: Optional[float] = 1) -> List[List[float]]:
     """Get a list of colorblind samples_colors,
@@ -241,10 +269,12 @@ def main_inj_plotter():
                     "luminosity_distance"],
             samples_colors=[col],
             fname=f"different_snrs_{res_label}",
+            truths=truths
         )
 
     copy_to_outdir(".",
                    "/home/avi.vajpeyi/public_html/agn_pop/finding_events_with_theta12")
+    combine_images_to_pdf()
 
 
 if __name__ == '__main__':
