@@ -134,7 +134,7 @@ def overlaid_corner(samples_list, sample_labels, params,
         truths=[truths.get(k, None) for k in params],
         labels=[PARAMS[k]['latex_label'] for k in params],
         range=[PARAMS[k]['range'] for k in params],
-        truth_color='lightgray',
+        truth_color='crimson',
         quantiles=None,
     )
 
