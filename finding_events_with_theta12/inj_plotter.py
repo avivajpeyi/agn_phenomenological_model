@@ -18,7 +18,8 @@ from matplotlib import rcParams
 PARAMS = {
     'chirp_mass': dict(latex_label="$M_{c}$", range=(5, 200)),
     'mass_1': dict(latex_label='$m_1^{\\mathrm{source}}$', range=(0, 200)),
-    'mass_2': dict(latex_label='$m_2^{\\mathrm{source}}$', range=(0, 200)),
+    'mass_1': dict(latex_label='$m_1^{\\mathrm{source}}$', range=(0, 200)),
+    'mass_1_lab': dict(latex_label='$m_1^{\\mathrm{lab}}$', range=(0, 500)),
     'cos_tilt_1': dict(latex_label='$\\cos \\mathrm{tilt}_1$', range=(-1, 1)),
     'cos_tilt_2': dict(latex_label='$\\cos \\mathrm{tilt}_2$', range=(-1, 1)),
     'cos_theta_12': dict(latex_label='$\\cos \\theta_{12}$', range=(-1, 1)),
@@ -244,6 +245,7 @@ def main_inj_plotter():
         res[
             'luminosity_distance'] = bilby.gw.conversion.redshift_to_luminosity_distance(
             res['redshift'])
+        res['mass_1_lab'] = res['mass_1'] * (1 + res['redshift'])
         res_dfs.update({res_inj_label: res})
 
     res_orderd = OrderedDict()
@@ -265,7 +267,7 @@ def main_inj_plotter():
         overlaid_corner(
             samples_list=[df],
             sample_labels=[res_label +" SNR " + f"{inj_truth['snr']:.2f}"],
-            params=["cos_theta_12", "chi_p", "chi_eff", "cos_tilt_1", "mass_1",
+            params=["cos_theta_12", "chi_p", "chi_eff", "cos_tilt_1", "mass_1", "mass_1_lab",
                     "luminosity_distance"],
             samples_colors=[col],
             fname=f"different_snrs_{res_label}",
