@@ -1,7 +1,6 @@
 from __future__ import print_function
 
 import glob
-import os
 import shutil
 import warnings
 from typing import List, Optional
@@ -69,7 +68,6 @@ CORNER_KWARGS = dict(
     use_math_text=True,
 )
 
-
 TRUTHS = {
     'cos_tilt_1': 0.9328944117496468,
     'cos_theta_12': -0.3196925946941709,
@@ -85,23 +83,21 @@ def combine_images_to_pdf():
     sdir = "/home/avi.vajpeyi/public_html/agn_pop/finding_events_with_theta12/"
     w, h = 0, 0
 
-
     for i in range(1, 100):
         fname = sdir + f"different_snrs_inj{i}.png"
         if os.path.exists(fname):
             if i == 1:
                 cover = Image.open(fname)
-                w,h = cover.size
-                pdf = FPDF(unit = "pt", format = [w,h])
+                w, h = cover.size
+                pdf = FPDF(unit="pt", format=[w, h])
             image = fname
             pdf.add_page()
-            pdf.image(image,0,0,w,h)
+            pdf.image(image, 0, 0, w, h)
         else:
             print("File not found:", fname)
         print("processed %d" % i)
     pdf.output(sdir + "output.pdf", "F")
     print("done")
-
 
 
 def get_colors(num_colors: int, alpha: Optional[float] = 1) -> List[List[float]]:
@@ -246,6 +242,9 @@ def main_inj_plotter():
             'luminosity_distance'] = bilby.gw.conversion.redshift_to_luminosity_distance(
             res['redshift'])
         res['mass_1_lab'] = res['mass_1'] * (1 + res['redshift'])
+        res['mass_2_lab'] = res['mass_1_lab'] * res['mass_ratio']
+        res['chirp_mass'] = bilby.gw.conversion.component_masses_to_chirp_mass(
+            res['mass_1_lab'], res['mass_2_lab'])
         res_dfs.update({res_inj_label: res})
 
     res_orderd = OrderedDict()
@@ -260,14 +259,17 @@ def main_inj_plotter():
             pass
     cols = get_colors(len(res_dfs))
 
-    for res_label, df, col, inj_truth in zip(list(res_orderd.keys()), list(res_orderd.values()), cols, injection_truths):
+    for res_label, df, col, inj_truth in zip(list(res_orderd.keys()),
+                                             list(res_orderd.values()), cols,
+                                             injection_truths):
         truths = TRUTHS.copy()
         truths['mass_1'] = inj_truth['m1']
         truths['luminosity_distance'] = inj_truth['dist']
         overlaid_corner(
             samples_list=[df],
-            sample_labels=[res_label +" SNR " + f"{inj_truth['snr']:.2f}"],
-            params=["cos_theta_12", "chi_p", "chi_eff", "cos_tilt_1", "mass_1", "mass_1_lab",
+            sample_labels=[res_label + " SNR " + f"{inj_truth['snr']:.2f}"],
+            params=["cos_theta_12", "chi_p", "chi_eff", "cos_tilt_1", "mass_1",
+                    "mass_1_lab", "chirp_mass",
                     "luminosity_distance"],
             samples_colors=[col],
             fname=f"different_snrs_{res_label}",
