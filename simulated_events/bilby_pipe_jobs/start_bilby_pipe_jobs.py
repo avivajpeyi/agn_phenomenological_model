@@ -21,6 +21,7 @@ def calculate_durations(df):
 
 
 def run_bilby_pipe_jobs(dat):
+    print("Loading injections")
     df = load_injections(dat)
     df = calculate_durations(df)
     print("Loaded data")
