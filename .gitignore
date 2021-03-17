@@ -14,7 +14,7 @@ result_files
 # IntelliJ project files
 .idea
 *.iml
-
+*.png
 # Mac Os
 *.DS_Store
 ### bilby template

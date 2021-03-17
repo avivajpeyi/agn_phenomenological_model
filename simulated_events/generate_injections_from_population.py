@@ -1,7 +1,10 @@
 import logging
-import warnings
+import multiprocessing
 import os
+import time
+import warnings
 from pprint import pprint as print_p
+
 import bilby
 import corner
 import lalsimulation
@@ -9,13 +12,47 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 from bilby.core.prior import Cosine, Interped, Uniform
+from bilby_pipe.gracedb import determine_duration_and_scale_factor_from_parameters
 from gwpopulation.conversions import convert_to_beta_parameters
 from gwpopulation.models.mass import SinglePeakSmoothedMassDistribution
 from gwpopulation.models.redshift import PowerLawRedshift
 from gwpopulation.models.spin import iid_spin_magnitude_beta, truncnorm
 from numpy import cos, sin
+from matplotlib import rcParams
+
+rcParams["font.size"] = 20
+rcParams["font.family"] = "serif"
+rcParams["font.sans-serif"] = ["Computer Modern Sans"]
+rcParams["text.usetex"] = True
+rcParams['axes.labelsize'] = 30
+rcParams['axes.titlesize'] = 30
+rcParams['axes.labelpad'] = 20
+rcParams["font.size"] = 30
+rcParams["font.family"] = "serif"
+rcParams["font.sans-serif"] = ["Computer Modern Sans"]
+rcParams["text.usetex"] = True
+rcParams['axes.labelsize'] = 30
+rcParams['axes.titlesize'] = 30
+rcParams['axes.labelpad'] = 10
+rcParams['axes.linewidth'] = 2.5
+rcParams['axes.edgecolor'] = 'black'
+rcParams['xtick.labelsize'] = 25
+rcParams['xtick.major.size'] = 10.0
+rcParams['xtick.minor.size'] = 5.0
+rcParams['ytick.labelsize'] = 25
+rcParams['ytick.major.size'] = 10.0
+rcParams['ytick.minor.size'] = 5.0
+plt.rcParams['xtick.direction'] = 'in'
+plt.rcParams['ytick.direction'] = 'in'
+plt.rcParams['xtick.minor.width'] = 1
+plt.rcParams['xtick.major.width'] = 3
+plt.rcParams['ytick.minor.width'] = 1
+plt.rcParams['ytick.major.width'] = 2.5
+plt.rcParams['xtick.top'] = True
+plt.rcParams['ytick.right'] = True
 
 logging.getLogger("bilby").setLevel(logging.ERROR)
+logging.getLogger().setLevel(logging.INFO)
 
 warnings.filterwarnings("ignore")
 REFERENCE_FREQ = 20
@@ -25,7 +62,7 @@ SAMPLES = "samples.dat"
 INJ_SAMPLES = "injection_samples.dat"
 
 CORNER_KWARGS = dict(
-    smooth=0.99,
+    smooth=1,
     label_kwargs=dict(fontsize=30),
     title_kwargs=dict(fontsize=16),
     truth_color='tab:orange',
@@ -34,7 +71,7 @@ CORNER_KWARGS = dict(
     plot_density=False,
     plot_datapoints=False,
     fill_contours=True,
-    max_n_ticks=3,
+    max_n_ticks=5,
     verbose=False,
     use_math_text=True,
 )
@@ -57,16 +94,17 @@ POP_MODEL_VALS = {
 }
 
 PARAMS = {
-    'mass_1': '$m_1$',
-    'mass_2': '$m_2$',
-    'a_1': '$a_1$',
+    # 'mass_1': '$m_1$',
+    # 'mass_2': '$m_2$',
+    # 'a_1': '$a_1$',
     'cos_tilt_1': '$\\cos \\mathrm{tilt}_1$',
-    'cos_tilt_2': '$\\cos \\mathrm{tilt}_2$',
+    # 'cos_tilt_2': '$\\cos \\mathrm{tilt}_2$',
     'cos_theta_12': '$\\cos \\theta_{12}$',
-    'phi_12': '$\\phi_{12}$',
-    'phi_jl': '$\\phi_{JL}$',
+    # 'phi_12': '$\\phi_{12}$',
+    # 'phi_jl': '$\\phi_{JL}$',
     'luminosity_distance': '$d_L$',
-    'network_snr': '$\\rho$'
+    # 'network_snr': '$\\rho$'
+    'log_snr': '$\\rm{log}_{10} \ \\rho$'
 }
 
 INJECTION_PARAMS = ["a_1",
@@ -87,14 +125,34 @@ INJECTION_PARAMS = ["a_1",
                     "phi_jl"]
 
 
-def plot_samples_corner(samples_dat=SAMPLES):
-    samples = pd.read_csv(samples_dat, sep=" ")
+def timing(function):
+    def wrap(*args, **kwargs):
+        start_time = time.time()
+        result = function(*args, **kwargs)
+        end_time = time.time()
+        duration = (end_time - start_time) / 60.0
+        duration_sec = (end_time - start_time) % 60.0
+        f_name = function.__name__
+        logging.info(f"{f_name} took {int(duration)}min {int(duration_sec)}s")
+
+        return result
+
+    return wrap
+
+
+def plot_samples_corner(samples=[], samples_dat=None):
+    if len(samples)==0:
+        samples = pd.read_csv(samples_dat, sep=" ")
+    # samples = samples[samples.network_snr > 8]
+    if 'network_snr' in samples:
+        samples['log_snr'] = np.log10(samples.network_snr)
     p = [i for i in PARAMS.keys()]
     l = [PARAMS[i] for i in p]
     corner.corner(samples[p], **CORNER_KWARGS, labels=l)
-    plt.savefig(f"plots/{os.path.basename(samples_dat).replace('.dat', '.png')}")
+    fname = f"plots/{os.path.basename(samples_dat).replace('.dat', '.png')}"
+    plt.savefig(fname)
     plt.close()
-    print("done")
+    logging.info(f"Plotted {fname}")
 
 
 @np.vectorize
@@ -137,7 +195,8 @@ def get_injection_snr(
         phi_jl=phi_jl,
     )
 
-    duration = 4
+    chirp_mass = bilby.gw.conversion.component_masses_to_chirp_mass(mass_1, mass_2)
+    duration, _ = determine_duration_and_scale_factor_from_parameters(chirp_mass)
     sampling_frequency = 2048.
 
     waveform_generator = bilby.gw.WaveformGenerator(
@@ -147,7 +206,7 @@ def get_injection_snr(
         parameter_conversion=bilby.gw.conversion.convert_to_lal_binary_black_hole_parameters,
         waveform_arguments=dict(
             waveform_approximant='IMRPhenomPv2',
-            reference_frequency=50., minimum_frequency=20.
+            reference_frequency=20., minimum_frequency=20.
         )
     )
 
@@ -327,7 +386,10 @@ def mult_magn_to_vect(mags, vecs):
     return np.array([m * v for m, v in zip(mags, vecs)])
 
 
+@timing
 def get_samples(num_samples=10000):
+    poolname = multiprocessing.current_process().name
+    logging.info(f"{poolname}: Drawing samples from Population Prior")
     pop_model = generate_prior(POP_MODEL_VALS)
     s = pd.DataFrame(pop_model.sample(num_samples)).to_dict('list')
     phi_1, z = s["phi_1"], s["redshift"]
@@ -350,7 +412,7 @@ def get_samples(num_samples=10000):
     s['cos_tilt_2'] = np.cos(tilt_2)
     s['theta_jn'] = theta_jn
     s['phi_jl'] = phi_jl
-
+    logging.info(f"{poolname}: Calculating SNR")
     h1_snr, l1_snr, network_snr = get_injection_snr(**s)
     s['h1_snr'] = h1_snr
     s['l1_snr'] = l1_snr
@@ -359,18 +421,20 @@ def get_samples(num_samples=10000):
     return pd.DataFrame(s)
 
 
-def plot_theta_12_dist(sample_dat):
+def plot_theta_12_dist(sample_dat, label="100 BBH"):
     samples = pd.read_csv(sample_dat, sep=" ")
     prior = generate_prior(POP_MODEL_VALS)
-    plt.hist(samples['cos_theta_12'], density=True, histtype="step", color="blue",
-             label="Event Params")
-    plt.plot(prior['cos_theta_12'].xx, prior['cos_theta_12'].yy, color="purple",
-             label="Prior")
+    plt.hist(samples['cos_theta_12'], density=True,  color="tab:blue",
+             label=label,  zorder=-1)
+    plt.plot(prior['cos_theta_12'].xx, prior['cos_theta_12'].yy, color="tab:orange",
+             label="Prior", zorder=1)
     plt.legend()
+    plt.tight_layout()
     plt.xlim(-1, 1)
     plt.ylabel("$p(\\cos \\theta_{12})$")
     plt.xlabel("$\\cos \\theta_{12})$")
-    plt.savefig("plots/cos_theta_12.png")
+    plt.savefig(f"plots/{os.path.basename(sample_dat).replace('.dat','')}_cos_theta_12.png")
+    plt.close('all')
 
 
 def get_one_sample():
@@ -398,17 +462,70 @@ def get_one_sample():
 
 
 def save_multipl_samples():
-    # s = get_samples(10000)
-    # s.to_csv(SAMPLES, sep=" ", index=False)
+    s = get_samples(10000)
+    if os.path.isfile(SAMPLES):
+        logging.info("Cached samples exist, appending...")
+        s.to_csv(SAMPLES, sep=" ", header=False, index=False, mode='a')
+    else:
+        s.to_csv(SAMPLES, sep=" ", index=False, mode='w')
+
+def plot_snrs(full_df, truncated_df, weights):
+    ligo_events = full_df[full_df.network_snr > 8]
+    agn_ligo_event = ligo_events[ligo_events.network_snr > 60]
+
+    print(f"{len(agn_ligo_event)}/{len(ligo_events)} events > SNR 60")
+    fig, axs = plt.subplots(2,1, sharex=False, figsize=(7, 9))
+    axs[0].hist(full_df.network_snr, bins=50,color='tab:orange', label="All Inj", zorder=-1)
+    axs[0].hist([], color='tab:green', label="Subset")
+    axs[0].scatter([],[], color='tab:blue', label="Weights")
+    axs[1].hist(truncated_df.network_snr, color='tab:green', label="Truncated", zorder=-1)
+    ax2 = axs[1].twinx()
+    ax2.grid(False)
+    ax2.scatter(full_df.network_snr, weights, zorder=1, color="tab:blue")
+    for i in range(len(axs)):
+        axs[i].set_ylabel("Counts")
+        axs[i].set_xlabel("Network SNR")
+    axs[0].set_yscale("log")
+
+    axs[0].legend(frameon=False, loc='upper right', bbox_to_anchor=(1.8, 1))
+    fig.subplots_adjust(top=0.75)
+    plt.savefig("plots/snr.png",  bbox_inches='tight')
+    plt.close('all')
+    logging.info("saved SNR plot")
+
+
+def downsample_samples():
+    logging.info("Making SNR cuts...")
     s = pd.read_csv(SAMPLES, sep=" ")
-    plot_samples_corner(SAMPLES)
-    injection_samples = s[(s["network_snr"]>8)&(s["mass_1"]<200)].sample(200)
+    plot_samples_corner(s, SAMPLES)
+    # probability_distribution = bilby.prior.Uniform(minimum=60, maximum=200)
+    probability_distribution = bilby.prior.Uniform(minimum=60, maximum=500)
+    prob_for_snr = probability_distribution.prob(s.network_snr)
+    injection_samples = s.sample(100, weights=prob_for_snr)
+    plot_snrs(s, injection_samples, prob_for_snr)
+    logging.info(f"{len(s)}-->{len(injection_samples)} samples")
     injection_samples.to_csv("injection_samples_all_params.dat", sep=" ", index=False)
-    plot_samples_corner("injection_samples_all_params.dat")
+    plot_samples_corner(injection_samples, "injection_samples_all_params.dat")
     injection_samples = injection_samples[INJECTION_PARAMS]
     injection_samples.to_csv(INJ_SAMPLES, sep=" ", index=False)
 
 
+def get_samples_with_multiprocesses(num_multiprocesses):
+    processes = []
+    for i in range(1, num_multiprocesses):
+        p = multiprocessing.Process(target=save_multipl_samples, name=f"Process{i}")
+        processes.append(p)
+        p.start()
+
+    for process in processes:
+        process.join()
+
+
 if __name__ == '__main__':
-    save_multipl_samples()
+    # for i in range(25):
+    #     logging.info(f"Iteration {i}")
+    #     get_samples_with_multiprocesses(6)
+    # save_multipl_samples()
+    downsample_samples()
     plot_theta_12_dist("injection_samples_all_params.dat")
+    plot_theta_12_dist(SAMPLES, "All BBH")

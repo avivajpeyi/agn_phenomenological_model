@@ -263,7 +263,7 @@ def main_inj_plotter():
                                              list(res_orderd.values()), cols,
                                              injection_truths):
         truths = TRUTHS.copy()
-        truths['mass_1'] = inj_truth['m1']
+        truths['mass_1_lab'] = inj_truth['m1']
         truths['luminosity_distance'] = inj_truth['dist']
         overlaid_corner(
             samples_list=[df],

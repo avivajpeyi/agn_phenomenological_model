@@ -38,16 +38,17 @@ plt.rcParams['xtick.top'] = True
 plt.rcParams['ytick.right'] = True
 
 PARAMS = {
-    'mass_1_source': '$m_1^{\\mathrm{source}}$',
-    'mass_2_source': '$m_2^{\\mathrm{source}}$',
-    # 'a_1': '$a_1$',
-    # 'cos_tilt_1': '$\\cos \\mathrm{tilt}_1$',
-    # 'cos_tilt_2': '$\\cos \\mathrm{tilt}_2$',
-    'cos_theta_12': '$\\cos \\theta_{12}$',
-    # 'phi_12': '$\\phi_{12}$',
-    # 'phi_jl': '$\\phi_{JL}$',
-    # 'luminosity_distance': '$d_L$',
-    'network_snr': '$\\rho$'
+    'mass_1_source': dict(latex='$m_1^{\\mathrm{source}}$', range=(0, 100)),
+    # 'mass_2_source': dict(latex='$m_2^{\\mathrm{source}}$', range=(0, 100)),
+    # 'a_1':dict(latex=$a_1$', range=(0,100),
+    'cos_tilt_1': dict(latex='$\\cos \\mathrm{tilt}_1$', range=(-1, 1)),
+    # 'cos_tilt_2':dict(latex=$\\cos \\mathrm{tilt}_2$', range=(0,100),
+    'cos_theta_12': dict(latex='$\\cos \\theta_{12}$', range=(-1, 1)),
+    # 'phi_12':dict(latex=$\\phi_{12}$', range=(0,100),
+    # 'phi_jl':dict(latex=$\\phi_{JL}$', range=(0,100),
+    'luminosity_distance': dict(latex='$d_L$', range=(0, 20000)),
+    # 'network_snr':dict(latex=$\\rho$, range=(0,100)'
+    'log_snr': dict(latex='$\\rm{log}_{10}\ \\rho$)', range=(-1, 3)),
 }
 
 
@@ -81,18 +82,19 @@ CORNER_KWARGS = dict(
 )
 
 
-def overlaid_corner(samples_list, sample_labels, axis_labels, colors):
+def overlaid_corner(samples_list, sample_labels, axis_labels, axis_range, colors):
     """Plots multiple corners on top of each other"""
     # get some constants
     n = len(samples_list)
     _, ndim = samples_list[0].shape
     min_len = max([len(s) for s in samples_list])
 
-    CORNER_KWARGS.update(labels=axis_labels)
+    CORNER_KWARGS.update(labels=axis_labels, range=axis_range)
 
     fig = corner.corner(
         samples_list[0],
         color=colors[0],
+        weights=get_normalisation_weight(len(samples_list[0]), min_len),
         **CORNER_KWARGS,
     )
 
@@ -125,30 +127,39 @@ DOWNSAMPLED_SET = "injection_samples_all_params.dat"
 
 
 def load_injection_file(dat, param):
-    df= pd.read_csv(dat, sep=" ")
+    df = pd.read_csv(dat, sep=" ")
     df['mass_2_source'] = df["mass_1_source"] * df["mass_ratio"]
+    df["log_snr"] = np.log10(df['network_snr'])
     return df[param]
 
 
-param=[p for p in PARAMS.keys()]
+param = [p for p in PARAMS.keys()]
+full = load_injection_file(FULL_SET, param)
+agn = load_injection_file(DOWNSAMPLED_SET, param)
+
 fig = overlaid_corner(
-    samples_list=[
-        load_injection_file(FULL_SET, param),
-    ],
+    samples_list=[full],
     sample_labels=["Full set"],
-    axis_labels=[PARAMS[p] for p in param],
+    axis_labels=[PARAMS[p]['latex'] for p in param],
+    axis_range=[PARAMS[p]['range'] for p in param],
     colors=["black"]
 )
-fig.savefig("plots/inj_masses.png")
-
+fig.savefig("plots/samples.png")
 
 fig = overlaid_corner(
-    samples_list=[
-        load_injection_file(FULL_SET, param),
-        load_injection_file(DOWNSAMPLED_SET, param),
-    ],
+    samples_list=[full, agn],
     sample_labels=["Full set", "Selected"],
-    axis_labels=[PARAMS[p] for p in param],
+    axis_labels=[PARAMS[p]['latex'] for p in param],
+axis_range=[PARAMS[p]['range'] for p in param],
     colors=["black", "green"]
 )
 fig.savefig("plots/injection_samples_wrt_all_samples.png")
+
+fig = overlaid_corner(
+    samples_list=[agn],
+    sample_labels=["Full set", "Selected"],
+    axis_labels=[PARAMS[p]['latex'] for p in param],
+axis_range=[PARAMS[p]['range'] for p in param],
+    colors=["green"]
+)
+fig.savefig("plots/selected_samples.png")
