@@ -23,6 +23,7 @@ def calculate_durations(df):
 def run_bilby_pipe_jobs(dat):
     df = load_injections(dat)
     df = calculate_durations(df)
+    print("Loaded data")
     f = open("run_bilby_jobs.sh", "w")
     for i in range(len(df)):
         duration = df.iloc[i]['duration']
