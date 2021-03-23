@@ -12,7 +12,7 @@ def combine_images_to_pdf():
     for i in range(0, 1):
         fname = sdir + f"inj{i}_data0_0_analysis_H1L1_dynesty_result.png"
         if os.path.exists(fname):
-            if i == 1:
+            if i == 0:
                 cover = Image.open(fname)
                 w, h = cover.size
                 pdf = FPDF(unit="pt", format=[w, h])
