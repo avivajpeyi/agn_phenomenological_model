@@ -54,14 +54,14 @@ plt.rcParams['ytick.right'] = True
 
 PARAMS = {
     'chirp_mass': dict(latex_label="$M_{c}$", range=(5,200)),
-    'mass_1_source': dict(latex_label='$m_1^{\\mathrm{source}}$', range=(0,200)),
-    'mass_2_source': dict(latex_label='$m_2^{\\mathrm{source}}$', range=(0,200)),
+    # 'mass_1_source': dict(latex_label='$m_1^{\\mathrm{source}}$', range=(0,200)),
+    # 'mass_2_source': dict(latex_label='$m_2^{\\mathrm{source}}$', range=(0,200)),
     'cos_tilt_1': dict(latex_label='$\\cos \\mathrm{tilt}_1$', range=(-1,1)),
-    'cos_tilt_2': dict(latex_label='$\\cos \\mathrm{tilt}_2$', range=(-1,1)),
+    # 'cos_tilt_2': dict(latex_label='$\\cos \\mathrm{tilt}_2$', range=(-1,1)),
     'cos_theta_12': dict(latex_label='$\\cos \\theta_{12}$', range=(-1,1)),
     'chi_p': dict(latex_label='$\\chi_p$', range=(0,1)),
     'chi_eff': dict(latex_label='$\\chi_{\\rm{eff}}$', range=(-1,1)),
-    'luminosity_distance': dict(latex_label='$d_L$', range=(50,20000)),
+    # 'luminosity_distance': dict(latex_label='$d_L$', range=(50,20000)),
 }
 PE_PRIOR = PriorDict(dictionary=dict(
     mass_1=Constraint(name='mass_1', minimum=10, maximum=200),
