@@ -1,0 +1,27 @@
+# MASS (model c: Powerlaw + Single peak )
+alpha = Uniform(minimum=-4, maximum=12, name='alpha', latex_label='$\\alpha$', boundary='reflective')
+beta = Uniform(minimum=-4, maximum=12, name='beta', latex_label='$\\beta_{q}$')
+mmax = Uniform(minimum=30, maximum=100, name='mmax', latex_label='$m_{\\max}$')
+mmin = Uniform(minimum=2, maximum=10, name='mmin', latex_label='$m_{\\min}$')
+lam = Uniform(minimum=0, maximum=1, name='lambda', latex_label='$\\lambda_{m}$')
+mpp = Uniform(minimum=20, maximum=50, name='mpp', latex_label='$\\mu_{m}$')
+sigpp = Uniform(minimum=1, maximum=10, name='sigpp', latex_label='$\\sigma_{m}$')
+delta_m = Uniform(minimum=0, maximum=10, name='delta_m', latex_label='$\\delta_{m}$')
+
+
+# SPIN MAGNITUDE (iid --> iid_spin_magnitude_beta(amax, alpha_chi, beta_chi)
+amax = 1
+mu_chi = Uniform(minimum=0, maximum=1, name='mu_chi', latex_label='$\\mu_{\\chi}$')
+sigma_chi = Uniform(minimum=0, maximum=0.25, name='sigma_chi', latex_label='$\\sigma^{2}_{\\chi}$')
+alpha_chi = Constraint(minimum=1, maximum=1e5)
+beta_chi = Constraint(minimum=1, maximum=1e5)
+
+# SPIN ORIENTATION (agn --> sigma_1_list, sigma_12_list)
+sigma_1 =  Uniform(minimum=1e-2, maximum=4, name='sigma_1_list', latex_label='$\\sigma_{1}$')
+sigma_2 =  Uniform(minimum=1e-2, maximum=4, name='sigma_2', latex_label='$\\sigma_{2}$')
+sigma_12 = Uniform(minimum=1e-4, maximum=1e2, name='sigma_12_list', latex_label='$\\sigma_{12}$')
+xi_spin = 1
+
+
+# REDSHIFT
+lamb = 0

@@ -1,5 +1,3 @@
-# agn_phenomenological_model
+# AGN Phenomelogical Model for BBH mergers
 
-
-- Turn off cos_tilt_2 model
-- Turn off isotropic disctribution
+Sorucecode and data to help set up BBH GW event population studies for AGNs. 

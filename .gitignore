@@ -1,14 +1,19 @@
 # Created by .ignore support plugin (hsz.mobi)
 
 ### Extra junk
-data
+*.csv
+*.dat
+*.hdf5
+*.tar.gz
+*.json
 output
 *_outdir
 *.npy
 *test_dir*
 *condor/
-result_files
+studies/result_files
 
+*.gif
 
 ### Example user template template
 # IntelliJ project files
