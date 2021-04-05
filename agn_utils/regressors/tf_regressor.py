@@ -1,18 +1,39 @@
-import logging
+import pathlib
+from typing import Callable
 from typing import Dict, List, Optional
 
-import joblib
 import numpy as np
 import pandas as pd
-from sklearn.ensemble import RandomForestRegressor
+import tensorflow as tf
+from tensorflow.estimator import BoostedTreesRegressor
+from tensorflow.python.training.tracking.tracking import AutoTrackable
 
 from .regressor import Regressor
 from ..agn_logger import logger
 
 
-class ScikitRegressor(Regressor):
+def dfrow_to_example(input_df):
+    example = tf.train.Example()
+    for feature_name, value in input_df.iteritems():
+        example.features.feature[feature_name].float_list.value.extend(
+            list(value.values))
+    return example
+
+
+def make_input_fn(data: pd.DataFrame, labels: pd.Series, shuffle=True, ) -> Callable:
+    def _input_fn() -> tf.data.Dataset:
+        # dataset = tf.data.Dataset.from_tensor_slices((data.values, labels.values))
+        # if shuffle:
+        #     dataset = dataset.shuffle(len(data))
+        # return dataset
+        return data.to_dict('list'), labels.values
+
+    return _input_fn
+
+
+class TfRegressor(Regressor):
     """
-    https://www.tensorflow.org/tutorials/estimator/boosted_trees_model_understanding
+    https://www.tensorflow.org/api_docs/python/tf/estimator/BoostedTreesRegressor
 
     NOTE:
     ref the following do determine how to tune training hyper-params
@@ -24,48 +45,78 @@ class ScikitRegressor(Regressor):
                  model_hyper_param: Optional[Dict] = {}):
         super().__init__(input_parameters, output_parameters)
         self.model_hyper_param = dict(
-            n_estimators=100, criterion='mse',
-            max_depth=None, min_samples_split=2,
-            min_samples_leaf=1, min_weight_fraction_leaf=0.0,
-            max_features='auto', max_leaf_nodes=None,
-            min_impurity_decrease=0.0,
-            min_impurity_split=None, bootstrap=True,
-            oob_score=False, n_jobs=None, random_state=None,
-            verbose=0, warm_start=False, ccp_alpha=0.0,
-            max_samples=None)
+            n_batches_per_layer=1, model_dir='.', label_dimension=1,
+            weight_column=None, n_trees=100, max_depth=6, learning_rate=0.1,
+            l1_regularization=0.0, l2_regularization=0.0, tree_complexity=0.0,
+            min_node_weight=0.0, config=None, center_bias=True,
+            pruning_mode='none', quantile_sketch_epsilon=0.01,
+            train_in_memory=True,
+        )
         self.model_hyper_param.update(model_hyper_param)
-        self.model = RandomForestRegressor(**self.model_hyper_param)
+        self.fc = [
+            tf.feature_column.numeric_column(key=p)
+            for p in self.input_parameters
+        ]
+        self.model = BoostedTreesRegressor(self.fc, **self.model_hyper_param)
 
     def train(self, data: pd.DataFrame):
+        super().train(data)
         train, test, train_labels, test_labels = self.train_test_split(data)
-        self.model.fit(X=train, y=train_labels)
+        train_fn = make_input_fn(train, train_labels)
+        self.model.train(train_fn)
         logger.info("Training complete")
         self.test(test, test_labels)
 
-    def test(self, data: pd.DataFrame, labels: pd.DataFrame):
-        predicted_labels = self.model.predict(data)
-        errors = abs(predicted_labels - labels.values)
-        model_testing_data_mae = round(np.mean(errors), 2)
-        model_testing_score = self.model.score(data, labels)
-        logger.info(
-            f'MODEL TESTING: '
-            f'Score={model_testing_score * 100:.2f}%, '
-            f'Mean Abosulte Error={model_testing_data_mae}'
-        )
+    def test(self, data: pd.DataFrame, labels: pd.Series):
+        test_fn = make_input_fn(data, labels, shuffle=False)
+        result = self.model.evaluate(test_fn, steps=10)
+        logger.info("MODEL TESTING:")
+        for key, value in result.items():
+            logger.info(f"\t {key} : {value}")
 
     def save(self, filename: str):
-        joblib.dump(self.model, filename)
+        feature_spec = tf.feature_column.make_parse_example_spec(self.fc)
+        serving_input_fn = tf.estimator.export.build_parsing_serving_input_receiver_fn(
+            feature_spec)
+        self.model.export_saved_model(filename, serving_input_fn)
 
     def load(self, filename: str):
-        self.model = joblib.load(filename)
+        subdirs = [x for x in pathlib.Path(filename).iterdir()
+                   if x.is_dir() and 'temp' not in str(x)]
+        latest = str(sorted(subdirs)[-1])
+        self.model = tf.saved_model.load(latest)
 
     def visualise(self):
         "https://mljar.com/blog/visualize-tree-from-random-forest/"
         raise NotImplementedError()
 
     def predict(self, data: pd.DataFrame):
-        return self.model.predict(data)
+        if isinstance(self.model, AutoTrackable):
+
+            def predict_in_fn(input_df):
+                examples = []
+                for index, row in input_df.iterrows():
+                    feature = {}
+                    for col, value in row.iteritems():
+                        feature[col] = tf.train.Feature(
+                            float_list=tf.train.FloatList(value=[value]))
+                    example = tf.train.Example(
+                        features=tf.train.Features(
+                            feature=feature
+                        )
+                    )
+                    examples.append(example.SerializeToString())
+                return tf.constant(examples)
+
+            pred_fn = self.model.signatures['serving_default']
+            preds = pred_fn(predict_in_fn(data))
+            preds = preds['outputs'].numpy().flatten()
+        else:
+            predict_in_fn = lambda: tf.data.Dataset.from_tensors(dict(data))
+            pred_fn = self.model.predict
+            preds = np.array([p['predictions'][0] for p in pred_fn(predict_in_fn)])
+        return preds
 
     @property
     def n_trees(self) -> int:
-        return len(self.model.estimators_)
+        return self.model_hyper_param.get('n_trees')
