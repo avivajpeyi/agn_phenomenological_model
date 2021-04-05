@@ -12,6 +12,7 @@ from agn_utils.create_agn_samples import (
 from agn_utils.diagnostic_tools import timing
 from agn_utils.plotting import overlaid_corner
 from agn_utils.regressors.scikit_regressor import ScikitRegressor
+from agn_utils.regressors.tf_regressor import TfRegressor
 from matplotlib import pyplot as plt
 
 logger = logging.getLogger(__name__)
@@ -41,27 +42,34 @@ def get_training_data(training_data_fname, num_samples=None):
     return df
 
 
-def instantiate_regression_model():
-    regressor = ScikitRegressor(
+def instantiate_regression_model(model="Scikit"):
+    kwargs = dict(
         input_parameters=["sigma_1", "sigma_12", "chi_eff", "chi_p"],
-        output_parameters=['p'],
-        model_hyper_param=dict(verbose=2))
+        output_parameters=['p']
+    )
+    if model=="Scikit":
+        regressor = ScikitRegressor(
+            model_hyper_param=dict(verbose=2),
+            **kwargs
+        )
+    else:
+        regressor = TfRegressor(**kwargs)
     return regressor
 
 
 @timing
-def train_model(training_data, model_fname):
-    regressor = instantiate_regression_model()
-    logger.info("Training initiated.")
+def train_model(training_data, model_fname, model_type="Scikit"):
+    regressor = instantiate_regression_model(model_type)
+    logger.info(f"{model_type} Regressor Training initiated.")
     regressor.train(data=training_data)
     regressor.save(filename=model_fname)
     logger.info(f"Training complete (model saved at {model_fname}).")
 
 
-def load_model(model_fname):
-    regressor = instantiate_regression_model()
+def load_model(model_fname, model_type="Scikit"):
+    regressor = instantiate_regression_model(model_type)
     regressor.load(model_fname)
-    logger.info(f"Regressor model loaded from {model_fname}.")
+    logger.info(f"{model_type} Regressor model loaded from {model_fname}.")
     return regressor
 
 

@@ -12,14 +12,6 @@ from .regressor import Regressor
 from ..agn_logger import logger
 
 
-def dfrow_to_example(input_df):
-    example = tf.train.Example()
-    for feature_name, value in input_df.iteritems():
-        example.features.feature[feature_name].float_list.value.extend(
-            list(value.values))
-    return example
-
-
 def make_input_fn(data: pd.DataFrame, labels: pd.Series, shuffle=True, ) -> Callable:
     def _input_fn() -> tf.data.Dataset:
         # dataset = tf.data.Dataset.from_tensor_slices((data.values, labels.values))

@@ -24,9 +24,9 @@ class TestRegressors(unittest.TestCase):
         self.out_parameters = ['z']
         self.visualise_training_data()
 
-    # def tearDown(self):
-    #     if os.path.exists(self.outdir):
-    #         shutil.rmtree(self.outdir)
+    def tearDown(self):
+        if os.path.exists(self.outdir):
+            shutil.rmtree(self.outdir)
 
     def generate_fake_data(self):
         """
