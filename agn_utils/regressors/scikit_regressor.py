@@ -31,7 +31,7 @@ class ScikitRegressor(Regressor):
             min_impurity_decrease=0.0,
             min_impurity_split=None, bootstrap=True,
             oob_score=False, n_jobs=None, random_state=None,
-            verbose=0, warm_start=False, ccp_alpha=0.0,
+            verbose=0, warm_start=False,
             max_samples=None)
         self.model_hyper_param.update(model_hyper_param)
         self.model = RandomForestRegressor(**self.model_hyper_param)
