@@ -11,6 +11,7 @@ TRAINING_DATA = "training_data.h5"
 def create_parser_and_read_args():
     parser = argparse.ArgumentParser()
     parser.add_argument("--make-dag", help="Make dag", action="store_true")
+    parser.add_argument("--model-fname", help="model fname", type=str, default='my.model')
     args = parser.parse_args()
     return args
 
@@ -19,9 +20,9 @@ def main():
     args = create_parser_and_read_args()
     if args.make_dag:
         create_python_script_jobs(
-            main_job_name="training_chi_regressos",
+            main_job_name="training_chi_regressor",
             python_script=__file__,
-            job_args_list=[],
+            job_args_list=[{'model-fname': MODEL_FNAME}],
             job_names_list=["trainer"]
         )
     else:

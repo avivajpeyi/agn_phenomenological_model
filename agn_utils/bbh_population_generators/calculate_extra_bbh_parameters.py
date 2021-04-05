@@ -4,7 +4,7 @@ Module to help convert parameters to our AGN formalism
 import bilby
 import lalsimulation
 import numpy as np
-from bbh_simulator.calculate_kick_vel_from_samples import Samples
+
 from bilby.gw.conversion import component_masses_to_chirp_mass
 from bilby_pipe.gracedb import determine_duration_and_scale_factor_from_parameters
 from numpy import cos, sin
@@ -32,6 +32,7 @@ def add_cos_theta_12_from_component_spins(df):
 
 
 def add_kick(df):
+    from bbh_simulator.calculate_kick_vel_from_samples import Samples
     samples = Samples(posterior=df)
     samples.calculate_remnant_kick_velocity()
     return samples.posterior
