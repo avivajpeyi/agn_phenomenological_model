@@ -10,6 +10,9 @@ from abc import ABC, abstractmethod
 from typing import Dict, List, Optional
 
 import pandas as pd
+from sklearn.model_selection import train_test_split
+
+from ..agn_logger import logger
 
 RANDOM_STATE = 42
 
@@ -23,18 +26,24 @@ class Regressor(ABC):
         self.model = None
 
     def train_test_split(self, data: pd.DataFrame,
-                         training_frac: Optional[float] = 0.9):
-        train = data.sample(frac=training_frac, random_state=RANDOM_STATE)
-        test = data.drop(train.index)
+                         testing_frac: Optional[float] = 0.2):
+        train, test = train_test_split(
+            data, test_size=testing_frac,
+            random_state=RANDOM_STATE, shuffle=True
+        )
         train_labels = train[self.output_parameters]
         test_labels = test[self.output_parameters]
         train_data = train[self.input_parameters]
         test_data = test[self.input_parameters]
-
         return train_data, test_data, train_labels, test_labels
 
     @abstractmethod
     def train(self, data: pd.DataFrame) -> None:
+        logger.info(
+            f"Commencing training for "
+            f"{self.input_parameters}-->{self.output_parameters} "
+            f"with hyper params: {self.model_hyper_param}"
+        )
         pass
 
     @abstractmethod

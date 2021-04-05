@@ -12,6 +12,8 @@ output
 *test_dir*
 *condor/
 studies/result_files
+*.h5
+*.model
 
 *.gif
 

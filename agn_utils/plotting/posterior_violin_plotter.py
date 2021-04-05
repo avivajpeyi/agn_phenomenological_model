@@ -94,7 +94,7 @@ def plot_masses(posteriors, events, truths):
     axs[0].hlines(y=HYPER_PARAM_VALS['mmax'], xmin=0, xmax=len(events) + 1)
     axs[0].hlines(y=HYPER_PARAM_VALS['mmin'], xmin=0, xmax=len(events) + 1)
     axs[0].set_ylabel("mass 1 source")
-    axs[1].set_ylabel("cos theta 12")
+    axs[1].set_ylabel("cos θ 12")
     axs[2].set_ylabel("snr")
     axs[2].set_xticks(np.arange(1, len(events) + 1), events, rotation=90)
     axs[2].set_xlim(0, len(events) + 1)

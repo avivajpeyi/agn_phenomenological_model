@@ -1,4 +1,3 @@
-import logging
 from collections import namedtuple
 
 import corner
@@ -9,8 +8,8 @@ import pandas as pd
 
 from . import PARAMS
 from .settings import set_matplotlib_style_settings
+from ..agn_logger import logger
 
-logger = logging.getLogger(__name__)
 set_matplotlib_style_settings()
 
 CORNER_KWARGS = dict(
@@ -29,8 +28,8 @@ CORNER_KWARGS = dict(
 )
 
 
-def get_one_dimensional_median_and_error_bar(posterior, key, fmt='.2f',
-                                             quantiles=(0.16, 0.84)):
+def _get_one_dimensional_median_and_error_bar(posterior, key, fmt='.2f',
+                                              quantiles=(0.16, 0.84)):
     """ Calculate the median and error bar for a given key
 
     Parameters
@@ -67,13 +66,13 @@ def get_one_dimensional_median_and_error_bar(posterior, key, fmt='.2f',
     return summary
 
 
-def add_titles_to_corner(fig, params, posterior: pd.DataFrame):
+def _add_ci_vals_to_marginalised_posteriors(fig, params, posterior: pd.DataFrame):
     # plt the quantiles
     axes = fig.get_axes()
     for i, par in enumerate(params):
         ax = axes[i + i * len(params)]
         if ax.title.get_text() == '':
-            ax.set_title(get_one_dimensional_median_and_error_bar(
+            ax.set_title(_get_one_dimensional_median_and_error_bar(
                 posterior, par,
                 quantiles=CORNER_KWARGS['quantiles']).string,
                          **CORNER_KWARGS['title_kwargs'])
@@ -81,21 +80,43 @@ def add_titles_to_corner(fig, params, posterior: pd.DataFrame):
 
 def overlaid_corner(samples_list, sample_labels, params,
                     samples_colors, fname="", title=None, truths={}):
-    """Plots multiple corners on top of each other"""
+    """Plots multiple corners on top of each other
+
+    :param samples_list: list of all posteriors to be plotted ontop of each other
+    :type samples_list: List[pd.DataFrame]
+    :param sample_labels: posterior's labels to be put on legend
+    :type sample_labels: List[str]
+    :param params: posterior params names (used to access posteriors samples)
+    :type params: List[str]
+    :param samples_colors: Color for each posterior
+    :type samples_colors: List[Color]
+    :param fname: Plot's save path
+    :type fname: str
+    :param title: Plot's suptitle if not None
+    :type title: None/str
+    :param truths: posterior param true vals
+    :type truths: Dict[str:float]
+    :return: None
+    """
     logger.info(f"Plotting {fname}")
     logger.info(f"Cols in samples: {samples_list[0].columns.values}")
     # sort the sample columns
     samples_list = [s[params] for s in samples_list]
+    base_s = samples_list[0]
 
     # get plot range, latex labels, colors and truths
-    plot_range = [PARAMS[p]['range'] for p in params]
-
-    axis_labels = [PARAMS[p]['latex_label'] for p in params]
-
+    plot_range, axis_labels, truths = [], [], []
+    for p in params:
+        p_data = PARAMS.get(
+            p,
+            dict(range=(min(base_s[p]), max(base_s[p])), latex_label=f'${p}$')
+        )
+        plot_range.append(p_data['range'])
+        axis_labels.append(p_data['latex_label'])
+        if len(truths) > 0:
+            truths.append(truths[p])
     if len(truths) == 0:
         truths = None
-    else:
-        truths = [truths[k] for k in params]
 
     # get some constants
     n = len(samples_list)
@@ -119,10 +140,13 @@ def overlaid_corner(samples_list, sample_labels, params,
         fig = corner.corner(
             samples_list[idx],
             fig=fig,
-            weights=get_normalisation_weight(len(samples_list[idx]), min_len),
+            weights=_get_normalisation_weight(len(samples_list[idx]), min_len),
             color=samples_colors[idx],
             **CORNER_KWARGS
         )
+
+    if len(samples_list) == 1:
+        _add_ci_vals_to_marginalised_posteriors(fig, params, samples_list[0])
 
     plt.legend(
         handles=[
@@ -139,5 +163,5 @@ def overlaid_corner(samples_list, sample_labels, params,
     plt.close(fig)
 
 
-def get_normalisation_weight(len_current_samples, len_of_longest_samples):
+def _get_normalisation_weight(len_current_samples, len_of_longest_samples):
     return np.ones(len_current_samples) * (len_of_longest_samples / len_current_samples)

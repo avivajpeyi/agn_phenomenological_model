@@ -1,3 +1,6 @@
+"""
+Helps create DAGs to batch-run python scripts with a list of kwargs
+"""
 import os
 import sys
 from typing import Dict, List
@@ -39,14 +42,14 @@ def convert_args_dict_to_str(job_args):
 
 
 def create_python_script_jobs(
-        main_job_name: str, run_dir: str, python_script: str,
+        main_job_name: str,
+        python_script: str,
         job_args_list: List[Dict],
         job_names_list: List[str]
 ):
     """ Creates a set of parallel jobs for a python script
 
-    :param main_job_name: name of main job
-    :param run_dir: the absdir where the run will be executed from
+    :param main_job_name: name of main job (and dir of where the job will run)
     :param python_script: the abspath to the python script
     :param job_args_list: list of args-dicts for the python script [{job_arg: arg_val}]
     :param job_names_list: list of the individual job names

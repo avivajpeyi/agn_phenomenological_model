@@ -11,4 +11,4 @@ dec = Cosine(name='dec', latex_label='$\\mathrm{DEC}$', unit=None, minimum=-1.57
 ra = Uniform(minimum=0, maximum=6.283185307179586, name='ra', latex_label='$\\mathrm{RA}$', unit=None, boundary='periodic')
 theta_jn = Sine(name='theta_jn', latex_label='$\\theta_{JN}$', unit=None, minimum=0, maximum=3.141592653589793, boundary=None)
 psi = Uniform(minimum=0, maximum=3.141592653589793, name='psi', latex_label='$\\psi$', unit=None, boundary='periodic')
-phase = Uniform(minimum=0, maximum=6.283185307179586, name='phase', latex_label='$\\phi$', unit=None, boundary='periodic')
+phase = Uniform(minimum=0, maximum=6.283185307179586, name='phase', latex_label='$\\ϕ$', unit=None, boundary='periodic')

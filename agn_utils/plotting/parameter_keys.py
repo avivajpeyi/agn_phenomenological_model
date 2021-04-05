@@ -12,5 +12,5 @@ PARAMS = dict(
     mass_1_source=dict(latex_label='$m_1^{\\mathrm{source}}$', range=(0, 200)),
     mass_2_source=dict(latex_label='$m_2^{\\mathrm{source}}$', range=(0, 200)),
     luminosity_distance=dict(latex_label='$d_L$', range=(50, 20000)),
-    log_snr=dict(latex='$\\rm{log}_{10}\ \\rho$)', range=(-1, 3)),
+    log_snr=dict(latex_label='$\\rm{log}_{10}\ \\rho$)', range=(-1, 3)),
 )

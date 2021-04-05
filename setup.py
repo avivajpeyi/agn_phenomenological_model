@@ -11,9 +11,9 @@ from setuptools import find_packages, setup
 
 # PROJECT SPECIFIC
 
-NAME = "ang_utils"
-PACKAGES = find_packages(where="ang_utils")
-META_PATH = os.path.join("agn", "__init__.py")
+NAME = "agn_utils"
+PACKAGES = find_packages(where=".")
+META_PATH = os.path.join("agn_utils", "__init__.py")
 CLASSIFIERS = [
     "Development Status :: 5 - Production/Stable",
     "Intended Audience :: Developers",
@@ -60,12 +60,7 @@ def find_meta(meta, meta_file=read(META_PATH)):
 if __name__ == "__main__":
     setup(
         name=NAME,
-        use_scm_version={
-            "write_to": os.path.join(
-                "agn_utils", NAME, "{0}_version.py".format(NAME)
-            ),
-            "write_to_template": '__version__ = "{version}"\n',
-        },
+        version=find_meta("version"),
         author=find_meta("author"),
         author_email=find_meta("email"),
         maintainer=find_meta("author"),
@@ -76,7 +71,6 @@ if __name__ == "__main__":
         long_description=read("README.md"),
         long_description_content_type="text/markdown",
         packages=PACKAGES,
-        package_dir={"": "src"},
         include_package_data=True,
         install_requires=INSTALL_REQUIRES,
         extras_require=EXTRA_REQUIRE,

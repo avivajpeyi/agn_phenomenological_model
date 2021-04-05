@@ -1,14 +1,14 @@
 import os
+import shutil
 import unittest
 
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
-from numpy.random import seed, uniform
-from scipy.interpolate import griddata
-
 from agn_utils.regressors.regressor import Regressor
 from agn_utils.regressors.scikit_regressor import ScikitRegressor
+from numpy.random import seed, uniform
+from scipy.interpolate import griddata
 
 
 class TestRegressors(unittest.TestCase):
@@ -88,7 +88,7 @@ class TestRegressors(unittest.TestCase):
         self.visualise_predicted_data(predicted_vals, n_trees=r.n_trees, label="scikit")
         self.assertIsNotNone(predicted_vals)
 
-    def test_scikit_regressos(self):
+    def test_scikit_regressor(self):
         self.run_regressor_tests(ScikitRegressor)
 
     def plot_contour(self, pred_z):

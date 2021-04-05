@@ -3,18 +3,10 @@ from __future__ import print_function
 import glob
 import os
 import shutil
-import warnings
-from typing import List, Optional
 
 import bilby
-import corner
-import matplotlib.lines as mlines
-import matplotlib.pyplot as plt
-import numpy as np
 import pandas as pd
-import seaborn as sns
-from matplotlib import rcParams
-from agn_utils.plotting.overlaid_corner_plotter import overlaid_corner
+from plotting import overlaid_corner
 
 MIXED = "../result_files/mix.dat"
 AGN = "../result_files/agn.dat"

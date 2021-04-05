@@ -7,8 +7,7 @@ import pandas as pd
 from sklearn.ensemble import RandomForestRegressor
 
 from .regressor import Regressor
-
-logger = logging.getLogger()
+from ..agn_logger import logger
 
 
 class ScikitRegressor(Regressor):
@@ -38,6 +37,7 @@ class ScikitRegressor(Regressor):
         self.model = RandomForestRegressor(**self.model_hyper_param)
 
     def train(self, data: pd.DataFrame):
+        super().train(data)
         train, test, train_labels, test_labels = self.train_test_split(data)
         self.model.fit(X=train, y=train_labels)
         logger.info("Training complete")
@@ -50,7 +50,7 @@ class ScikitRegressor(Regressor):
         model_testing_score = self.model.score(data, labels)
         logger.info(
             f'MODEL TESTING: '
-            f'Score={model_testing_score * 100:.2f}%, '
+            f'R^2 Score={model_testing_score * 100:.2f}%, '
             f'Mean Abosulte Error={model_testing_data_mae}'
         )
 
