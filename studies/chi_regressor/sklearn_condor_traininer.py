@@ -25,7 +25,7 @@ def main():
             job_names_list=["trainer"]
         )
     else:
-        chi_regressor_trainer(model_fname=MODEL_FNAME, training_fname=TRAINING_DATA)
+        chi_regressor_trainer(model_fname=MODEL_FNAME, training_fname=TRAINING_DATA, n_samples=None, model_type="Scikit")
         regressor = load_model(MODEL_FNAME)
         for s in [[0.1, 0.8], [3, 0.3], [1, 1]]:
             prediction_for_different_sigma(
