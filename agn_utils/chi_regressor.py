@@ -11,8 +11,7 @@ from agn_utils.create_agn_samples import (
 )
 from agn_utils.diagnostic_tools import timing
 from agn_utils.plotting import overlaid_corner
-from agn_utils.regressors.scikit_regressor import ScikitRegressor
-from agn_utils.regressors.tf_regressor import TfRegressor
+from agn_utils.regressors import ScikitRegressor, TfRegressor
 from matplotlib import pyplot as plt
 
 logger = logging.getLogger(__name__)
@@ -47,13 +46,16 @@ def instantiate_regression_model(model="Scikit"):
         input_parameters=["sigma_1", "sigma_12", "chi_eff", "chi_p"],
         output_parameters=['p']
     )
-    if model=="Scikit":
+    if model == "Scikit":
         regressor = ScikitRegressor(
             model_hyper_param=dict(verbose=2),
             **kwargs
         )
     else:
-        regressor = TfRegressor(**kwargs)
+        regressor = TfRegressor(
+            model_hyper_param=dict(model_dir="."),
+            **kwargs
+        )
     return regressor
 
 
@@ -82,7 +84,7 @@ def make_prediction_with_model(input_data, regressor):
     return predicted_p
 
 
-def prediction_for_different_sigma(sigma_1, sigma_12, n, regressor):
+def prediction_for_different_sigma(sigma_1, sigma_12, n, regressor, save=False):
     df = get_bbh_population_from_agn_params(
         num_samples=n, sigma_1=sigma_1,
         sigma_12=sigma_12)
@@ -95,7 +97,11 @@ def prediction_for_different_sigma(sigma_1, sigma_12, n, regressor):
     plt.suptitle(title, fontsize=40)
     plt.axis("off")
     plt.imshow(img)
-    plt.show()
+    if save:
+        f = f"sig1_{sigma_1:.2f}_sig12_{sigma_12:.2f}".replace(".", "-") + ".png"
+        plt.savefig(f)
+    else:
+        plt.show()
 
 
 def plot_prediction_vs_true(data, predicted_p, title=None):
@@ -120,10 +126,11 @@ def plot_prediction_vs_true(data, predicted_p, title=None):
     )
 
 
-def chi_regressor_trainer(model_fname: str, training_fname):
-    training_df = get_training_data(training_fname)
+def chi_regressor_trainer(model_fname: str, training_fname: str, model_type: str,
+                          n_samples: int):
+    training_df = get_training_data(training_fname, num_samples=n_samples)
     logger.debug(training_df.describe().T[['min', 'mean', 'max']])
-    train_model(training_df, model_fname=model_fname)
+    train_model(training_df, model_fname=model_fname, model_type=model_type)
 
 
 def chi_regressor_predictor(input_data: pd.DataFrame, model_fname: str):

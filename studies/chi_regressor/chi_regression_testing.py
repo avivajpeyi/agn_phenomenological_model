@@ -34,11 +34,12 @@ warnings.filterwarnings("ignore")
 # %matplotlib inline
 
 
-MODEL_FNAME = "chi_regressor.model"
+MODEL_FNAME = "chi_regressor"
 TRAINING_DATA_FNAME = "training_data.h5"
+MODEL_TYPE = "Tf"
 
 GENERATE_DATA = False
-TRAIN_MODEL = False
+TRAIN_MODEL = True
 # -
 
 # Now we will excute the code to generate data/train/load the trained model.
@@ -53,13 +54,12 @@ else:
 # + pycharm={"name": "#%%\n"}
 if TRAIN_MODEL:
     print("Training new regression model.")
-    chi_regressor_trainer(MODEL_FNAME)
-else:
+    chi_regressor_trainer(model_fname=MODEL_FNAME, training_fname=TRAINING_DATA_FNAME, model_type=MODEL_TYPE, n_samples=10000)
     print("Using trained regression model.")
 
 # + pycharm={"name": "#%%\n"}
 print("Loading regression model")
-regressor = load_model(MODEL_FNAME)
+regressor = load_model(MODEL_FNAME, model_type=MODEL_TYPE)
 
 
 # -
@@ -82,4 +82,7 @@ output = interactive_plot.children[-1]
 output.layout.height = '1100px'
 output.layout.align_content
 interactive_plot
+
+# -
+
 
