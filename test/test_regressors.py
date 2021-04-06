@@ -4,11 +4,13 @@ import unittest
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
+from numpy.random import seed, uniform
+from scipy.interpolate import griddata
+
+from agn_utils.diagnostic_tools import timing
 from agn_utils.regressors.regressor import Regressor
 from agn_utils.regressors.scikit_regressor import ScikitRegressor
 from agn_utils.regressors.tf_regressor import TfRegressor
-from numpy.random import seed, uniform
-from scipy.interpolate import griddata
 
 plt.rcParams["text.usetex"] = False
 
@@ -18,6 +20,7 @@ class TestRegressors(unittest.TestCase):
     def setUp(self):
         self.outdir = "regression_outdir_test"
         os.makedirs(self.outdir, exist_ok=True)
+        self.N = 1000
         self.training_data, self.prediction_data = self.generate_fake_data()
 
         self.in_parameters = ['x', 'y']
@@ -25,20 +28,21 @@ class TestRegressors(unittest.TestCase):
         self.visualise_training_data()
 
     def tearDown(self):
+        import shutil
         if os.path.exists(self.outdir):
             shutil.rmtree(self.outdir)
 
     def generate_fake_data(self):
         """
         Lets simulate training data using the following formula:
-        pred_z = grid_x * np.exp(-grid_x ** 2 - grid_y ** 2)
-        Where (pred_z) is the dependent variable you are trying to predict and (grid_x) and (grid_y) are the features
+        z = x * np.exp(-x ** 2 - y ** 2)
+        Where (z) is the dependent variable you are trying to predict and (x) and (y) are the features
         :return:
         :rtype:
         """
         # Create fake data
         seed(0)
-        npts = 5000
+        npts = self.N
         x = uniform(-2, 2, npts)
         y = uniform(-2, 2, npts)
         z = x * np.exp(-x ** 2 - y ** 2)
@@ -75,29 +79,46 @@ class TestRegressors(unittest.TestCase):
                  backgroundcolor='black', size=20)
         plt.savefig(os.path.join(self.outdir, f"{label}_predictions.png"))
 
-    def run_regressor_tests(self, my_regressor: Regressor, label: str):
+    def run_regressor_tests(self, my_regressor: Regressor, label: str, hyper_params):
         model_dir = os.path.join(self.outdir, label)
+        os.makedirs(model_dir, exist_ok=True)
         model_path = os.path.join(self.outdir, label, f"{label}.model")
-        r = my_regressor(input_parameters=self.in_parameters,
-                         output_parameters=self.out_parameters,
-                         model_hyper_param=dict(model_dir=model_dir))
+        regressor_kwargs = dict(
+            input_parameters=self.in_parameters,
+            output_parameters=self.out_parameters,
+            model_hyper_param=hyper_params,
+            outdir=model_dir
+        )
+        # Train and test
+        r = my_regressor(**regressor_kwargs)
         r.train(data=self.training_data)
         r.test(data=self.training_data[self.in_parameters],
-               labels=self.training_data[self.out_parameters],)
-        predicted_vals = r.predict(self.prediction_data)
-        r.save(model_path)
-        r = my_regressor(input_parameters=self.in_parameters,
-                         output_parameters=self.out_parameters)
-        r.load(model_path)
-        predicted_vals = r.predict(self.prediction_data)
-        self.visualise_predicted_data(predicted_vals, n_trees=r.n_trees, label=label)
+               labels=self.training_data[self.out_parameters], )
+        # predict
+        predictor_func = timing(r.predict)
+        predicted_vals = predictor_func(self.prediction_data)
         self.assertIsNotNone(predicted_vals)
 
+        # save
+        r.save()
+
+        # load and predict
+        r = my_regressor(**regressor_kwargs)
+        r.load()
+        predicted_vals = predictor_func(self.prediction_data)
+        self.assertIsNotNone(predicted_vals)
+
+        self.visualise_predicted_data(predicted_vals, n_trees=r.n_trees, label=label)
+
     def test_scikit_regressor(self):
-        self.run_regressor_tests(ScikitRegressor, "Sklearn Model")
+        self.run_regressor_tests(ScikitRegressor, "SklearnModel",
+                                 hyper_params=dict(verbose=2))
 
     def test_tf_regressor(self):
-        self.run_regressor_tests(TfRegressor, "TF Model")
+        label = "TFmodel"
+        model_dir = os.path.join(self.outdir, label)
+        self.run_regressor_tests(TfRegressor, label,
+                                 hyper_params=dict(model_dir=model_dir))
 
     def plot_contour(self, pred_z):
         x, y, z = self.training_data.x, self.training_data.y, self.training_data.z

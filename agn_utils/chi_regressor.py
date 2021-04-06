@@ -1,9 +1,12 @@
 import logging
 import os
-from typing import  Optional
+from typing import Optional
+
 import matplotlib
 import matplotlib.image
 import pandas as pd
+from matplotlib import pyplot as plt
+
 from agn_utils.create_agn_samples import get_bbh_population_from_agn_params
 from agn_utils.create_agn_samples import (
     load_training_data,
@@ -11,8 +14,7 @@ from agn_utils.create_agn_samples import (
 )
 from agn_utils.diagnostic_tools import timing
 from agn_utils.plotting import overlaid_corner
-from agn_utils.regressors import ScikitRegressor, TfRegressor, AvailibleRegressors
-from matplotlib import pyplot as plt
+from agn_utils.regressors import AvailibleRegressors, ScikitRegressor, TfRegressor
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
@@ -26,7 +28,7 @@ def generate_chi_regression_training_data(training_data_fname):
     save_agn_samples_for_many_populations(num=1, fname=training_data_fname)
     logger.info("Finished generating traininng data")
     df = load_training_data(training_data_fname)
-    logging.debug(df.describe())
+    logger.debug(f"\n {df.describe().T[['min', 'mean', 'max']]}")
 
 
 @timing
@@ -37,41 +39,45 @@ def get_training_data(training_data_fname, num_samples=None):
     if num_samples:
         df = df.sample(num_samples)
     df['p'] = df['p_cos_theta_1'] * df['p_cos_theta_12']
-    logger.info(f"Loaded {len(df)}/{init_len} training samples.")
+    percent = f"{len(df)/init_len * 100:.2E}%"
+    logger.info(f"Loaded {len(df)}/{init_len} {percent} training samples.")
     return df
 
 
-def instantiate_regression_model(model="Scikit"):
+def instantiate_regression_model(outdir, model=AvailibleRegressors.SCIKIT):
     kwargs = dict(
         input_parameters=["sigma_1", "sigma_12", "chi_eff", "chi_p"],
-        output_parameters=['p']
+        output_parameters=['p'],
+        outdir=outdir
     )
-    if model == "Scikit":
+    if model == AvailibleRegressors.SCIKIT:
         regressor = ScikitRegressor(
             model_hyper_param=dict(verbose=2),
             **kwargs
         )
-    else:
+    elif model == AvailibleRegressors.TF:
         regressor = TfRegressor(
-            model_hyper_param=dict(model_dir="."),
+            model_hyper_param=dict(model_dir=outdir),
             **kwargs
         )
+    else:
+        raise NotImplementedError(f"The model {model} is unimplemented.")
     return regressor
 
 
 @timing
-def train_model(training_data, model_fname, model_type="Scikit"):
-    regressor = instantiate_regression_model(model_type)
+def train_model(outdir, training_data, model_type=AvailibleRegressors.SCIKIT):
+    regressor = instantiate_regression_model(outdir, model_type)
     logger.info(f"{model_type} Regressor Training initiated.")
     regressor.train(data=training_data)
-    regressor.save(filename=model_fname)
-    logger.info(f"Training complete (model saved at {model_fname}).")
+    regressor.save()
+    logger.info(f"Training complete (model saved at {regressor.savepath}).")
 
 
-def load_model(model_fname, model_type="Scikit"):
-    regressor = instantiate_regression_model(model_type)
-    regressor.load(model_fname)
-    logger.info(f"{model_type} Regressor model loaded from {model_fname}.")
+def load_model(outdir, model_type=AvailibleRegressors.SCIKIT):
+    regressor = instantiate_regression_model(outdir, model_type)
+    regressor.load()
+    logger.info(f"{model_type} Regressor model loaded from {regressor.savepath}.")
     return regressor
 
 
@@ -99,7 +105,7 @@ def prediction_for_different_sigma(sigma_1, sigma_12, n, regressor, save=False):
     plt.imshow(img)
     if save:
         f = f"sig1_{sigma_1:.2f}_sig12_{sigma_12:.2f}".replace(".", "-") + ".png"
-        plt.savefig(f)
+        plt.savefig(os.path.join(regressor.outdir, f))
     else:
         plt.show()
 
@@ -126,13 +132,15 @@ def plot_prediction_vs_true(data, predicted_p, title=None):
     )
 
 
-def chi_regressor_trainer(model_fname: str, training_fname: str, model_type: str,
-                          n_samples:Optional[int]=None):
+def chi_regressor_trainer(
+        outdir: str, training_fname: str, model_type: AvailibleRegressors,
+        n_samples: Optional[int] = None):
     training_df = get_training_data(training_fname, num_samples=n_samples)
-    logger.debug(training_df.describe().T[['min', 'mean', 'max']])
-    train_model(training_df, model_fname=model_fname, model_type=model_type)
+    train_model(training_data=training_df, outdir=outdir, model_type=model_type)
 
 
-def chi_regressor_predictor(input_data: pd.DataFrame, model_fname: str):
-    regressor = load_model(model_fname)
+def chi_regressor_predictor(
+        input_data: pd.DataFrame, model_outdir: str,
+        model_type: AvailibleRegressors):
+    regressor = load_model(outdir=model_outdir, model_type=model_type)
     return make_prediction_with_model(input_data, regressor)

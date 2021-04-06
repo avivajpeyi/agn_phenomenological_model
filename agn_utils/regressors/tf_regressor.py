@@ -10,7 +10,7 @@ from tensorflow.python.training.tracking.tracking import AutoTrackable
 
 from .regressor import Regressor
 from ..agn_logger import logger
-
+from ..diagnostic_tools import timing
 
 def make_input_fn(data: pd.DataFrame, labels: pd.Series, shuffle=True, ) -> Callable:
     def _input_fn() -> tf.data.Dataset:
@@ -33,9 +33,11 @@ class TfRegressor(Regressor):
 
     """
 
-    def __init__(self, input_parameters: List[str], output_parameters: List[str],
-                 model_hyper_param: Optional[Dict] = {}):
-        super().__init__(input_parameters, output_parameters)
+    def __init__(self,
+                 input_parameters: List[str], output_parameters: List[str],
+                 outdir: str, model_hyper_param: Optional[Dict] = {}
+                 ):
+        super().__init__(input_parameters, output_parameters, outdir)
         self.model_hyper_param = dict(
             n_batches_per_layer=1, model_dir='.', label_dimension=1,
             weight_column=None, n_trees=100, max_depth=6, learning_rate=0.1,
@@ -51,6 +53,7 @@ class TfRegressor(Regressor):
         ]
         self.model = BoostedTreesRegressor(self.fc, **self.model_hyper_param)
 
+    @timing
     def train(self, data: pd.DataFrame):
         super().train(data)
         train, test, train_labels, test_labels = self.train_test_split(data)
@@ -66,14 +69,14 @@ class TfRegressor(Regressor):
         for key, value in result.items():
             logger.info(f"\t {key} : {value}")
 
-    def save(self, filename: str):
+    def save(self):
         feature_spec = tf.feature_column.make_parse_example_spec(self.fc)
         serving_input_fn = tf.estimator.export.build_parsing_serving_input_receiver_fn(
             feature_spec)
-        self.model.export_saved_model(filename, serving_input_fn)
+        self.model.export_saved_model(self.savepath, serving_input_fn)
 
-    def load(self, filename: str):
-        subdirs = [x for x in pathlib.Path(filename).iterdir()
+    def load(self):
+        subdirs = [x for x in pathlib.Path(self.savepath).iterdir()
                    if x.is_dir() and 'temp' not in str(x)]
         latest = str(sorted(subdirs)[-1])
         self.model = tf.saved_model.load(latest)

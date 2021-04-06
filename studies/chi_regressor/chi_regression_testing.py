@@ -26,7 +26,8 @@ import warnings
 from agn_utils.agn_logger import logger
 from agn_utils.chi_regressor import (
     chi_regressor_trainer,
-    generate_chi_regression_training_data, load_model, prediction_for_different_sigma
+    generate_chi_regression_training_data, load_model, prediction_for_different_sigma,
+    AvailibleRegressors
 )
 from ipywidgets import FloatSlider, IntSlider, Layout, interactive
 logger.setLevel(logging.ERROR)
@@ -34,9 +35,9 @@ warnings.filterwarnings("ignore")
 # %matplotlib inline
 
 
-MODEL_FNAME = "chi_regressor"
 TRAINING_DATA_FNAME = "training_data.h5"
-MODEL_TYPE = "Tf"
+MODEL_TYPE = AvailibleRegressors.TF
+OUTDIR = f"{MODEL_TYPE.name.lower()}_regressor_files"
 
 GENERATE_DATA = False
 TRAIN_MODEL = True
@@ -54,12 +55,12 @@ else:
 # + pycharm={"name": "#%%\n"}
 if TRAIN_MODEL:
     print("Training new regression model.")
-    chi_regressor_trainer(model_fname=MODEL_FNAME, training_fname=TRAINING_DATA_FNAME, model_type=MODEL_TYPE, n_samples=10000)
+    chi_regressor_trainer(outdir=OUTDIR, training_fname=TRAINING_DATA_FNAME, model_type=MODEL_TYPE, n_samples=10000)
     print("Using trained regression model.")
 
 # + pycharm={"name": "#%%\n"}
 print("Loading regression model")
-regressor = load_model(MODEL_FNAME, model_type=MODEL_TYPE)
+regressor = load_model(outdir=OUTDIR, model_type=MODEL_TYPE)
 
 
 # -

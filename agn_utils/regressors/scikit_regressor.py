@@ -8,7 +8,7 @@ from sklearn.ensemble import RandomForestRegressor
 
 from .regressor import Regressor
 from ..agn_logger import logger
-
+from ..diagnostic_tools import timing
 
 class ScikitRegressor(Regressor):
     """
@@ -20,9 +20,11 @@ class ScikitRegressor(Regressor):
 
     """
 
-    def __init__(self, input_parameters: List[str], output_parameters: List[str],
-                 model_hyper_param: Optional[Dict] = {}):
-        super().__init__(input_parameters, output_parameters)
+    def __init__(self,
+                 input_parameters: List[str], output_parameters: List[str],
+                 outdir: str, model_hyper_param: Optional[Dict] = {}
+                 ):
+        super().__init__(input_parameters, output_parameters, outdir)
         self.model_hyper_param = dict(
             n_estimators=100, criterion='mse',
             # max_depth=None, min_samples_split=2,
@@ -37,6 +39,7 @@ class ScikitRegressor(Regressor):
         self.model_hyper_param.update(model_hyper_param)
         self.model = RandomForestRegressor(**self.model_hyper_param)
 
+    @timing
     def train(self, data: pd.DataFrame):
         super().train(data)
         train, test, train_labels, test_labels = self.train_test_split(data)
@@ -55,11 +58,11 @@ class ScikitRegressor(Regressor):
             f'Mean Abosulte Error={model_testing_data_mae}'
         )
 
-    def save(self, filename: str):
-        joblib.dump(self.model, filename)
+    def save(self):
+        joblib.dump(self.model, self.savepath)
 
-    def load(self, filename: str):
-        self.model = joblib.load(filename)
+    def load(self):
+        self.model = joblib.load(self.savepath)
 
     def visualise(self):
         "https://mljar.com/blog/visualize-tree-from-random-forest/"
