@@ -23,15 +23,19 @@ def create_parser_and_read_args():
 def main():
     args = create_parser_and_read_args()
     if args.make_dag:
-        for model_type in AvailibleRegressors:
-            outdir = f"{model_type.name.lower()}_regressor_files"
-            create_python_script_jobs(
-                main_job_name="training_chi_regressor",
-                python_script=__file__,
-                job_args_list=[{'outdir': outdir, "model-type": model_type.name}],
-                job_names_list=["trainer"],
-                request_memory="16 GB"
-            )
+        model_type = AvailibleRegressors[args.model_type.upper()]
+        outdir = f"{model_type.name.lower()}_regressor_files"
+        extra_lines = []
+        if model_type == AvailibleRegressors.TF:
+            extra_lines = ["request_gpus = 1"]
+        create_python_script_jobs(
+            main_job_name="training_chi_regressor",
+            python_script=__file__,
+            job_args_list=[{'outdir': outdir, "model-type": model_type.name}],
+            job_names_list=["trainer"],
+            request_memory="16 GB",
+            extra_lines=extra_lines
+        )
     else:
         model_type = AvailibleRegressors[args.model_type.upper()]
         chi_regressor_trainer(
