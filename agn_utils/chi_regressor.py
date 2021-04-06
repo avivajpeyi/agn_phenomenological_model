@@ -1,6 +1,6 @@
 import logging
 import os
-
+from typing import  Optional
 import matplotlib
 import matplotlib.image
 import pandas as pd
@@ -11,7 +11,7 @@ from agn_utils.create_agn_samples import (
 )
 from agn_utils.diagnostic_tools import timing
 from agn_utils.plotting import overlaid_corner
-from agn_utils.regressors import ScikitRegressor, TfRegressor
+from agn_utils.regressors import ScikitRegressor, TfRegressor, AvailibleRegressors
 from matplotlib import pyplot as plt
 
 logger = logging.getLogger(__name__)
@@ -127,7 +127,7 @@ def plot_prediction_vs_true(data, predicted_p, title=None):
 
 
 def chi_regressor_trainer(model_fname: str, training_fname: str, model_type: str,
-                          n_samples: int):
+                          n_samples:Optional[int]=None):
     training_df = get_training_data(training_fname, num_samples=n_samples)
     logger.debug(training_df.describe().T[['min', 'mean', 'max']])
     train_model(training_df, model_fname=model_fname, model_type=model_type)
