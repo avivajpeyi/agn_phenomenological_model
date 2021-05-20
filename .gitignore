@@ -14,8 +14,10 @@ output
 studies/result_files
 *.h5
 *.model
-
+.ipynb_checkpoints
 *.gif
+*outdir*
+*regressor_files*
 
 ### Example user template template
 # IntelliJ project files

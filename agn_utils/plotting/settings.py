@@ -40,7 +40,7 @@ def get_colors(num_colors: int, alpha: Optional[float] = 1) -> List[List[float]]
     :return: List of samples_colors. Each color is a list of [r, g, b, alpha].
     """
     palettes = ['colorblind', "ch:start=.2,rot=-.3"]
-    cs = sns.color_palette(palettes[1], n_colors=num_colors)
+    cs = sns.color_palette(palettes[0], n_colors=num_colors)
     cs = [list(c) for c in cs]
     for i in range(len(cs)):
         cs[i].append(alpha)

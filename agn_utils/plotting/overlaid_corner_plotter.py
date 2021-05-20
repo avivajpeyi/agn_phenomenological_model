@@ -79,7 +79,7 @@ def _add_ci_vals_to_marginalised_posteriors(fig, params, posterior: pd.DataFrame
 
 
 def overlaid_corner(samples_list, sample_labels, params,
-                    samples_colors, fname="", title=None, truths={}):
+                    samples_colors, fname="", title=None, truths={}, quants=True):
     """Plots multiple corners on top of each other
 
     :param samples_list: list of all posteriors to be plotted ontop of each other
@@ -123,17 +123,21 @@ def overlaid_corner(samples_list, sample_labels, params,
     _, ndim = samples_list[0].shape
     min_len = max([len(s) for s in samples_list])
 
-    CORNER_KWARGS.update(
+    c_kwargs = CORNER_KWARGS.copy()
+    c_kwargs.update(
         range=plot_range,
         labels=axis_labels,
         truths=truths,
         truth_color=CORNER_KWARGS['truth_color'],
     )
 
+    if not quants:
+        c_kwargs.pop('quantiles', None)
+
     fig = corner.corner(
         samples_list[0],
         color=samples_colors[0],
-        **CORNER_KWARGS,
+        **c_kwargs,
     )
 
     for idx in range(1, n):
@@ -142,7 +146,7 @@ def overlaid_corner(samples_list, sample_labels, params,
             fig=fig,
             weights=_get_normalisation_weight(len(samples_list[idx]), min_len),
             color=samples_colors[idx],
-            **CORNER_KWARGS
+            **c_kwargs
         )
 
     if len(samples_list) == 1:
@@ -159,9 +163,11 @@ def overlaid_corner(samples_list, sample_labels, params,
     if title:
         fig.suptitle(title, y=0.97)
         fig.subplots_adjust(top=0.75)
-    fig.savefig(fname)
-    plt.close(fig)
-
+    if fname:
+        fig.savefig(fname)
+        plt.close(fig)
+    else:
+        return fig
 
 def _get_normalisation_weight(len_current_samples, len_of_longest_samples):
     return np.ones(len_current_samples) * (len_of_longest_samples / len_current_samples)

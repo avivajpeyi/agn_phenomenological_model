@@ -10,6 +10,17 @@ DATA_KEY = "training_data"
 
 
 def save_agn_samples_for_population_instance(fname, sigma_1, sigma_12):
+    """
+
+    :param fname:
+    :type fname:
+    :param sigma_1:
+    :type sigma_1:
+    :param sigma_12:
+    :type sigma_12:
+    :return:
+    :rtype:
+    """
     s = get_bbh_population_from_agn_params(
         num_samples=5000, sigma_1=sigma_1, sigma_12=sigma_12)
 
@@ -28,14 +39,6 @@ def save_agn_samples_for_population_instance(fname, sigma_1, sigma_12):
     store = pd.HDFStore(fname)
     store.append(key=DATA_KEY, value=df, format='t', data_columns=True)
     store.close()
-
-
-def divide(lst, n):
-    p = len(lst) // n
-    if len(lst) - p > 0:
-        return [lst[:p]] + divide(lst[p:], n - 1)
-    else:
-        return [lst]
 
 
 def save_agn_samples_for_many_populations(num, fname, num_processors=1):
