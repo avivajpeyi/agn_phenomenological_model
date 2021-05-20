@@ -6,14 +6,11 @@ Given a GW event name, gets the NRsur and LVC result and plots the samples on a 
 from __future__ import print_function
 
 import argparse
-from pprint import pprint
 import glob
 import os
 import re
+from pprint import pprint
 
-import corner
-import matplotlib.lines as mlines
-import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 from astropy import units
@@ -22,9 +19,11 @@ from bilby.core.prior import Constraint, Cosine, PowerLaw, Sine, Uniform
 from bilby.gw import conversion
 from bilby.gw.prior import PriorDict
 from bilby.gw.result import CBCResult
-from matplotlib import rcParams
 from scipy.interpolate import interp1d
-from utils import create_python_script_jobs
+
+from ..overlaid_corner_plotter import overlaid_corner
+from ...batch_processing import create_python_script_jobs
+from ...bbh_population_generators.calculate_extra_bbh_parameters import add_cos_theta_12_from_component_spins
 
 PARAMS = {
     "chirp_mass": dict(latex_label="$M_{c}$", range=(5, 200)),
@@ -138,7 +137,7 @@ def truncate_samples(df, params):
         df[f"mass_{ii}_source"] = df[f"mass_{ii}"] / (1 + df["redshift"])
     df = conversion.generate_spin_parameters(df)
     df = conversion.generate_mass_parameters(df)
-    df = add_agn_samples_to_df(df)
+    df = add_cos_theta_12_from_component_spins(df)
     if isinstance(df, pd.DataFrame):
         df = df[params]
     else:
