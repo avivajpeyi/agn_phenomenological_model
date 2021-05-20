@@ -16,9 +16,9 @@ CORNER_KWARGS = dict(
     smooth=0.9,
     label_kwargs=dict(fontsize=30),
     title_kwargs=dict(fontsize=16),
-    truth_color='tab:orange',
+    truth_color="tab:orange",
     quantiles=[0.16, 0.84],
-    levels=(1 - np.exp(-0.5), 1 - np.exp(-2), 1 - np.exp(-9 / 2.)),
+    levels=(1 - np.exp(-0.5), 1 - np.exp(-2), 1 - np.exp(-9 / 2.0)),
     plot_density=False,
     plot_datapoints=False,
     fill_contours=True,
@@ -28,9 +28,10 @@ CORNER_KWARGS = dict(
 )
 
 
-def _get_one_dimensional_median_and_error_bar(posterior, key, fmt='.2f',
-                                              quantiles=(0.16, 0.84)):
-    """ Calculate the median and error bar for a given key
+def _get_one_dimensional_median_and_error_bar(
+    posterior, key, fmt=".2f", quantiles=(0.16, 0.84)
+):
+    """Calculate the median and error bar for a given key
 
     Parameters
     ----------
@@ -48,7 +49,7 @@ def _get_one_dimensional_median_and_error_bar(posterior, key, fmt='.2f',
         An object with attributes, median, lower, upper and string
 
     """
-    summary = namedtuple('summary', ['median', 'lower', 'upper', 'string'])
+    summary = namedtuple("summary", ["median", "lower", "upper", "string"])
 
     if len(quantiles) != 2:
         raise ValueError("quantiles must be of length 2")
@@ -62,24 +63,37 @@ def _get_one_dimensional_median_and_error_bar(posterior, key, fmt='.2f',
     fmt = "{{0:{0}}}".format(fmt).format
     string_template = r"${{{0}}}_{{-{1}}}^{{+{2}}}$"
     summary.string = string_template.format(
-        fmt(summary.median), fmt(summary.minus), fmt(summary.plus))
+        fmt(summary.median), fmt(summary.minus), fmt(summary.plus)
+    )
     return summary
 
 
-def _add_ci_vals_to_marginalised_posteriors(fig, params, posterior: pd.DataFrame):
+def _add_ci_vals_to_marginalised_posteriors(
+    fig, params, posterior: pd.DataFrame
+):
     # plt the quantiles
     axes = fig.get_axes()
     for i, par in enumerate(params):
         ax = axes[i + i * len(params)]
-        if ax.title.get_text() == '':
-            ax.set_title(_get_one_dimensional_median_and_error_bar(
-                posterior, par,
-                quantiles=CORNER_KWARGS['quantiles']).string,
-                         **CORNER_KWARGS['title_kwargs'])
+        if ax.title.get_text() == "":
+            ax.set_title(
+                _get_one_dimensional_median_and_error_bar(
+                    posterior, par, quantiles=CORNER_KWARGS["quantiles"]
+                ).string,
+                **CORNER_KWARGS["title_kwargs"],
+            )
 
 
-def overlaid_corner(samples_list, sample_labels, params,
-                    samples_colors, fname="", title=None, truths={}, quants=True):
+def overlaid_corner(
+    samples_list,
+    sample_labels,
+    params,
+    samples_colors,
+    fname="",
+    title=None,
+    truths={},
+    quants=True,
+):
     """Plots multiple corners on top of each other
 
     :param samples_list: list of all posteriors to be plotted ontop of each other
@@ -109,10 +123,10 @@ def overlaid_corner(samples_list, sample_labels, params,
     for p in params:
         p_data = PARAMS.get(
             p,
-            dict(range=(min(base_s[p]), max(base_s[p])), latex_label=f'${p}$')
+            dict(range=(min(base_s[p]), max(base_s[p])), latex_label=f"${p}$"),
         )
-        plot_range.append(p_data['range'])
-        axis_labels.append(p_data['latex_label'])
+        plot_range.append(p_data["range"])
+        axis_labels.append(p_data["latex_label"])
         if len(truths) > 0:
             truths.append(truths[p])
     if len(truths) == 0:
@@ -128,11 +142,11 @@ def overlaid_corner(samples_list, sample_labels, params,
         range=plot_range,
         labels=axis_labels,
         truths=truths,
-        truth_color=CORNER_KWARGS['truth_color'],
+        truth_color=CORNER_KWARGS["truth_color"],
     )
 
     if not quants:
-        c_kwargs.pop('quantiles', None)
+        c_kwargs.pop("quantiles", None)
 
     fig = corner.corner(
         samples_list[0],
@@ -146,7 +160,7 @@ def overlaid_corner(samples_list, sample_labels, params,
             fig=fig,
             weights=_get_normalisation_weight(len(samples_list[idx]), min_len),
             color=samples_colors[idx],
-            **c_kwargs
+            **c_kwargs,
         )
 
     if len(samples_list) == 1:
@@ -154,11 +168,15 @@ def overlaid_corner(samples_list, sample_labels, params,
 
     plt.legend(
         handles=[
-            mlines.Line2D([], [], color=samples_colors[i], label=sample_labels[i])
+            mlines.Line2D(
+                [], [], color=samples_colors[i], label=sample_labels[i]
+            )
             for i in range(len(sample_labels))
         ],
-        fontsize=20, frameon=False,
-        bbox_to_anchor=(1, ndim), loc="upper right"
+        fontsize=20,
+        frameon=False,
+        bbox_to_anchor=(1, ndim),
+        loc="upper right",
     )
     if title:
         fig.suptitle(title, y=0.97)
@@ -169,5 +187,8 @@ def overlaid_corner(samples_list, sample_labels, params,
     else:
         return fig
 
+
 def _get_normalisation_weight(len_current_samples, len_of_longest_samples):
-    return np.ones(len_current_samples) * (len_of_longest_samples / len_current_samples)
+    return np.ones(len_current_samples) * (
+        len_of_longest_samples / len_current_samples
+    )

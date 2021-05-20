@@ -19,9 +19,9 @@ SUMMARY_EXE = "/cvmfs/oasis.opensciencegrid.org/ligo/sw/conda/envs/igwn-py36-202
 
 def get_event_name(fname):
     name = re.findall(r"(\w*\d{6}[a-pred_z]*)", fname)
-    if len(name)==0:
+    if len(name) == 0:
         name = re.findall(r"inj\d+", fname)
-    if len(name)==0:
+    if len(name) == 0:
         name = re.findall(r"data\d+", fname)
     if len(name) == 0:
         name = os.path.basename(fname).split(".")
@@ -32,7 +32,9 @@ def make_summary_for_event(event_path, outdir, email):
     print(f"Making summary page for event: {event_path}")
     event_name = get_event_name(event_path)
     event_outdir = os.path.join(outdir, event_name)
-    gw_data_path = glob.glob(event_path.split('/result/')[0] + "/data/*.pickle")[0]
+    gw_data_path = glob.glob(
+        event_path.split("/result/")[0] + "/data/*.pickle"
+    )[0]
     os.makedirs(event_outdir, exist_ok=True)
     event_labels = event_name
     event_paths = event_path
@@ -46,7 +48,9 @@ def make_summary_for_event(event_path, outdir, email):
     --webdir {event_outdir}
     --aapproximant IMRPhenomXPHM
     --gwdata {gw_data_path}
-    """.replace("\n", " ")
+    """.replace(
+        "\n", " "
+    )
     print(f"Running: {command}")
     os.system(command)
 
@@ -54,12 +58,18 @@ def make_summary_for_event(event_path, outdir, email):
 def create_parser_and_read_args():
     parser = argparse.ArgumentParser()
     parser.add_argument("--make-dag", help="Make dag", action="store_true")
-    parser.add_argument("--outdir", help="outdir for summary page", type=str,
-                        default=".")
-    parser.add_argument("--event-path", help="Event id (eg GW150914)", type=str,
-                        default="GW150914")
-    parser.add_argument("--email", help="email to notify", type=str,
-                        default="")
+    parser.add_argument(
+        "--outdir", help="outdir for summary page", type=str, default="."
+    )
+    parser.add_argument(
+        "--event-path",
+        help="Event id (eg GW150914)",
+        type=str,
+        default="GW150914",
+    )
+    parser.add_argument(
+        "--email", help="email to notify", type=str, default=""
+    )
     args = parser.parse_args()
     return args
 
@@ -75,7 +85,7 @@ def make_summary_dag(outdir, email):
         run_dir="",
         python_script=os.path.abspath(__file__),
         job_args_list=args,
-        job_names_list=names
+        job_names_list=names,
     )
 
 

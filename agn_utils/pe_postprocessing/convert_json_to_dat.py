@@ -7,23 +7,23 @@ from bilby.gw.result import CBCResult
 from tqdm import tqdm
 
 PARAM = [
-    'a_1',
-    'a_2',
-    'cos_tilt_1',
-    'mass_ratio',
-    'mass_1',
-    'redshift',
-    'spin_1x',
-    'spin_1y',
-    'spin_1z',
-    'spin_2x',
-    'spin_2y',
-    'spin_2z',
+    "a_1",
+    "a_2",
+    "cos_tilt_1",
+    "mass_ratio",
+    "mass_1",
+    "redshift",
+    "spin_1x",
+    "spin_1y",
+    "spin_1z",
+    "spin_2x",
+    "spin_2y",
+    "spin_2z",
 ]
 
 
 def save_cbc_dat(posterior: pd.DataFrame, old_fn: str, new_dir: str):
-    posterior['mass_1'] = posterior["mass_1_source"]
+    posterior["mass_1"] = posterior["mass_1_source"]
     posterior["mass_2"] = posterior["mass_2_source"]
     posterior = posterior[PARAM]
     new_fn = os.path.basename(old_fn).replace(".json", ".dat")
@@ -32,8 +32,8 @@ def save_cbc_dat(posterior: pd.DataFrame, old_fn: str, new_dir: str):
 
 
 def process_res(
-        dat_outdir="simulated_event_samples",
-        json_regex="bilby_pipe_jobs/out*/result/*result.json"
+    dat_outdir="simulated_event_samples",
+    json_regex="bilby_pipe_jobs/out*/result/*result.json",
 ):
     print(f"Getting res from {json_regex} and sving to {dat_outdir}")
     if not os.path.isdir(dat_outdir):
@@ -42,7 +42,9 @@ def process_res(
     print(f"Converting {len(res_fnames)} result json-->dat")
     for fn in tqdm(res_fnames, desc="Converting File", total=len(res_fnames)):
         try:
-            save_cbc_dat(CBCResult.from_json(fn).posterior, fn, new_dir=dat_outdir)
+            save_cbc_dat(
+                CBCResult.from_json(fn).posterior, fn, new_dir=dat_outdir
+            )
         except Exception as e:
             print(f"ERROR PROCESSING {fn}: {e}. SKIPPING")
     print("COMPLETE.")
@@ -65,14 +67,14 @@ def downsampler():
             print(f"ERROR {f}: {e}")
 
     samples_count = pd.DataFrame(dict(fnames=fnames, lens=lens))
-    samples_count = samples_count[samples_count['lens'] > MAX_SAMPLES]
+    samples_count = samples_count[samples_count["lens"] > MAX_SAMPLES]
     samples_count = samples_count.reset_index(drop=True)
     print(samples_count)
 
     for i in range(len(samples_count)):
-        fname = samples_count.iloc[i]['fnames']
+        fname = samples_count.iloc[i]["fnames"]
         df = pd.read_csv(fname, sep=" ").sample(MAX_SAMPLES)
-        df.to_csv(fname, sep=' ', index=False)
+        df.to_csv(fname, sep=" ", index=False)
         print(f"{fname} len {samples_count.iloc[i]['lens']}-->{MAX_SAMPLES}")
 
 

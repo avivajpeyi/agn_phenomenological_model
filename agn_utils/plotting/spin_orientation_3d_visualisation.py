@@ -19,13 +19,13 @@ from tqdm import tqdm
 logging.getLogger("bbh_simulator").setLevel(logging.ERROR)
 logging.getLogger().setLevel(logging.ERROR)
 
-rc('text', usetex=True)
+rc("text", usetex=True)
 
 N_VEC = "Num BBH"
 COS_theta_12 = "cos(theta_12)"
 COS_theta_1L = "cos(theta_1L)"
 
-BILBY_BLUE_COLOR = '#0072C1'
+BILBY_BLUE_COLOR = "#0072C1"
 VIOLET_COLOR = "#8E44AD"
 
 PARAMS = dict(
@@ -38,8 +38,6 @@ PARAMS = dict(
 )
 
 
-
-
 def rotate_vector_along_z(v1, theta):
     """
     |cos θ   −sin θ   0| |x|   |x cos θ − y sin θ|   |x'|
@@ -50,7 +48,7 @@ def rotate_vector_along_z(v1, theta):
     return [
         x * np.cos(theta) - y * np.sin(theta),
         x * np.sin(theta) + y * np.cos(theta),
-        z
+        z,
     ]
 
 
@@ -64,7 +62,7 @@ def rotate_vector_along_y(v1, theta):
     return [
         x * np.cos(theta) + z * np.sin(theta),
         y,
-        - x * np.sin(theta) + z * np.cos(theta),
+        -x * np.sin(theta) + z * np.cos(theta),
     ]
 
 
@@ -86,11 +84,8 @@ def get_isotropic_vector(std=1):
         std = 0.00001
     a, b = (clip_a - mean) / std, (clip_b - mean) / std
     costheta = scipy.stats.truncnorm.rvs(
-        a=a,
-        b=b,
-        loc=mean,
-        scale=std,
-        size=1)[0]
+        a=a, b=b, loc=mean, scale=std, size=1
+    )[0]
     theta = np.arccos(costheta)
     x = np.sin(theta) * np.cos(theta)
     y = np.sin(theta) * np.sin(theta)
@@ -117,11 +112,11 @@ def normalise_vectors(vectors):
     return vectors / np.linalg.norm(vectors, axis=1)[:, None]
 
 
-class SphereAngleAnimation():
+class SphereAngleAnimation:
     def __init__(self):
         # default parameters
         self.kwargs = {
-            'radius': 1,
+            "radius": 1,
             N_VEC: 100,
             COS_theta_1L: 1,
             COS_theta_12: 1,
@@ -138,74 +133,99 @@ class SphereAngleAnimation():
         self.update()
 
     def add_sliders(self):
-        LEFT = dict(pointa=(.025, .1), pointb=(.31, .1), )
-        MIDDLE = dict(pointa=(.35, .1), pointb=(.64, .1))
-        RIGHT = dict(pointa=(.67, .1), pointb=(.98, .1), )
+        LEFT = dict(
+            pointa=(0.025, 0.1),
+            pointb=(0.31, 0.1),
+        )
+        MIDDLE = dict(pointa=(0.35, 0.1), pointb=(0.64, 0.1))
+        RIGHT = dict(
+            pointa=(0.67, 0.1),
+            pointb=(0.98, 0.1),
+        )
 
         self.plotter.add_slider_widget(
             callback=lambda value: self(COS_theta_1L, value),
             rng=[0, 1],
             value=1,
             title=f"min {COS_theta_1L}",
-            style='modern',
-            **LEFT
+            style="modern",
+            **LEFT,
         )
         self.plotter.add_slider_widget(
             callback=lambda value: self(COS_theta_12, value),
             rng=[0, 1],
             value=1,
             title=f"min {COS_theta_12}",
-            style='modern',
-            **MIDDLE
+            style="modern",
+            **MIDDLE,
         )
         self.plotter.add_slider_widget(
             callback=lambda value: self(N_VEC, int(value)),
             rng=[1, 1000],
             value=100,
             title=N_VEC,
-            style='modern',
-            **RIGHT
+            style="modern",
+            **RIGHT,
         )
 
     def init_plotter(self):
         p = pv.Plotter()
-        p.add_mesh(pv.Sphere(radius=self.kwargs['radius']))
+        p.add_mesh(pv.Sphere(radius=self.kwargs["radius"]))
         ar_kwgs = dict(
-            scale=self.kwargs['radius'] * 2,
+            scale=self.kwargs["radius"] * 2,
             shaft_radius=0.01,
             tip_radius=0.05,
-            tip_length=0.1
+            tip_length=0.1,
         )
         p.add_mesh(pv.Arrow(direction=[1, 0, 0], **ar_kwgs), color="blue")  # x
         p.add_mesh(pv.Arrow(direction=[0, 1, 0], **ar_kwgs), color="red")  # y
-        p.add_mesh(pv.Arrow(direction=[0, 0, 1], **ar_kwgs), color="green")  # Z
-        p.add_legend(labels=[
-            ["L", "green"],
-            ["S1", self.s1_color],
-            ["S2", self.s2_color]
-        ])
+        p.add_mesh(
+            pv.Arrow(direction=[0, 0, 1], **ar_kwgs), color="green"
+        )  # Z
+        p.add_legend(
+            labels=[
+                ["L", "green"],
+                ["S1", self.s1_color],
+                ["S2", self.s2_color],
+            ]
+        )
         return p
 
     def add_vectors(self):
-        s1_vectors = [get_isotropic_vector(self.kwargs[COS_theta_1L]) for _ in
-                      range(self.kwargs[N_VEC])]
-        s2_vectors = [get_isotropic_vector(self.kwargs[COS_theta_12]) for _ in
-                      range(self.kwargs[N_VEC])]
-        s2_vectors = [rotate_v2_to_v1(s1, s2) for s1, s2 in zip(s1_vectors, s2_vectors)]
+        s1_vectors = [
+            get_isotropic_vector(self.kwargs[COS_theta_1L])
+            for _ in range(self.kwargs[N_VEC])
+        ]
+        s2_vectors = [
+            get_isotropic_vector(self.kwargs[COS_theta_12])
+            for _ in range(self.kwargs[N_VEC])
+        ]
+        s2_vectors = [
+            rotate_v2_to_v1(s1, s2) for s1, s2 in zip(s1_vectors, s2_vectors)
+        ]
 
         self.add_vector_list(s1_vectors, name="s1", color=self.s1_color)
         self.add_vector_list(s2_vectors, name="s2", color=self.s2_color)
 
     def add_vector_list(self, vectors, name, color):
-        self.plotter.remove_actor(f'{name}_pts')
-        self.plotter.remove_actor(f'{name}_arrows')
+        self.plotter.remove_actor(f"{name}_pts")
+        self.plotter.remove_actor(f"{name}_arrows")
         pt_cloud = pv.PolyData(vectors)
         vectors = compute_vectors(pt_cloud)
-        pt_cloud['vectors'] = vectors
-        arrows = pt_cloud.glyph(orient='vectors', scale=False, factor=0.3, )
-        self.plotter.add_mesh(pt_cloud, color=color, point_size=10,
-                              render_points_as_spheres=True, name=f'{name}_pts')
-        self.plotter.add_mesh(arrows, color=color, name=f'{name}_arrows')
+        pt_cloud["vectors"] = vectors
+        arrows = pt_cloud.glyph(
+            orient="vectors",
+            scale=False,
+            factor=0.3,
+        )
+        self.plotter.add_mesh(
+            pt_cloud,
+            color=color,
+            point_size=10,
+            render_points_as_spheres=True,
+            name=f"{name}_pts",
+        )
+        self.plotter.add_mesh(arrows, color=color, name=f"{name}_arrows")
 
     def update(self):
         self.add_vectors()
@@ -233,10 +253,7 @@ def get_chi_p(s1, s2, q=1):
     chi1p = np.sqrt(s1[0] ** 2 + s1[1] ** 2)
     chi2p = np.sqrt(s2[0] ** 2 + s2[1] ** 2)
     qfactor = q * ((4 * q) + 3) / (4 + (3 * q))
-    return np.maximum(
-        chi1p,
-        chi2p * qfactor
-    )
+    return np.maximum(chi1p, chi2p * qfactor)
 
 
 N = 1000
@@ -253,29 +270,40 @@ def convert_vectors_to_bbh_param(cos_theta1L_std, cos_theta12_std):
     """
     n = N
     lhat = normalise_vectors([[0, 0, 1] for _ in range(n)])
-    s1hat = normalise_vectors([get_isotropic_vector(cos_theta1L_std) for _ in range(n)])
-    s2hat = normalise_vectors([get_isotropic_vector(cos_theta12_std) for _ in range(n)])
+    s1hat = normalise_vectors(
+        [get_isotropic_vector(cos_theta1L_std) for _ in range(n)]
+    )
     s2hat = normalise_vectors(
-        [rotate_v2_to_v1(s1v, s2v) for s1v, s2v in zip(s1hat, s2hat)])
+        [get_isotropic_vector(cos_theta12_std) for _ in range(n)]
+    )
+    s2hat = normalise_vectors(
+        [rotate_v2_to_v1(s1v, s2v) for s1v, s2v in zip(s1hat, s2hat)]
+    )
 
-    df = pd.DataFrame(dict(
-        spin_1x=s1hat[:, 0],
-        spin_1y=s1hat[:, 1],
-        spin_1z=s1hat[:, 2],
-        spin_2x=s2hat[:, 0],
-        spin_2y=s2hat[:, 1],
-        spin_2z=s2hat[:, 2],
-        cos_tilt_1=np.cos([get_zenith_angle(v[2]) for v in s1hat]),
-        cos_tilt_2=np.cos([get_zenith_angle(v[2]) for v in s2hat]),
-        chi_eff=[get_chi_eff(s1, s2) for s1, s2 in zip(s1hat, s2hat)],
-        chi_p=[get_chi_p(s1, s2) for s1, s2 in zip(s1hat, s2hat)],
-        cos_theta_12=[np.cos(get_angle_bw_vectors(s1, s2)) for s1, s2 in
-                      zip(s1hat, s2hat)],
-        cos_theta_1L=[np.cos(get_angle_bw_vectors(s1, l)) for s1, l in
-                      zip(s1hat, lhat)],
-        mass_1_source=[25 for _ in s1hat],
-        mass_2_source=[25 for _ in s1hat],
-    ))
+    df = pd.DataFrame(
+        dict(
+            spin_1x=s1hat[:, 0],
+            spin_1y=s1hat[:, 1],
+            spin_1z=s1hat[:, 2],
+            spin_2x=s2hat[:, 0],
+            spin_2y=s2hat[:, 1],
+            spin_2z=s2hat[:, 2],
+            cos_tilt_1=np.cos([get_zenith_angle(v[2]) for v in s1hat]),
+            cos_tilt_2=np.cos([get_zenith_angle(v[2]) for v in s2hat]),
+            chi_eff=[get_chi_eff(s1, s2) for s1, s2 in zip(s1hat, s2hat)],
+            chi_p=[get_chi_p(s1, s2) for s1, s2 in zip(s1hat, s2hat)],
+            cos_theta_12=[
+                np.cos(get_angle_bw_vectors(s1, s2))
+                for s1, s2 in zip(s1hat, s2hat)
+            ],
+            cos_theta_1L=[
+                np.cos(get_angle_bw_vectors(s1, l))
+                for s1, l in zip(s1hat, lhat)
+            ],
+            mass_1_source=[25 for _ in s1hat],
+            mass_2_source=[25 for _ in s1hat],
+        )
+    )
     s = Samples(posterior=df)
     # s.calculate_remnant_kick_velocity()
 
@@ -290,20 +318,24 @@ def get_angle_bw_vectors(v1, v2):
 
 
 def plot_corner_of_spins(cos_theta1L_std, cos_theta12_std, save=True):
-    bbh_vectors = convert_vectors_to_bbh_param(cos_theta1L_std=cos_theta1L_std,
-                                               cos_theta12_std=cos_theta12_std)
+    bbh_vectors = convert_vectors_to_bbh_param(
+        cos_theta1L_std=cos_theta1L_std, cos_theta12_std=cos_theta12_std
+    )
     params = [p for p in PARAMS.keys()]
     bbh_vectors = bbh_vectors[params]
-    labels = [PARAMS[p]['l'] for p in params]
-    range = [PARAMS[p]['r'] for p in params]
+    labels = [PARAMS[p]["l"] for p in params]
+    range = [PARAMS[p]["r"] for p in params]
     corner.corner(bbh_vectors, **CORNER_KWARGS, labels=labels, range=range)
     if save:
         plt.savefig(
-            f"spins_theta1L{cos_theta1L_std:.2f}_theta12{cos_theta12_std:.2f}.png")
+            f"spins_theta1L{cos_theta1L_std:.2f}_theta12{cos_theta12_std:.2f}.png"
+        )
 
 
 def get_normalisation_weight(len_current_samples, len_of_longest_samples):
-    return np.ones(len_current_samples) * (len_of_longest_samples / len_current_samples)
+    return np.ones(len_current_samples) * (
+        len_of_longest_samples / len_current_samples
+    )
 
 
 def plot_overlaid_corners(cos_theta1L_std_vals, cos_theta12_std_vals, pltdir):
@@ -312,12 +344,12 @@ def plot_overlaid_corners(cos_theta1L_std_vals, cos_theta12_std_vals, pltdir):
         chi_p=dict(l=r"$\chi_{p}$", r=(-1, 1)),
         cos_tilt_1=dict(l=r"$\cos(t1)$", r=(-1, 1)),
         cos_theta_12=dict(l=r"$\cos \theta_{12}$", r=(-1, 1)),
-        remnant_kick_mag=dict(l=r'$|\vec{v}_k|\ $km/s', r=(0, 3000))
+        remnant_kick_mag=dict(l=r"$|\vec{v}_k|\ $km/s", r=(0, 3000)),
     )
 
     base = convert_vectors_to_bbh_param(cos_theta1L_std=1, cos_theta12_std=1)
-    labels = [params[p]['l'] for p in params]
-    range = [params[p]['r'] for p in params]
+    labels = [params[p]["l"] for p in params]
+    range = [params[p]["r"] for p in params]
     kwargs = dict(**CORNER_KWARGS, labels=labels, range=range)
 
     if os.path.isdir(pltdir):
@@ -326,30 +358,44 @@ def plot_overlaid_corners(cos_theta1L_std_vals, cos_theta12_std_vals, pltdir):
 
     i = 0
     for min_cos_theta1L, min_cos_theta12 in tqdm(
-            zip(cos_theta1L_std_vals, cos_theta12_std_vals),
-            total=len(cos_theta1L_std_vals), desc="Hyper-Param settings"
+        zip(cos_theta1L_std_vals, cos_theta12_std_vals),
+        total=len(cos_theta1L_std_vals),
+        desc="Hyper-Param settings",
     ):
         f = f"{pltdir}/{i:02}_p12{min_cos_theta12:.1f}_p1L{min_cos_theta1L:.1f}.png"
         compare = convert_vectors_to_bbh_param(
-            cos_theta1L_std=min_cos_theta1L,
-            cos_theta12_std=min_cos_theta12)
+            cos_theta1L_std=min_cos_theta1L, cos_theta12_std=min_cos_theta12
+        )
         compare.to_csv(f.replace(".png", ".csv"))
 
         fig = corner.corner(base[params], **kwargs, color=BILBY_BLUE_COLOR)
-        normalising_weights = get_normalisation_weight(len(compare),
-                                                       max(len(compare), len(base)))
-        corner.corner(compare[params], fig=fig, weights=normalising_weights, **kwargs,
-                      color=VIOLET_COLOR)
-
-        orig_line = mlines.Line2D([], [], color=BILBY_BLUE_COLOR,
-                                  label="Isotropic Spins")
-        weighted_line = mlines.Line2D(
-            [], [], color=VIOLET_COLOR,
-            label=f"Adjusted spins $\sigma \cos(12)={min_cos_theta12:.1f}, \sigma \cos(1L)={min_cos_theta1L:.1f}$"
+        normalising_weights = get_normalisation_weight(
+            len(compare), max(len(compare), len(base))
         )
-        plt.legend(handles=[orig_line, weighted_line], fontsize=25,
-                   frameon=False,
-                   bbox_to_anchor=(1, len(labels)), loc="upper right")
+        corner.corner(
+            compare[params],
+            fig=fig,
+            weights=normalising_weights,
+            **kwargs,
+            color=VIOLET_COLOR,
+        )
+
+        orig_line = mlines.Line2D(
+            [], [], color=BILBY_BLUE_COLOR, label="Isotropic Spins"
+        )
+        weighted_line = mlines.Line2D(
+            [],
+            [],
+            color=VIOLET_COLOR,
+            label=f"Adjusted spins $\sigma \cos(12)={min_cos_theta12:.1f}, \sigma \cos(1L)={min_cos_theta1L:.1f}$",
+        )
+        plt.legend(
+            handles=[orig_line, weighted_line],
+            fontsize=25,
+            frameon=False,
+            bbox_to_anchor=(1, len(labels)),
+            loc="upper right",
+        )
         plt.savefig(f)
         plt.close()
         i += 1
@@ -368,14 +414,12 @@ def save_gif(gifname, outdir="gif", loop=False):
         image_paths += image_paths[::-1]
     assert orig_len <= len(image_paths)
     image_utils.make_gif(
-        image_paths=image_paths,
-        duration=50,
-        gif_save_path=gif_filename
+        image_paths=image_paths, duration=50, gif_save_path=gif_filename
     )
     print(f"Saved gif {gif_filename}")
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     r = SphereAngleAnimation()
 
     # varying = list(np.arange(0, 2.1, 0.5))

@@ -21,25 +21,25 @@ rcParams["font.size"] = 30
 rcParams["font.family"] = "serif"
 rcParams["font.sans-serif"] = ["Computer Modern Sans"]
 rcParams["text.usetex"] = True
-rcParams['axes.labelsize'] = 30
-rcParams['axes.titlesize'] = 30
-rcParams['axes.labelpad'] = 10
-rcParams['axes.linewidth'] = 2.5
-rcParams['axes.edgecolor'] = 'black'
-rcParams['xtick.labelsize'] = 25
-rcParams['xtick.major.size'] = 10.0
-rcParams['xtick.minor.size'] = 5.0
-rcParams['ytick.labelsize'] = 25
-rcParams['ytick.major.size'] = 10.0
-rcParams['ytick.minor.size'] = 5.0
-plt.rcParams['xtick.direction'] = 'in'
-plt.rcParams['ytick.direction'] = 'in'
-plt.rcParams['xtick.minor.width'] = 1
-plt.rcParams['xtick.major.width'] = 3
-plt.rcParams['ytick.minor.width'] = 1
-plt.rcParams['ytick.major.width'] = 2.5
-plt.rcParams['xtick.top'] = True
-plt.rcParams['ytick.right'] = True
+rcParams["axes.labelsize"] = 30
+rcParams["axes.titlesize"] = 30
+rcParams["axes.labelpad"] = 10
+rcParams["axes.linewidth"] = 2.5
+rcParams["axes.edgecolor"] = "black"
+rcParams["xtick.labelsize"] = 25
+rcParams["xtick.major.size"] = 10.0
+rcParams["xtick.minor.size"] = 5.0
+rcParams["ytick.labelsize"] = 25
+rcParams["ytick.major.size"] = 10.0
+rcParams["ytick.minor.size"] = 5.0
+plt.rcParams["xtick.direction"] = "in"
+plt.rcParams["ytick.direction"] = "in"
+plt.rcParams["xtick.minor.width"] = 1
+plt.rcParams["xtick.major.width"] = 3
+plt.rcParams["ytick.minor.width"] = 1
+plt.rcParams["ytick.major.width"] = 2.5
+plt.rcParams["xtick.top"] = True
+plt.rcParams["ytick.right"] = True
 
 HYPER_PARAM_VALS = {
     "alpha": 2.62,
@@ -62,18 +62,26 @@ HYPER_PARAM_VALS = {
 def load_posteriors(run_dir, data_label):
     data_dir = os.path.join(run_dir, "data")
     posterior_file = os.path.join(data_dir, f"{data_label}.pkl")
-    event_name_file = os.path.join(data_dir, f"{data_label}_posterior_files.txt")
+    event_name_file = os.path.join(
+        data_dir, f"{data_label}_posterior_files.txt"
+    )
     posteriors = pd.read_pickle(posterior_file)
     print(f"Loaded {len(posteriors)} posteriors")
     event_ids = list()
-    with open(event_name_file, "r", ) as ff:
+    with open(
+        event_name_file,
+        "r",
+    ) as ff:
         for line in ff.readlines():
             event_ids.append(line.split(":")[0])
-    return {event_id: posterior for event_id, posterior in zip(event_ids, posteriors)}
+    return {
+        event_id: posterior
+        for event_id, posterior in zip(event_ids, posteriors)
+    }
 
 
 def load_true_values(injection_dat):
-    true_vals = pd.read_csv(injection_dat, sep=" ").to_dict('records')
+    true_vals = pd.read_csv(injection_dat, sep=" ").to_dict("records")
     return {f"inj{i}": true_vals[i] for i in range(len(true_vals))}
 
 
@@ -91,8 +99,8 @@ def plot_masses(posteriors, events, truths):
     axs[1].violinplot(spin_data)
     axs[1].violinplot(spin_truths)
     axs[2].bar(events, snr_truths)
-    axs[0].hlines(y=HYPER_PARAM_VALS['mmax'], xmin=0, xmax=len(events) + 1)
-    axs[0].hlines(y=HYPER_PARAM_VALS['mmin'], xmin=0, xmax=len(events) + 1)
+    axs[0].hlines(y=HYPER_PARAM_VALS["mmax"], xmin=0, xmax=len(events) + 1)
+    axs[0].hlines(y=HYPER_PARAM_VALS["mmin"], xmin=0, xmax=len(events) + 1)
     axs[0].set_ylabel("mass 1 source")
     axs[1].set_ylabel("cos θ 12")
     axs[2].set_ylabel("snr")
@@ -107,10 +115,12 @@ def plot_masses(posteriors, events, truths):
 
 
 def get_data():
-    posterior_dict = load_posteriors(run_dir="simulated_pop_inf_outdir/",
-                                     data_label="posteriors")
+    posterior_dict = load_posteriors(
+        run_dir="simulated_pop_inf_outdir/", data_label="posteriors"
+    )
     true_val_dict = load_true_values(
-        injection_dat="bilby_pipe_jobs/injection_samples_all_params.dat")
+        injection_dat="bilby_pipe_jobs/injection_samples_all_params.dat"
+    )
     events, posteriors, truths = [], [], []
     for i in range(200):
         event_key = f"inj{i}"
@@ -125,7 +135,6 @@ def main():
     plot_masses(*get_data())
 
 
-
 ### is quant above min
 def is_quant_above_mmin(masses, quantiles, mmin):
     return min(quantile(masses, q=quantiles)) > mmin
@@ -135,14 +144,21 @@ def plot_masses(posteriors, events, ignore_list, mmin):
     print(f"Making box plot for {len(posteriors)} posteriors")
     data = [post["mass_1"] for post in posteriors]
     fig = plt.figure(figsize=(len(posteriors), 5))
-    violin_parts = plt.violinplot(data,
-                                  quantiles=[QUANTILES for _ in range(len(posteriors))])
+    violin_parts = plt.violinplot(
+        data, quantiles=[QUANTILES for _ in range(len(posteriors))]
+    )
     for idx, event in enumerate(events):
         if event in ignore_list:
-            adjust_colors_for_violin(violin_parts, idx, color='red')
+            adjust_colors_for_violin(violin_parts, idx, color="red")
 
     plt.ylim(0, 100)
-    plt.hlines(y=mmin, xmin=0, xmax=len(events) + 1, colors="gray", linestyles="dashed")
+    plt.hlines(
+        y=mmin,
+        xmin=0,
+        xmax=len(events) + 1,
+        colors="gray",
+        linestyles="dashed",
+    )
     plt.ylabel("mass 1 source")
     plt.xticks(np.arange(1, len(events) + 1), events, rotation=90)
     plt.xlim(0, len(events) + 1)
@@ -154,8 +170,8 @@ def plot_masses(posteriors, events, ignore_list, mmin):
 
 
 def adjust_colors_for_violin(violin_parts, idx, color):
-    violin_parts['bodies'][idx].set_facecolor(color)
-    violin_parts['bodies'][idx].set_edgecolor(color)
+    violin_parts["bodies"][idx].set_facecolor(color)
+    violin_parts["bodies"][idx].set_edgecolor(color)
     # for partname in ('cbars', 'cmins', 'cmaxes', 'cmeans', 'cmedians', 'bodies'):
     #     violin_parts[partname][idx].set_edgecolor("red")
 
@@ -163,7 +179,8 @@ def adjust_colors_for_violin(violin_parts, idx, color):
 def get_data(mmin):
     posteriors, events = load_posteriors(
         psterior_pkl="/home/avi.vajpeyi/projects/agn_phenomenological_model/population_inference/agn_pop_outdir/data/posteriors.pkl",
-        posterior_fname_file="/home/avi.vajpeyi/projects/agn_phenomenological_model/population_inference/agn_pop_outdir/data/posteriors_posterior_files.txt")
+        posterior_fname_file="/home/avi.vajpeyi/projects/agn_phenomenological_model/population_inference/agn_pop_outdir/data/posteriors_posterior_files.txt",
+    )
     ignore_list = []
     for event, post in zip(events, posteriors):
         valid = is_quant_above_mmin(post.mass_1, QUANTILES, mmin)
@@ -179,7 +196,6 @@ def main():
     for mmin in [45, 40, 35]:
         posteriors, events, ignore_list = get_data(mmin)
         plot_masses(posteriors, events, ignore_list, mmin)
-
 
 
 if __name__ == "__main__":

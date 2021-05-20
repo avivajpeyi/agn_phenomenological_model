@@ -2,16 +2,16 @@ import os
 import shutil
 import unittest
 import warnings
+
 warnings.filterwarnings("ignore")
 
 from agn_utils.create_agn_samples import (
     load_training_data,
-    save_agn_samples_for_many_populations
+    save_agn_samples_for_many_populations,
 )
 
 
 class AGNsampleCreatorTest(unittest.TestCase):
-
     def setUp(self):
         self.outdir = "testoutdir"
         os.makedirs(self.outdir, exist_ok=True)
@@ -28,5 +28,5 @@ class AGNsampleCreatorTest(unittest.TestCase):
         self.assertTrue(os.path.isfile(fname))
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()

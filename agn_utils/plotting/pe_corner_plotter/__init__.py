@@ -15,7 +15,7 @@ def plot():
     sample_x = np.random.normal(4, 0.1, 500)
     sample_y = np.random.normal(4, 0.1, 500)
     fig, ax = plt.subplots()
-    ax.plot(sample_x, sample_y, '.')
+    ax.plot(sample_x, sample_y, ".")
     fig.show()
 
 

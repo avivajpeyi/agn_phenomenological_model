@@ -15,7 +15,7 @@ def run_bilby_pipe_jobs(dat):
     print("Loaded data")
     f = open("run_bilby_jobs.sh", "w")
     for i in range(len(df)):
-        duration = df.iloc[i]['duration']
+        duration = df.iloc[i]["duration"]
         command = (
             f"bilby_pipe injection_study_bilby_pipe.ini "
             f"--duration {duration} "

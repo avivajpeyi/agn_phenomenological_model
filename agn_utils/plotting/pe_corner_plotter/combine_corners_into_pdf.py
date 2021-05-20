@@ -26,5 +26,5 @@ def combine_images_to_pdf():
     print("done")
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     combine_images_to_pdf()

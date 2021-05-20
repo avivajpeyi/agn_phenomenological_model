@@ -10,11 +10,17 @@ import pycondor
 ACCOUNTING_GROUP = "ligo.prod.o3.cbc.pe.lalinference"
 
 
-def create_python_script_job(python_script: str, job_name: str,
-                             job_args_dict: Dict[str, str], logdir: str, subdir:str,
-                             dag: pycondor.Dagman, request_memory:Optional[str]=None,
-                             extra_lines:Optional[List[str]]=[]):
-    """ Creates job-node for  python script
+def create_python_script_job(
+    python_script: str,
+    job_name: str,
+    job_args_dict: Dict[str, str],
+    logdir: str,
+    subdir: str,
+    dag: pycondor.Dagman,
+    request_memory: Optional[str] = None,
+    extra_lines: Optional[List[str]] = [],
+):
+    """Creates job-node for  python script
     :param request_memory: mem of job eg '16 GB'
     :param python_script: python script path (eg test.py)
     :param job_name: unique name for this job
@@ -36,7 +42,7 @@ def create_python_script_job(python_script: str, job_name: str,
         dag=dag,
         request_memory=request_memory,
         arguments=f"{python_script} {convert_args_dict_to_str(job_args_dict)}",
-        extra_lines=[f"accounting_group = {ACCOUNTING_GROUP}"] + extra_lines
+        extra_lines=[f"accounting_group = {ACCOUNTING_GROUP}"] + extra_lines,
     )
 
 
@@ -45,14 +51,14 @@ def convert_args_dict_to_str(job_args):
 
 
 def create_python_script_jobs(
-        main_job_name: str,
-        python_script: str,
-        job_args_list: List[Dict],
-        job_names_list: List[str],
-        request_memory: Optional[str]=None  ,
-        extra_lines: Optional[List[str]]=[]
+    main_job_name: str,
+    python_script: str,
+    job_args_list: List[Dict],
+    job_names_list: List[str],
+    request_memory: Optional[str] = None,
+    extra_lines: Optional[List[str]] = [],
 ):
-    """ Creates a set of parallel jobs for a python script
+    """Creates a set of parallel jobs for a python script
 
     :param request_memory: mem of job (eg '16 GB')
     :param main_job_name: name of main job (and dir of where the job will run)
@@ -66,14 +72,20 @@ def create_python_script_jobs(
     print(f"Making jobs for {python_script}.")
     subdir = os.path.join(run_dir, "submit")
     logdir = os.path.join(run_dir, f"logs")
-    dag = pycondor.Dagman(
-        name=main_job_name,
-        submit=subdir
-    )
+    dag = pycondor.Dagman(name=main_job_name, submit=subdir)
     jobs = []
     for job_name, job_args in zip(job_names_list, job_args_list):
         jobs.append(
-            create_python_script_job(python_script, job_name, job_args, logdir, subdir, dag, request_memory, extra_lines)
+            create_python_script_job(
+                python_script,
+                job_name,
+                job_args,
+                logdir,
+                subdir,
+                dag,
+                request_memory,
+                extra_lines,
+            )
         )
     dag.build(makedirs=True, fancyname=False)
     command_line = "$ condor_submit_dag {}".format(

@@ -16,5 +16,5 @@ from . import (
     bbh_population_generators,
     pe_postprocessing,
     plotting,
-    regressors
+    regressors,
 )

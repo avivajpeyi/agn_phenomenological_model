@@ -19,10 +19,13 @@ RANDOM_STATE = 42
 
 
 class Regressor(ABC):
-    def __init__(self,
-                 input_parameters: List[str], output_parameters: List[str],
-                 outdir: str, model_hyper_param: Optional[Dict] = {}
-                 ):
+    def __init__(
+        self,
+        input_parameters: List[str],
+        output_parameters: List[str],
+        outdir: str,
+        model_hyper_param: Optional[Dict] = {},
+    ):
         self.outdir = outdir
         os.makedirs(self.outdir, exist_ok=True)
         self.savepath = os.path.join(self.outdir, "saved_model")
@@ -31,11 +34,14 @@ class Regressor(ABC):
         self.model_hyper_param = model_hyper_param
         self.model = None
 
-    def train_test_split(self, data: pd.DataFrame,
-                         testing_frac: Optional[float] = 0.2):
+    def train_test_split(
+        self, data: pd.DataFrame, testing_frac: Optional[float] = 0.2
+    ):
         train, test = train_test_split(
-            data, test_size=testing_frac,
-            random_state=RANDOM_STATE, shuffle=True
+            data,
+            test_size=testing_frac,
+            random_state=RANDOM_STATE,
+            shuffle=True,
         )
         train_labels = train[self.output_parameters]
         test_labels = test[self.output_parameters]
@@ -56,7 +62,8 @@ class Regressor(ABC):
         labels = self.input_parameters + self.output_parameters
         training_info += (
             f"Training Data ({len(data)} rows):\n"
-            f"{data[labels].describe().T[['min', 'mean', 'max']]}")
+            f"{data[labels].describe().T[['min', 'mean', 'max']]}"
+        )
         logger.info(training_info)
 
     @abstractmethod

@@ -10,6 +10,7 @@ from .regressor import Regressor
 from ..agn_logger import logger
 from ..diagnostic_tools import timing
 
+
 class ScikitRegressor(Regressor):
     """
     https://scikit-learn.org/stable/modules/generated/sklearn.ensemble.RandomForestRegressor.html
@@ -20,13 +21,17 @@ class ScikitRegressor(Regressor):
 
     """
 
-    def __init__(self,
-                 input_parameters: List[str], output_parameters: List[str],
-                 outdir: str, model_hyper_param: Optional[Dict] = {}
-                 ):
+    def __init__(
+        self,
+        input_parameters: List[str],
+        output_parameters: List[str],
+        outdir: str,
+        model_hyper_param: Optional[Dict] = {},
+    ):
         super().__init__(input_parameters, output_parameters, outdir)
         self.model_hyper_param = dict(
-            n_estimators=100, criterion='mse',
+            n_estimators=100,
+            criterion="mse",
             # max_depth=None, min_samples_split=2,
             # min_samples_leaf=1, min_weight_fraction_leaf=0.0,
             # max_features='auto', max_leaf_nodes=None,
@@ -35,7 +40,7 @@ class ScikitRegressor(Regressor):
             # oob_score=False, n_jobs=None, random_state=None,
             # verbose=0, warm_start=False,
             # max_samples=None
-            )
+        )
         self.model_hyper_param.update(model_hyper_param)
         self.model = RandomForestRegressor(**self.model_hyper_param)
 
@@ -53,9 +58,9 @@ class ScikitRegressor(Regressor):
         model_testing_data_mae = round(np.mean(errors), 2)
         model_testing_score = self.model.score(data, labels)
         logger.info(
-            f'MODEL TESTING: '
-            f'R^2 Score={model_testing_score * 100:.2f}%, '
-            f'Mean Abosulte Error={model_testing_data_mae}'
+            f"MODEL TESTING: "
+            f"R^2 Score={model_testing_score * 100:.2f}%, "
+            f"Mean Abosulte Error={model_testing_data_mae}"
         )
 
     def save(self):
