@@ -1,3 +1,7 @@
+"""
+This script uses gwpopulaiton_pipe to set up analysis on injection_study_gwpop_pipe.ini
+This is useful for debugging if and where things might go weird during setup.
+"""
 import gwpopulation_pipe
 import os
 from bilby.core.utils import logger
@@ -104,10 +108,10 @@ def run_data_analysis(args):
     result.event_ids = event_ids
 
     logger.info("Computing rate posterior")
-    compute_rate_posterior(posterior=result.posterior, selection=selection)
+    gwpopulation_pipe.data_analysis.compute_rate_posterior(posterior=result.posterior, selection=selection)
     result.save_to_file(extension="json", overwrite=True)
     logger.info("Resampling single event posteriors")
-    resample_single_event_posteriors(likelihood, result, save=True)
+    gwpopulation_pipe.data_analysis.resample_single_event_posteriors(likelihood, result, save=True)
     result.plot_corner(
         parameters=result.search_parameter_keys + ["log_10_rate"]
     )

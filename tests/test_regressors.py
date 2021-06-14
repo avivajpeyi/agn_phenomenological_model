@@ -26,10 +26,10 @@ class AbstractTestRegressors(unittest.TestCase):
         self.set_training_params()
         self.visualise_training_data()
 
-    # def tearDown(self):
-    #     import shutil
-    #     if os.path.exists(self.outdir):
-    #         shutil.rmtree(self.outdir)
+    def tearDown(self):
+        import shutil
+        if os.path.exists(self.outdir):
+            shutil.rmtree(self.outdir)
 
     def run_regressor_tests(
         self, my_regressor: Regressor, label: str, hyper_params

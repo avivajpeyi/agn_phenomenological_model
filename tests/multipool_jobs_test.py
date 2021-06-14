@@ -1,6 +1,6 @@
 import unittest
 
-from batch_processing.mutipool_jobs import run_function_with_multiprocess
+from agn_utils.batch_processing.mutipool_jobs import run_function_with_multiprocess
 
 import logging
 
@@ -15,18 +15,11 @@ class MultiprocessJobTest(unittest.TestCase):
             target_function=foo,
             kwargs=[dict(i=num) for num in range(num_processes)],
         )
-        self.fail()
 
 
 def foo(i):
-    logging.info(f"foo{i}")
+    print(f"foo{i}")
 
 
 if __name__ == "__main__":
-    # unittest.main()
-    num_processes = 5
-    run_function_with_multiprocess(
-        num_multiprocesses=num_processes,
-        target_function=foo,
-        kwargs=[dict(i=num) for num in range(num_processes)],
-    )
+    unittest.main()

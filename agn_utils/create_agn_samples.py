@@ -11,17 +11,13 @@ from .agn_logger import logger
 DATA_KEY = "training_data"
 
 
-def save_agn_samples_for_population_instance(fname, sigma_1, sigma_12):
+def _save_agn_samples_for_population_instance(fname, sigma_1, sigma_12):
     """
 
-    :param fname:
-    :type fname:
-    :param sigma_1:
-    :type sigma_1:
-    :param sigma_12:
-    :type sigma_12:
-    :return:
-    :rtype:
+    :param string fname:
+    :param float sigma_1:
+    :param float sigma_12:
+    :return: None
     """
     s = get_bbh_population_from_agn_params(
         num_samples=5000, sigma_1=sigma_1, sigma_12=sigma_12
@@ -62,7 +58,7 @@ def save_agn_samples_for_many_populations(num, fname, num_processors=1):
     for k in tqdm.tqdm(kwargs_lists, desc="Processing populations"):
         run_function_with_multiprocess(
             num_multiprocesses=num_processors,
-            target_function=save_agn_samples_for_population_instance,
+            target_function=_save_agn_samples_for_population_instance,
             kwargs=k,
         )
 
