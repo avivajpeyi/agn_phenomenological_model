@@ -56,10 +56,39 @@ def plot(data_sets, sigma1_vals, sigma12_vals):
             ax.set_yticklabels([])
         ax.legend(fontsize='small')
 
+def add_cos_thetas_from_component_spins(df):
+    df["s1x"], df["s1y"], df["s1z"] = (
+        df["spin_1x"],
+        df["spin_1y"],
+        df["spin_1z"],
+    )
+    df["s2x"], df["s2y"], df["s2z"] = (
+        df["spin_2x"],
+        df["spin_2y"],
+        df["spin_2z"],
+    )
+    df["s1_dot_s2"] = (
+            (df["s1x"] * df["s2x"])
+            + (df["s1y"] * df["s2y"])
+            + (df["s1z"] * df["s2z"])
+    )
+    df["s1_mag"] = np.sqrt(
+        (df["s1x"] * df["s1x"])
+        + (df["s1y"] * df["s1y"])
+        + (df["s1z"] * df["s1z"])
+    )
+    df["s2_mag"] = np.sqrt(
+        (df["s2x"] * df["s2x"])
+        + (df["s2y"] * df["s2y"])
+        + (df["s2z"] * df["s2z"])
+    )
+    df["cos_theta_12"] = df["s1_dot_s2"] / (df["s1_mag"] * df["s2_mag"])
+    df["cos_theta_1"] = np.cos(df["spin_1z"])
+    return df
+
 
 import glob
 import pandas as pd
-from agn_utils.plotting.pe_corner_plotter.make_pe_corner import add_cos_theta_12_from_component_spins, conversion
 from tqdm.auto import tqdm
 
 
@@ -69,8 +98,7 @@ def load_bilby_results():
         "/home/avi.vajpeyi/projects/agn_phenomenological_model/simulated_events/simulated_event_samples/*.dat")
     for f in tqdm(files):
         df = pd.read_csv(f, ' ')
-        df = add_cos_theta_12_from_component_spins(df)
-        df = conversion.generate_spin_parameters(df)
+        df = add_cos_thetas_from_component_spins(df)
         res.append(df)
     return res
 
