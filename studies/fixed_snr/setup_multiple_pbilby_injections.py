@@ -56,14 +56,6 @@ def create_analysis_bash_runner():
 
 
 def main():
-    logging.info("Generating injection file")
-    create_injection_file(
-        filename=INJECTION_FILE,
-        prior_file=PRIOR_FILE,
-        n_injection=N_INJECTION,
-        generation_seed=0,
-    )
-
     logging.info("Generating parallel bilby ini files + submission scripts")
     for i in range(N_INJECTION):
         create_ini(injection_idx=i)
