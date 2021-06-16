@@ -4,8 +4,8 @@ Module to create an injection file + pbilby inis for the injections.
 import logging
 import os
 import shutil
-
 import pandas as pd
+from bilby_pipe.create_injections import create_injection_file
 
 logging.getLogger().setLevel(logging.INFO)
 
@@ -15,7 +15,7 @@ PRIOR_FILE = "./datafiles/bbh.prior"
 
 
 def create_ini(injection_idx: int):
-    unique_label = f"{LABEL}_{injection_idx}"
+    unique_label = f"{LABEL}_{injection_idx:02}"
     outdir = f"out_{unique_label}"
     ini = f"{unique_label}.ini"
     with open("pbilby_config_template.ini", "r") as f:
@@ -46,7 +46,7 @@ def create_data_generation_slurm_submission_file(num_inj):
 def create_analysis_bash_runner(num_inj):
     file_contents = "#! /bin/sh\n"
     for i in range(num_inj):
-        label = f"{LABEL}_{i:02}"
+        label = f"{LABEL}_{i}"
         analysis_file = f"out_{label}/submit/bash_{label}.sh"
         file_contents += f"bash {analysis_file}\n"
     with open("start_data_analysis.sh", "w") as f:
