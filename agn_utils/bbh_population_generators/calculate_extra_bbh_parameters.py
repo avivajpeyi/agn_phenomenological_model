@@ -26,9 +26,9 @@ def add_cos_theta_12_from_component_spins(df):
         df["spin_2z"],
     )
     df["s1_dot_s2"] = (
-        (df["s1x"] * df["s2x"])
-        + (df["s1y"] * df["s2y"])
-        + (df["s1z"] * df["s2z"])
+            (df["s1x"] * df["s2x"])
+            + (df["s1y"] * df["s2y"])
+            + (df["s1z"] * df["s2z"])
     )
     df["s1_mag"] = np.sqrt(
         (df["s1x"] * df["s1x"])
@@ -66,24 +66,27 @@ def add_signal_duration(df):
 
 
 def add_snr(df):
-    assert [
-        "a_1",
-        "a_2",
+    required_params = [
         "dec",
         "ra",
-        "psi",
-        "phi_12",
-        "phase",
-        "incl",
+        "theta_jn",
         "geocent_time",
+        "luminosity_distance",
+        "psi",
+        "phase",
         "mass_1",
         "mass_2",
-        "luminosity_distance",
+        "a_1",
+        "a_2",
         "tilt_1",
         "tilt_2",
-        "theta_jn",
+        "phi_12",
         "phi_jl",
-    ] in df.columns.values
+    ]
+    df_cols = df.columns.values
+    missing_params = set(required_params) - set(df_cols)
+    if len(missing_params) != 0:
+        raise ValueError(f"Params missing for SNR calculation: {missing_params}")
     h1_snr, l1_snr, network_snr = _get_injection_snr(**df)
     df["h1_snr"] = h1_snr
     df["l1_snr"] = l1_snr
@@ -93,43 +96,45 @@ def add_snr(df):
 
 @np.vectorize
 def _get_injection_snr(
-    a_1,
-    a_2,
-    dec,
-    ra,
-    psi,
-    phi_12,
-    phase,
-    incl,
-    geocent_time,
-    mass_1,
-    mass_2,
-    luminosity_distance,
-    tilt_1,
-    tilt_2,
-    theta_jn,
-    phi_jl,
-    **kwargs,
+        a_1,
+        a_2,
+        dec,
+        ra,
+        psi,
+        phi_12,
+        phase,
+        geocent_time,
+        mass_1,
+        mass_2,
+        luminosity_distance,
+        tilt_1,
+        tilt_2,
+        theta_jn,
+        phi_jl,
+        **kwargs,
 ):
     """
     :returns H1 snr, L1 snr, network SNR
     """
     injection_parameters = dict(
-        a_1=a_1,
-        a_2=a_2,
+        # location params
         dec=dec,
         ra=ra,
-        psi=psi,
-        phi_12=phi_12,
-        phase=phase,
-        incl=incl,
+        theta_jn=theta_jn,
+        luminosity_distance=luminosity_distance,
         geocent_time=geocent_time,
+        # phase params
+        psi=psi,
+        phase=phase,
+        # mass params
         mass_1=mass_1,
         mass_2=mass_2,
-        luminosity_distance=luminosity_distance,
+        # spin params
+        a_1=a_1,
+        a_2=a_2,
+        phi_12=phi_12,
         tilt_1=tilt_1,
         tilt_2=tilt_2,
-        theta_jn=theta_jn,
         phi_jl=phi_jl,
     )
 
@@ -206,7 +211,7 @@ def get_component_mass_from_source_mass_and_z(m1_source, q, z):
 
 @np.vectorize
 def transform_component_spins(
-    incl=2, S1x=0, S1y=0, S1z=1, S2x=0, S2y=0, S2z=1, m1=20, m2=20, phase=0
+        incl=2, S1x=0, S1y=0, S1z=1, S2x=0, S2y=0, S2z=1, m1=20, m2=20, phase=0
 ):
     """https://lscsoft.docs.ligo.org/lalsuite/lalsimulation/group__lalsimulation__inference.html#ga6920c640f473e7125f9ddabc4398d60a"""
     (

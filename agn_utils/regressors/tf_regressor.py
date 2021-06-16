@@ -48,7 +48,7 @@ class TfRegressor(Regressor):
         super().__init__(input_parameters, output_parameters, outdir)
         self.model_hyper_param = dict(
             n_batches_per_layer=1,
-            model_dir=".",
+            model_dir=outdir,
             label_dimension=1,
             weight_column=None,
             n_trees=100,
