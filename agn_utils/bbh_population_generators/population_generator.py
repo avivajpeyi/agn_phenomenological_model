@@ -26,18 +26,6 @@ def get_bbh_population_from_prior(
     return pd.DataFrame(samples)
 
 
-def get_bbh_population_for_constant_snr(snr:float, masses:List[float], constant_params:Dict[str, float])-> pd.DataFrame:
-    """Generate BBH params for a specific SNR by changing """
-    bbh_param_list = []
-    for m in masses:
-        bbh = constant_params.copy()
-        bbh['mass_1'], bbh['mass_2'] = m, m
-
-        bbh_param_list.append(
-            con
-        )
-
-    return pd.DataFrame()
 
 
 def get_bbh_population_from_agn_params(
