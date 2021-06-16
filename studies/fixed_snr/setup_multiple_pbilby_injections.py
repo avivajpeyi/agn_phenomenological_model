@@ -46,7 +46,7 @@ def create_data_generation_slurm_submission_file(num_inj):
 def create_analysis_bash_runner(num_inj):
     file_contents = "#! /bin/sh\n"
     for i in range(num_inj):
-        label = f"{LABEL}_{i}"
+        label = f"{LABEL}_{i:02}"
         analysis_file = f"out_{label}/submit/bash_{label}.sh"
         file_contents += f"bash {analysis_file}\n"
     with open("start_data_analysis.sh", "w") as f:
