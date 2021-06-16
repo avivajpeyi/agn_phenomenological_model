@@ -4,8 +4,8 @@ Module to create an injection file + pbilby inis for the injections.
 import logging
 import os
 import shutil
+
 import pandas as pd
-from bilby_pipe.create_injections import create_injection_file
 
 logging.getLogger().setLevel(logging.INFO)
 
