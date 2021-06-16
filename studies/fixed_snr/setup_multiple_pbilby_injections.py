@@ -12,7 +12,7 @@ logging.getLogger().setLevel(logging.INFO)
 
 N_INJECTION = 100
 LABEL = "smr60"  # the main name of the injections
-INJECTION_FILE = f"./datafiles/{LABEL}_injections.json"
+INJECTION_FILE = f"./datafiles/{LABEL}_injections.dat"
 PRIOR_FILE = "./datafiles/bbh.prior"
 
 
