@@ -189,3 +189,4 @@ cython_debug/
 
 /agn_utils/bbh_population_generators/eval/
 /agn_utils/bbh_population_generators/lumin_from_snr_regressor/
+/studies/fixed_snr/plot_out/
