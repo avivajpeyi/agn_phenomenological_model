@@ -5,7 +5,7 @@ import matplotlib.lines as mlines
 import matplotlib.pyplot as plt
 import pandas as pd
 
-from agn_utils.pe_setup.setup_multiple_pbilby_injections import main_generator
+from agn_utils.pe_setup.setup_multiple_pbilby_injections import pbilby_jobs_generator
 from agn_utils.plotting.overlaid_corner_plotter import CORNER_KWARGS
 
 plt.style.use(
@@ -46,7 +46,7 @@ POPS = ['pop_a.dat', 'pop_b.dat']
 def main():
     for p in POPS:
         plot_samples(p)
-        main_generator(
+        pbilby_jobs_generator(
             injection_file=p.replace(".dat", "_highsnr.dat"),
             label=os.path.basename(p).replace(".dat", ""),
             prior_file="4s",

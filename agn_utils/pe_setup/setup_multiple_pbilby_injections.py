@@ -57,7 +57,7 @@ def create_analysis_bash_runner(num_inj, label):
         f.write(file_contents)
 
 
-def main_generator(injection_file, label, prior_file, psd_file, waveform):
+def pbilby_jobs_generator(injection_file, label, prior_file, psd_file, waveform):
     logging.info("Generating parallel bilby ini files + submission scripts")
 
     injection_file = os.path.abspath(injection_file)
