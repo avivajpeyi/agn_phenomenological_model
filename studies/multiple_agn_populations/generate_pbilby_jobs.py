@@ -51,7 +51,7 @@ def main():
             label=os.path.basename(p).replace(".dat", ""),
             prior_file="4s",
             psd_file="data/aLIGO_late_psd.txt",
-            waveform="IMRPhenomPv2"
+            waveform="IMRPhenomXPHM"
         )
 
 
