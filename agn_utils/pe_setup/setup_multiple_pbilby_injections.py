@@ -33,17 +33,18 @@ def create_ini(injection_idx: int, injection_file: str, prior_file: str, label: 
 
 
 def create_data_generation_slurm_submission_file(num_inj, label):
-    os.makedirs("generation_log", exist_ok=True)
+    gen_log_dir = f"outdir_{label}/generation_log"
+    os.makedirs(f"outdir_{label}/generation_log", exist_ok=True)
     with open(GEN_TEMPLATE, "r") as f:
         txt = f.read()
-        txt = txt.replace("{{{GENERATION_LOG_DIR}}}", "generation_log")
+        txt = txt.replace("{{{GENERATION_LOG_DIR}}}", os.path.abspath(gen_log_dir))
         txt = txt.replace("{{{NUM_INJECTIONS}}}", str(num_inj))
         txt = txt.replace("{{{LABEL}}}", label)
         txt = txt.replace(
             "{{{GENERATION_EXE}}}", shutil.which("parallel_bilby_generation")
         )
 
-    with open(f"slurm_data_generation_{label}", "w") as f:
+    with open(f"outdir_{label}/slurm_data_generation_{label}", "w") as f:
         f.write(txt)
 
 
@@ -51,9 +52,9 @@ def create_analysis_bash_runner(num_inj, label):
     file_contents = "#! /bin/sh\n"
     for i in range(num_inj):
         ulabel = f"{label}_{i:02}"
-        analysis_file = f"outdir_{label}/out_{ulabel}/submit/bash_{ulabel}.sh"
+        analysis_file = os.path.abspath(f"outdir_{label}/out_{ulabel}/submit/bash_{ulabel}.sh")
         file_contents += f"bash {analysis_file}\n"
-    with open(f"start_data_analysis_{label}", "w") as f:
+    with open(f"outdir_{label}/start_data_analysis_{label}", "w") as f:
         f.write(file_contents)
 
 
