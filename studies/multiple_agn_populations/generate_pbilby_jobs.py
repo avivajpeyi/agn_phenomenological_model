@@ -45,7 +45,10 @@ POPS = ['data/pop_a.dat', 'data/pop_b.dat']
 
 def main():
     for p in POPS:
-        plot_samples(p)
+        try:
+            plot_samples(p)
+        except Exception:
+            pass
         pbilby_jobs_generator(
             injection_file=p.replace(".dat", "_highsnr.dat"),
             label=os.path.basename(p).replace(".dat", ""),
