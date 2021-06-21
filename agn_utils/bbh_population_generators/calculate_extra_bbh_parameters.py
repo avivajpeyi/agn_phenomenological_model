@@ -15,32 +15,32 @@ REFERENCE_FREQ = 20
 
 
 def add_cos_theta_12_from_component_spins(df):
-    df["s1x"], df["s1y"], df["s1z"] = (
-        df["spin_1x"],
-        df["spin_1y"],
-        df["spin_1z"],
+    s1x, s1y, s1z = (
+        np.array(df["spin_1x"]).astype(np.float64),
+        np.array(df["spin_1y"]).astype(np.float64),
+        np.array(df["spin_1z"]).astype(np.float64),
     )
-    df["s2x"], df["s2y"], df["s2z"] = (
-        df["spin_2x"],
-        df["spin_2y"],
-        df["spin_2z"],
+    s2x, s2y, s2z = (
+        np.array(df["spin_2x"]).astype(np.float64),
+        np.array(df["spin_2y"]).astype(np.float64),
+        np.array(df["spin_2z"]).astype(np.float64),
     )
-    df["s1_dot_s2"] = (
-            (df["s1x"] * df["s2x"])
-            + (df["s1y"] * df["s2y"])
-            + (df["s1z"] * df["s2z"])
+    s1_dot_s2 = (
+            (s1x * s2x)
+            + (s1y * s2y)
+            + (s1z * s2z)
     )
-    df["s1_mag"] = np.sqrt(
-        (df["s1x"] * df["s1x"])
-        + (df["s1y"] * df["s1y"])
-        + (df["s1z"] * df["s1z"])
+    s1_mag = np.sqrt(
+        (s1x * s1x)
+        + (s1y * s1y)
+        + (s1z * s1z)
     )
-    df["s2_mag"] = np.sqrt(
-        (df["s2x"] * df["s2x"])
-        + (df["s2y"] * df["s2y"])
-        + (df["s2z"] * df["s2z"])
+    s2_mag = np.sqrt(
+        (s2x * s2x)
+        + (s2y * s2y)
+        + (s2z * s2z)
     )
-    df["cos_theta_12"] = df["s1_dot_s2"] / (df["s1_mag"] * df["s2_mag"])
+    df["cos_theta_12"] = s1_dot_s2 / (s1_mag * s2_mag)
     return df
 
 
@@ -61,7 +61,7 @@ def add_signal_duration(df):
     long_signals = [
         f"data{i}" for i in range(len(duration)) if duration[i] > 4
     ]
-    print(f"long_signals= " + str(long_signals).replace("'", ""))
+    # print(f"long_signals= " + str(long_signals).replace("'", ""))
     return df
 
 
@@ -87,6 +87,7 @@ def add_snr(df):
     missing_params = set(required_params) - set(df_cols)
     if len(missing_params) != 0:
         raise ValueError(f"Params missing for SNR calculation: {missing_params}")
+
     h1_snr, l1_snr, network_snr = _get_injection_snr(**df)
     df["h1_snr"] = h1_snr
     df["l1_snr"] = l1_snr

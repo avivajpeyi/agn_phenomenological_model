@@ -92,6 +92,7 @@ def overlaid_corner(
     fname="",
     title=None,
     truths={},
+    ranges=[],
     quants=True,
 ):
     """Plots multiple corners on top of each other
@@ -119,7 +120,7 @@ def overlaid_corner(
     base_s = samples_list[0]
 
     # get plot range, latex labels, colors and truths
-    plot_range, axis_labels, truths = [], [], []
+    plot_range, axis_labels = [], []
     for p in params:
         p_data = PARAMS.get(
             p,
@@ -127,24 +128,24 @@ def overlaid_corner(
         )
         plot_range.append(p_data["range"])
         axis_labels.append(p_data["latex_label"])
-        if len(truths) > 0:
-            truths.append(truths[p])
-    if len(truths) == 0:
-        truths = None
+
+    if len(ranges)!=0:
+        plot_range=ranges
 
     # get some constants
     n = len(samples_list)
     _, ndim = samples_list[0].shape
-    min_len = max([len(s) for s in samples_list])
+    min_len = min([len(s) for s in samples_list])
 
     c_kwargs = CORNER_KWARGS.copy()
     c_kwargs.update(
         range=plot_range,
         labels=axis_labels,
         truths=truths,
-        truth_color=CORNER_KWARGS["truth_color"],
+        truth_color=CORNER_KWARGS["truth_color"]
     )
 
+    hist_kwargs=dict(lw=3, histtype='stepfilled', alpha=0.5)
     if not quants:
         c_kwargs.pop("quantiles", None)
 
@@ -152,15 +153,18 @@ def overlaid_corner(
         samples_list[0],
         color=samples_colors[0],
         **c_kwargs,
+        hist_kwargs=dict(fc=samples_colors[0], ec=samples_colors[0], **hist_kwargs)
     )
 
     for idx in range(1, n):
+        col = samples_colors[idx]
         fig = corner.corner(
             samples_list[idx],
             fig=fig,
             weights=_get_normalisation_weight(len(samples_list[idx]), min_len),
-            color=samples_colors[idx],
+            color=col,
             **c_kwargs,
+            hist_kwargs=dict(fc=col, ec=col, **hist_kwargs)
         )
 
     if len(samples_list) == 1:
