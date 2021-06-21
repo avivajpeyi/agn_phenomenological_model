@@ -40,7 +40,7 @@ def plot_samples(all_samp):
     plt.close('all')
 
 
-POPS = ['pop_a.dat', 'pop_b.dat']
+POPS = ['data/pop_a.dat', 'data/pop_b.dat']
 
 
 def main():
