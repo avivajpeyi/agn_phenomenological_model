@@ -15,7 +15,7 @@
 
 # # Chi Regressor Testing
 
-# First we will load some modules, logging settings and set some flags for data generation and training.
+# First we will load some modules, logging settings and set some flags for posteriors_list generation and training.
 
 # +
 from __future__ import print_function
@@ -46,14 +46,14 @@ GENERATE_DATA = False
 TRAIN_MODEL = True
 # -
 
-# Now we will excute the code to generate data/train/load the trained model.
+# Now we will excute the code to generate posteriors_list/train/load the trained model.
 
 # + pycharm={"name": "#%%\n"}
 if GENERATE_DATA:
-    print("Generating new training data.")
+    print("Generating new training posteriors_list.")
     generate_chi_regression_training_data(TRAINING_DATA_FNAME)
 else:
-    print("Using cached training data.")
+    print("Using cached training posteriors_list.")
 
 # + pycharm={"name": "#%%\n"}
 if TRAIN_MODEL:
@@ -73,7 +73,7 @@ regressor = load_model(outdir=OUTDIR, model_type=MODEL_TYPE)
 
 # -
 
-# Finally, we can plot the regressor's predicted output and compare it with the real output.
+# Finally, we can plot_posterior_predictive_check the regressor's predicted output and compare it with the real output.
 
 # +
 def interactive_func(sigma_1, sigma_12, n):

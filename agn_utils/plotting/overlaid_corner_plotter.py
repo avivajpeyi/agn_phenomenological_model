@@ -24,7 +24,7 @@ CORNER_KWARGS = dict(
     fill_contours=True,
     max_n_ticks=3,
     verbose=False,
-    use_math_text=True,
+    use_math_text=False,
 )
 
 
@@ -119,7 +119,7 @@ def overlaid_corner(
     samples_list = [s[params] for s in samples_list]
     base_s = samples_list[0]
 
-    # get plot range, latex labels, colors and truths
+    # get plot_posterior_predictive_check range, latex labels, colors and truths
     plot_range, axis_labels = [], []
     for p in params:
         p_data = PARAMS.get(

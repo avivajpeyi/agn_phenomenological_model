@@ -11,11 +11,11 @@ import matplotlib.pyplot as plt
 
 
 def plot():
-    """Plots a scatter plot."""
+    """Plots a scatter plot_posterior_predictive_check."""
     sample_x = np.random.normal(4, 0.1, 500)
     sample_y = np.random.normal(4, 0.1, 500)
     fig, ax = plt.subplots()
-    ax.plot(sample_x, sample_y, ".")
+    ax.plot_posterior_predictive_check(sample_x, sample_y, ".")
     fig.show()
 
 

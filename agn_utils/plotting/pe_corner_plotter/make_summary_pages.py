@@ -22,7 +22,7 @@ def get_event_name(fname):
     if len(name) == 0:
         name = re.findall(r"inj\d+", fname)
     if len(name) == 0:
-        name = re.findall(r"data\d+", fname)
+        name = re.findall(r"posteriors_list\d+", fname)
     if len(name) == 0:
         name = os.path.basename(fname).split(".")
     return name[0]
@@ -33,7 +33,7 @@ def make_summary_for_event(event_path, outdir, email):
     event_name = get_event_name(event_path)
     event_outdir = os.path.join(outdir, event_name)
     gw_data_path = glob.glob(
-        event_path.split("/result/")[0] + "/data/*.pickle"
+        event_path.split("/result/")[0] + "/posteriors_list/*.pickle"
     )[0]
     os.makedirs(event_outdir, exist_ok=True)
     event_labels = event_name

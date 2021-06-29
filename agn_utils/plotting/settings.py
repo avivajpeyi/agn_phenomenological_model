@@ -55,7 +55,7 @@ def get_event_name(fname):
     if len(name) == 0:
         name = re.findall(r"inj\d+", fname)
     if len(name) == 0:
-        name = re.findall(r"data\d+", fname)
+        name = re.findall(r"posteriors_list\d+", fname)
     if len(name) == 0:
         name = os.path.basename(fname).split(".")
     return name[0]

@@ -5,15 +5,13 @@ import bilby
 import matplotlib.pyplot as plt
 import pandas as pd
 from PIL import Image
-from agn_utils.bbh_population_generators.calculate_extra_bbh_parameters import add_cos_theta_12_from_component_spins
+from agn_utils.bbh_population_generators.calculate_extra_bbh_parameters import add_cos_theta_12_from_component_spins, add_snr
 from agn_utils.plotting.overlaid_corner_plotter import overlaid_corner
 from bilby.gw.conversion import generate_spin_parameters, generate_mass_parameters, convert_to_lal_binary_black_hole_parameters
+
 from fpdf import FPDF
 from tqdm.auto import tqdm
 
-# RES_REGEX = "out*/res*/sn*.json"
-RES_REGEX = "outdir_0th/*.json"
-PRIORS = "./datafiles/bbh.prior"
 
 
 def process_samples(s, rf):
@@ -22,6 +20,8 @@ def process_samples(s, rf):
     s = generate_mass_parameters(s)
     s = generate_spin_parameters(s)
     s = add_cos_theta_12_from_component_spins(s)
+    s = add_snr(s)
+    s['snr'] = s['network_snr']
     return s
 
 
@@ -31,34 +31,34 @@ def result_post_processing(r):
     return r
 
 
-def generate_corner(r, priors, plot_params, bilby_corner=False, ):
-    ranges=[(-1, 1), (-1, 1), (-1, 1), (14, 40), (100, 500)]
+def generate_corner(r,  plot_params, bilby_corner=True, ):
+    # ranges=[(-1, 1), (-1, 1), (-1, 1), (14, 40), (100, 10000)]
     if bilby_corner:
         fig = r.plot_corner(
             truths=True,
             parameters={k: r.injection_parameters[k] for k in plot_params},
-            range=ranges,
-            priors=priors,
+            # range=ranges,ranges
+            # priors=priors,
             save=False
         )
     else:
-        prior_samples = pd.DataFrame(priors.sample(10000))
-        prior_samples = process_samples(prior_samples, r.reference_frequency)
+        # prior_samples = pd.DataFrame(priors.sample(10000))
+        # prior_samples = process_samples(prior_samples, r.reference_frequency)
         fig = overlaid_corner(
-            [prior_samples, r.posterior],
-            ["Prior", "Posterior", "Truth"],
+            [r.posterior],
+            ["Posterior", "Truth"],
             params=plot_params,
             samples_colors=["lightgray", "tab:blue", "tab:orange"],
             truths={k: r.injection_parameters[k] for k in plot_params},
-            ranges=ranges,
+            # ranges=ranges,
             quants=False
         )
     return fig
 
 
-def make_plots():
-    files = glob.glob(RES_REGEX)
-    plot_dir = "plot_out"
+def make_plots(regex, outdir):
+    files = glob.glob(regex)
+    plot_dir = outdir
     os.makedirs(plot_dir, exist_ok=True)
     image_paths = []
 
@@ -68,11 +68,11 @@ def make_plots():
         fname = os.path.basename(f).replace(".json", ".png")
         fpath = os.path.join(plot_dir, fname)
         plot_params = ['cos_tilt_1', 'cos_tilt_2', 'cos_theta_12', 'mass_1', "luminosity_distance"]
-        priors = bilby.prior.PriorDict(filename=PRIORS)
-        fig = generate_corner(r, priors, plot_params)
-        dl, m = r.injection_parameters['luminosity_distance'], r.injection_parameters['mass_1']
-        snr = r.injection_parameters['snr']
-        plt.suptitle(f"$dl={dl:.2f}$\n$m={m}$\n$snr={snr:.2f}$")
+        # priors = bilby.prior.PriorDict(filename=PRIORS)
+        fig = generate_corner(r,  plot_params)
+        dl, m , s = r.injection_parameters['luminosity_distance'], r.injection_parameters['mass_1'], r.injection_parameters['snr']
+        # snr = r.injection_parameters['snr']
+        plt.suptitle(f"$dl={dl:.2f}$\n$m={m:.2f}$\n$SNR={s:.2f}$")
         fig.savefig(fpath)
         image_paths.append(fpath)
 
@@ -93,7 +93,10 @@ def make_pdf(pdf_fname, image_path_list):
 
 
 def main():
-    make_plots()
+    make_plots(regex="bp_pop_a/*.json", outdir="bp_plot_a")
+    make_plots(regex="bp_pop_b/*.json", outdir="bp_plot_b")
+    make_plots(regex="pop_a/*.json", outdir="plot_out_a")
+    make_plots(regex="pop_b/*.json", outdir="plot_out_b")
     print("Complete! :)")
 
 

@@ -46,7 +46,7 @@ def run_data_collection(args):
     )
     posterior_file = f"{args.data_label}.pkl"
     logger.info(f"Saving posteriors to {posterior_file}")
-    filename = os.path.join(args.run_dir, "data", posterior_file)
+    filename = os.path.join(args.run_dir, "posteriors_list", posterior_file)
     pd.to_pickle(posts, filename)
 
 
@@ -56,7 +56,7 @@ def run_data_analysis(args):
         "/home/avi.vajpeyi/projects/agn_phenomenological_model/simulated_events/small_test_dir/test_out/simulated_pop_config_complete.ini --prior /home/avi.vajpeyi/projects/agn_phenomenological_model/population_inference/priors/mass_c_iid_mag_agn_tilt_powerlaw_redshift.prior --label simulated_pop_mass_c_iid_mag_agn_tilt_powerlaw_redshift --models SmoothedMassDistribution --models iid_spin_magnitude --models agn_spin_orientation --models gwpopulation.models.redshift.PowerLawRedshift --vt-models SmoothedMassDistribution --vt-models gwpopulation.models.redshift.PowerLawRedshift".split()
     )
     posterior_file = os.path.join(
-        args.run_dir, "data", f"{args.data_label}.pkl"
+        args.run_dir, "posteriors_list", f"{args.data_label}.pkl"
     )
     posteriors = pd.read_pickle(posterior_file)
     for ii, post in enumerate(posteriors):
@@ -67,7 +67,7 @@ def run_data_analysis(args):
     event_ids = list()
     with open(
         os.path.join(
-            args.run_dir, "data", f"{args.data_label}_posterior_files.txt"
+            args.run_dir, "posteriors_list", f"{args.data_label}_posterior_files.txt"
         ),
         "r",
     ) as ff:

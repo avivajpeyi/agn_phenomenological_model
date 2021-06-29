@@ -198,7 +198,7 @@ def generate_population_prior(population_params):
 def get_bbh_population_from_agn_prior(num_samples=10000, population_params={}):
     pop_model = generate_population_prior(population_params)
     s = pd.DataFrame(pop_model.sample(num_samples)).to_dict("list")
-    # Unpack data
+    # Unpack posteriors_list
     phi_1, phi_12 = s[PHI_1], s[PHI_12]
     z, q = s[Z], s[Q]
     incl, phase = s[INCL], s[PHASE]
@@ -228,7 +228,7 @@ def get_bbh_population_from_agn_prior(num_samples=10000, population_params={}):
         m2=m2 * bilby.utils.solar_mass,
         phase=phase,
     )
-    # pack data
+    # pack posteriors_list
     s[CHI_EFF] = get_chi_eff(s1z=s1z, s2z=s2z, q=q)
     s[CHI_P] = get_chi_p(s1x=s1x, s1y=s1y, s2x=s2x, s2y=s2y, q=q)
     s[PHI_2] = phi_2

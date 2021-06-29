@@ -60,7 +60,7 @@ HYPER_PARAM_VALS = {
 
 
 def load_posteriors(run_dir, data_label):
-    data_dir = os.path.join(run_dir, "data")
+    data_dir = os.path.join(run_dir, "posteriors_list")
     posterior_file = os.path.join(data_dir, f"{data_label}.pkl")
     event_name_file = os.path.join(
         data_dir, f"{data_label}_posterior_files.txt"
@@ -86,7 +86,7 @@ def load_true_values(injection_dat):
 
 
 def plot_masses(posteriors, events, truths):
-    print(f"Making box plot for {len(posteriors)} posteriors")
+    print(f"Making box plot_posterior_predictive_check for {len(posteriors)} posteriors")
     mass_data = [post["mass_1"] for post in posteriors]
     mass_truths = [[t["mass_1_source"]] for t in truths]
     spin_data = [post["cos_theta_12"] for post in posteriors]
@@ -141,7 +141,7 @@ def is_quant_above_mmin(masses, quantiles, mmin):
 
 
 def plot_masses(posteriors, events, ignore_list, mmin):
-    print(f"Making box plot for {len(posteriors)} posteriors")
+    print(f"Making box plot_posterior_predictive_check for {len(posteriors)} posteriors")
     data = [post["mass_1"] for post in posteriors]
     fig = plt.figure(figsize=(len(posteriors), 5))
     violin_parts = plt.violinplot(
@@ -178,8 +178,8 @@ def adjust_colors_for_violin(violin_parts, idx, color):
 
 def get_data(mmin):
     posteriors, events = load_posteriors(
-        psterior_pkl="/home/avi.vajpeyi/projects/agn_phenomenological_model/population_inference/agn_pop_outdir/data/posteriors.pkl",
-        posterior_fname_file="/home/avi.vajpeyi/projects/agn_phenomenological_model/population_inference/agn_pop_outdir/data/posteriors_posterior_files.txt",
+        psterior_pkl="/home/avi.vajpeyi/projects/agn_phenomenological_model/population_inference/agn_pop_outdir/posteriors_list/posteriors.pkl",
+        posterior_fname_file="/home/avi.vajpeyi/projects/agn_phenomenological_model/population_inference/agn_pop_outdir/posteriors_list/posteriors_posterior_files.txt",
     )
     ignore_list = []
     for event, post in zip(events, posteriors):

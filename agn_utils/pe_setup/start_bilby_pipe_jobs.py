@@ -12,7 +12,7 @@ def run_bilby_pipe_jobs(dat):
     print("Loading injections")
     df = load_injections(dat)
     df = add_signal_duration(df)
-    print("Loaded data")
+    print("Loaded posteriors_list")
     f = open("run_bilby_jobs.sh", "w")
     for i in range(len(df)):
         duration = df.iloc[i]["duration"]

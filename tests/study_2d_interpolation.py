@@ -25,7 +25,7 @@ ax[0, 0].contourf(X, Y, T)
 ax[0, 0].scatter(px, py, c=f(px,py), alpha=1, marker='.')
 ax[0, 0].set_title('Sample points on f(X,Y)')
 
-# Interpolate using three different methods and plot
+# Interpolate using three different methods and plot_posterior_predictive_check
 for i, method in enumerate(('nearest', 'linear', 'cubic')):
     Ti = griddata((px, py), f(px, py), (X, Y), method=method)
     r, c = (i + 1) // 2, (i + 1) % 2

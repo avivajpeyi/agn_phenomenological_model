@@ -19,9 +19,9 @@ def make_input_fn(
     shuffle=True,
 ) -> Callable:
     def _input_fn() -> tf.data.Dataset:
-        # dataset = tf.data.Dataset.from_tensor_slices((data.values, labels.values))
+        # dataset = tf.posteriors_list.Dataset.from_tensor_slices((posteriors_list.values, labels.values))
         # if shuffle:
-        #     dataset = dataset.shuffle(len(data))
+        #     dataset = dataset.shuffle(len(posteriors_list))
         # return dataset
         return data.to_dict("list"), labels.values
 

@@ -37,7 +37,7 @@ ax[0, 0].contourf(xpos, ypos, H)
 ax[0, 0].scatter(x, y, alpha=0.2, marker='.')
 ax[0, 0].set_title('Sample points on f(X,Y)')
 
-# Interpolate using three different methods and plot
+# Interpolate using three different methods and plot_posterior_predictive_check
 # for i, method in enumerate(('nearest', 'linear', 'cubic')):
 #     train_x, train_y, train_z = convert_meshgrid_to_arrays(xpos, ypos, H)
 #     Ti = griddata((train_x, train_y), train_z, (X, Y), method=method)

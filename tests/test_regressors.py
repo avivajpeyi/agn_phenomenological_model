@@ -115,7 +115,7 @@ class FunctRegressionTest(AbstractTestRegressors):
 
     def generate_fake_data(self, func):
         """
-        Lets simulate training data using the following formula:
+        Lets simulate training posteriors_list using the following formula:
         z = x * np.exp(-x ** 2 - y ** 2)
         Where (z) is the dependent variable you are trying to predict and (x) and (y) are the features
         :return:
@@ -124,14 +124,14 @@ class FunctRegressionTest(AbstractTestRegressors):
         x_range = (-1, 1)
         y_range = (0, 1)
 
-        # Create fake data
+        # Create fake posteriors_list
         seed(0)
         npts = self.N
         x = uniform(x_range[0], x_range[1], npts)
         y = uniform(y_range[0], y_range[1], npts)
         z = func(x, y)
 
-        # Prep data for training.
+        # Prep posteriors_list for training.
         training_df = pd.DataFrame({"x": x, "y": y, "z": z})
 
         xi = (np.linspace(x_range[0], x_range[1], 200),)
@@ -165,7 +165,7 @@ class FunctRegressionTest(AbstractTestRegressors):
         )
         self.plot_contour(grid_z)
         plt.scatter(self.training_data.x, self.training_data.y, marker=".")
-        plt.title("Contour on training data")
+        plt.title("Contour on training posteriors_list")
         plt.savefig(os.path.join(self.outdir, "training_data.png"))
 
     def visualise_predicted_data(self, predicted_vals, n_trees, label):
@@ -223,17 +223,17 @@ class NormDistribRegressionTest(AbstractTestRegressors):
 
     def generate_fake_data(self, num_x, sigmas):
         """
-        Lets simulate training data using the following formula:
+        Lets simulate training posteriors_list using the following formula:
         pi(x) = TruncNorm(x | mu=0, sigma=1)
         Where (p) is the dependent variable you are trying to predict and (x) and (sigma) are the features
         :return:
         :rtype:
         """
-        # Create fake data
+        # Create fake posteriors_list
         seed(0)
         x_range = (-10, 10)
         x = uniform(*x_range, num_x)
-        # Prep data for training.
+        # Prep posteriors_list for training.
         df = pd.DataFrame({"x": [], "sigma": [], "p": []})
         for s in sigmas:
             p = truncnorm(xx=x, mu=1, sigma=s, high=x_range[1], low=x_range[0])

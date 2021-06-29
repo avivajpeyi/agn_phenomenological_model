@@ -4,6 +4,7 @@ Module to create an injection file + pbilby inis for the injections.
 import logging
 import os
 import shutil
+from typing import Optional
 
 import pandas as pd
 
@@ -14,7 +15,10 @@ CONFIG_TEMPLATE = os.path.join(DIR, "pbilby_config_template.ini")
 GEN_TEMPLATE = os.path.join(DIR, "pbilby_generation_job_template.ini")
 
 
-def create_ini(injection_idx: int, injection_file: str, prior_file: str, label: str, psd_file: str, waveform: str):
+def create_ini(injection_idx: int, injection_file: str, prior_file: str, label: str, psd_file: str, waveform: str,
+               nlive: Optional[int] = 1000, nact: Optional[int] = 20, nodes: Optional[int] = 1,
+               tasks: Optional[int] = 16, time: Optional[str] = "24:00:00", mem: Optional[int] = 200
+               ):
     unique_label = f"{label}_{injection_idx:02}"
     outdir = f"outdir_{label}/out_{unique_label}"
     ini = f"outdir_{label}/{unique_label}.ini"
@@ -28,6 +32,12 @@ def create_ini(injection_idx: int, injection_file: str, prior_file: str, label: 
         txt = txt.replace("{{{INJECTION_FILE}}}", injection_file)
         txt = txt.replace("{{{PSD_FILES}}}", "{" + f"H1={psd_file}, L1={psd_file}" + "}")
         txt = txt.replace("{{{WAVEFORM}}}", waveform)
+        txt = txt.replace("{{{NLIVE}}}", str(nlive))
+        txt = txt.replace("{{{NACT}}}", str(nact))
+        txt = txt.replace("{{{NODES}}}", str(nodes))
+        txt = txt.replace("{{{TASKS}}}", str(tasks))
+        txt = txt.replace("{{{TASKS}}}", time)
+        txt = txt.replace("{{{MEM}}}", str(mem))
     with open(ini, "w") as f:
         f.write(txt)
 

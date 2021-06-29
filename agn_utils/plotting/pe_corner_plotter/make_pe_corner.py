@@ -81,7 +81,7 @@ def create_parser_and_read_args():
     parser = argparse.ArgumentParser()
     parser.add_argument("--make-dag", help="Make dag", action="store_true")
     parser.add_argument(
-        "--outdir", help="outdir for plot", type=str, default="."
+        "--outdir", help="outdir for plot_posterior_predictive_check", type=str, default="."
     )
     parser.add_argument(
         "--event-name", help="path", type=str, default="GW150914"
@@ -201,7 +201,7 @@ def get_event_name(fname):
     if len(name) == 0:
         name = re.findall(r"inj\d+", fname)
     if len(name) == 0:
-        name = re.findall(r"data\d+", fname)
+        name = re.findall(r"posteriors_list\d+", fname)
     if len(name) == 0:
         name = os.path.basename(fname).split(".")
     return name[0]

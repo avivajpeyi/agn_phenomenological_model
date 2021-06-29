@@ -27,10 +27,10 @@ logger.setLevel(logging.DEBUG)
 @timing
 def generate_chi_regression_training_data(training_data_fname):
     if os.path.isfile(training_data_fname):
-        raise FileExistsError("Training data already exists.")
-    logger.info("Generating traininng data")
+        raise FileExistsError("Training posteriors_list already exists.")
+    logger.info("Generating traininng posteriors_list")
     save_agn_samples_for_many_populations(num=1, fname=training_data_fname)
-    logger.info("Finished generating traininng data")
+    logger.info("Finished generating traininng posteriors_list")
     df = load_training_data(training_data_fname)
     logger.debug(f"\n {df.describe().T[['min', 'mean', 'max']]}")
 

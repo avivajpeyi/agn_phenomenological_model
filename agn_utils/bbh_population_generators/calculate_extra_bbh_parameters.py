@@ -83,7 +83,7 @@ def add_snr(df):
         "phi_12",
         "phi_jl",
     ]
-    df_cols = df.columns.values
+    df_cols = list(df.keys())
     missing_params = set(required_params) - set(df_cols)
     if len(missing_params) != 0:
         raise ValueError(f"Params missing for SNR calculation: {missing_params}")
@@ -95,7 +95,6 @@ def add_snr(df):
     return df
 
 
-@np.vectorize
 def _get_injection_snr(
         a_1,
         a_2,

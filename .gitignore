@@ -189,6 +189,17 @@ cython_debug/
 
 /agn_utils/bbh_population_generators/eval/
 /agn_utils/bbh_population_generators/lumin_from_snr_regressor/
-/studies/fixed_snr/plot_out/
+/studies/fixed_snr/plot_out_a/
 /studies/multiple_agn_populations/data/
 /studies/multiple_agn_populations/data.zip
+/studies/fixed_snr/bp_plot_a/
+/studies/fixed_snr/bp_plot_b/
+/studies/fixed_snr/bp_pop_a/
+/studies/fixed_snr/bp_pop_b/
+/studies/fixed_snr/outdir_0th/
+/studies/fixed_snr/outdir_pbilby/
+/studies/fixed_snr/outdir_snr60/
+/studies/fixed_snr/plot_out_b/
+/studies/fixed_snr/outdir_0th/
+/studies/fixed_snr/outdir_pbilby/
+/studies/fixed_snr/outdir_snr60/

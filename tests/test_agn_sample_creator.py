@@ -21,7 +21,7 @@ class AGNsampleCreatorTest(unittest.TestCase):
     #         shutil.rmtree(self.outdir)
 
     def test_something(self):
-        fname = os.path.join(self.outdir, "data.h5")
+        fname = os.path.join(self.outdir, "posteriors_list.h5")
         save_agn_samples_for_many_populations(num=1, fname=fname)
         df = load_training_data(fname)
         print(df.describe())
