@@ -40,6 +40,7 @@ def create_ini(injection_idx: int, injection_file: str, prior_file: str, label: 
         txt = txt.replace("{{{MEM}}}", str(mem))
     with open(ini, "w") as f:
         f.write(txt)
+    print("Completed ini writing")
 
 
 def create_data_generation_slurm_submission_file(num_inj, label):
