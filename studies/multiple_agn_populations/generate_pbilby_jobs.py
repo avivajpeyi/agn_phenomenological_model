@@ -62,7 +62,7 @@ def main_sampler_setting_study():
     p =  os.path.abspath('./data/pop_a_highsnr.dat')
     default_args = dict(injection_idx=7, injection_file=p, prior_file=os.path.abspath('./data/4s.prior'),
                         psd_file=os.path.abspath("./data/aLIGO_late_psd.txt"), waveform="IMRPhenomXPHM", nodes=20,tasks=14, mem=400)
-    for nlive, nact, label in zip([2000, 2500, 1500],[20,  20, 25], ["run_c", "run_d"]):
+    for nlive, nact, label in zip([2000, 2500, 1500],[20,  20, 25], ["run_b", "run_c", "run_d"]):
         create_ini(**default_args, label=label, nlive=nlive, nact=nact)
 
 if __name__ == "__main__":
