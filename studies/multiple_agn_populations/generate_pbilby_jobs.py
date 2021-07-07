@@ -15,7 +15,7 @@ def main_job_gen():
         pbilby_jobs_generator(
             injection_file=p,
             label=os.path.basename(p).replace(".dat", ""),
-            prior_file="data/bbh.prior",
+            prior_file=PRI_PATH,
             psd_file="data/aLIGO_late_psd.txt",
             waveform="IMRPhenomXPHM",
         )
