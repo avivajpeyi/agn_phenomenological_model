@@ -64,7 +64,6 @@ def add_signal_duration(df):
     # print(f"long_signals= " + str(long_signals).replace("'", ""))
     return df
 
-
 def add_snr(df):
     required_params = [
         "dec",
@@ -94,7 +93,7 @@ def add_snr(df):
     df["network_snr"] = network_snr
     return df
 
-
+@np.vectorize
 def _get_injection_snr(
         a_1,
         a_2,

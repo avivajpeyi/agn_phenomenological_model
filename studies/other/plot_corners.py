@@ -65,6 +65,8 @@ def make_plots(regex, outdir):
     for f in tqdm(files, desc="Plotting corners"):
         r = bilby.gw.result.CBCResult.from_json(f)
         r = result_post_processing(r)
+        plt.rcParams["text.usetex"] = False
+        r.plot_marginals(priors=True,outdir=outdir, dpi=60)
         fname = os.path.basename(f).replace(".json", ".png")
         fpath = os.path.join(plot_dir, fname)
         plot_params = ['cos_tilt_1', 'cos_tilt_2', 'cos_theta_12', 'mass_1', "luminosity_distance"]
@@ -76,7 +78,10 @@ def make_plots(regex, outdir):
         fig.savefig(fpath)
         image_paths.append(fpath)
 
-    make_pdf(pdf_fname=f"{plot_dir}/corners.pdf", image_path_list=image_paths)
+
+    # make_pdf(pdf_fname=f"{plot_dir}/corners.pdf", image_path_list=image_paths)
+    margs = glob.glob(f"{outdir}/*1d/*pdf.png")
+    make_pdf(pdf_fname=f"{plot_dir}/plots.pdf", image_path_list=margs)
 
 
 def make_pdf(pdf_fname, image_path_list):
@@ -93,10 +98,12 @@ def make_pdf(pdf_fname, image_path_list):
 
 
 def main():
-    make_plots(regex="bp_pop_a/*.json", outdir="bp_plot_a")
-    make_plots(regex="bp_pop_b/*.json", outdir="bp_plot_b")
-    make_plots(regex="pop_a/*.json", outdir="plot_out_a")
-    make_plots(regex="pop_b/*.json", outdir="plot_out_b")
+    make_plots("out_fixed*/*.json", outdir="fixed_dl")
+    # make_plots(regex="7th_inj/*.json", outdir="7th_inj-plot")
+    # make_plots(regex="bp_pop_a/*.json", outdir="bp_plot_a")
+    # make_plots(regex="bp_pop_b/*.json", outdir="bp_plot_b")
+    # make_plots(regex="pop_a/*.json", outdir="plot_out_a")
+    # make_plots(regex="pop_b/*.json", outdir="plot_out_b")
     print("Complete! :)")
 
 

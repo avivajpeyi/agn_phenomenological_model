@@ -98,7 +98,7 @@ def main():
     bbh_df = add_snr(bbh_df)
     bbh_df['snr'] = bbh_df['network_snr']
     bbh_df = bbh_df.drop(['h1_snr', 'l1_snr', 'network_snr'], axis=1)
-    # bbh_df = add_signal_duration(bbh_df)
+    # injection_df = add_signal_duration(injection_df)
     bbh_df.to_csv("snr60_injections.dat", sep=' ', index=False)
 
 
