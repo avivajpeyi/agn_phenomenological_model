@@ -16,8 +16,8 @@ GEN_TEMPLATE = os.path.join(DIR, "pbilby_generation_job_template.ini")
 
 
 def create_ini(injection_idx: int, injection_file: str, prior_file: str, label: str, psd_file: str, waveform: str,
-               nlive: Optional[int] = 1000, nact: Optional[int] = 20, nodes: Optional[int] = 1,
-               tasks: Optional[int] = 16, time: Optional[str] = "24:00:00", mem: Optional[int] = 800
+               nlive: Optional[int] = 1000, nact: Optional[int] = 5, nodes: Optional[int] = 1,
+               tasks: Optional[int] = 14, time: Optional[str] = "24:00:00", mem: Optional[int] = 800
                ):
     unique_label = f"{label}_{injection_idx:02}"
     outdir = f"outdir_{label}/out_{unique_label}"
