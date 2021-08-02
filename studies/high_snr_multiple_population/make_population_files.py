@@ -159,7 +159,7 @@ def filter_undesired_injections(df, prior_path, number_high_snr_events=80):
 def generate_population(pop_name, pop_pri):
     fname = f"data/{pop_name}.dat"
 
-    pop_samp = pop_pri.sample(40)
+    pop_samp = pop_pri.sample(100)
     pop_samp['reference_frequency'] = REF_FREQ
     pop_samp = convert_s12_samples_to_s2_samples(pop_samp)
     pop_samp = add_snr(pop_samp)
@@ -178,6 +178,9 @@ def generate_population(pop_name, pop_pri):
 
 
     high_snr_events = high_snr_events.reset_index(drop=True)
+    if len(high_snr_events)>40:
+        high_snr_events = high_snr_events.sample(40)
+    print(f"Saving {len(high_snr_events)} SNR events")
     high_snr_events.to_csv(fname.replace('.dat', '_highsnr.dat'), index=False, sep=' ')
 
 

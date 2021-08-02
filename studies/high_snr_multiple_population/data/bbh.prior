@@ -1,5 +1,3 @@
-# 'theta_jn', 'phi_jl', 'tilt_1', 'tilt_2', 'phi_z_s12', 'a_1', 'a_2', 'mass_1', 'mass_2', 'reference_frequency', 'phase']
-
 # MASS
 chirp_mass = Uniform(name='chirp_mass', minimum=14, maximum=60, unit='$M_{\odot}$')
 mass_ratio = 1.0
