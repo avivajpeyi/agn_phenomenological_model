@@ -5,7 +5,11 @@ import bilby
 import lalsimulation
 import numpy as np
 
-from bilby.gw.conversion import component_masses_to_chirp_mass
+from bilby.gw.conversion import (
+    component_masses_to_chirp_mass, total_mass_and_mass_ratio_to_component_masses,
+                                 chirp_mass_and_mass_ratio_to_total_mass,
+    convert_to_lal_binary_black_hole_parameters, generate_mass_parameters, generate_component_spins
+)
 from bilby_pipe.gracedb import (
     determine_duration_and_scale_factor_from_parameters,
 )
@@ -13,35 +17,6 @@ from numpy import cos, sin
 
 REFERENCE_FREQ = 20
 
-
-def add_cos_theta_12_from_component_spins(df):
-    s1x, s1y, s1z = (
-        np.array(df["spin_1x"]).astype(np.float64),
-        np.array(df["spin_1y"]).astype(np.float64),
-        np.array(df["spin_1z"]).astype(np.float64),
-    )
-    s2x, s2y, s2z = (
-        np.array(df["spin_2x"]).astype(np.float64),
-        np.array(df["spin_2y"]).astype(np.float64),
-        np.array(df["spin_2z"]).astype(np.float64),
-    )
-    s1_dot_s2 = (
-            (s1x * s2x)
-            + (s1y * s2y)
-            + (s1z * s2z)
-    )
-    s1_mag = np.sqrt(
-        (s1x * s1x)
-        + (s1y * s1y)
-        + (s1z * s1z)
-    )
-    s2_mag = np.sqrt(
-        (s2x * s2x)
-        + (s2y * s2y)
-        + (s2z * s2z)
-    )
-    df["cos_theta_12"] = s1_dot_s2 / (s1_mag * s2_mag)
-    return df
 
 
 def add_kick(df):
@@ -53,7 +28,7 @@ def add_kick(df):
 
 
 def add_signal_duration(df):
-    df["chirp_mass"] = component_masses_to_chirp_mass(df.mass_1, df.mass_2)
+    df["chirp_mass"] = component_masses_to_chirp_mass(df['mass_1'], df['mass_2'])
     duration, roq_scale_factor = np.vectorize(
         determine_duration_and_scale_factor_from_parameters
     )(chirp_mass=df["chirp_mass"])
@@ -63,6 +38,7 @@ def add_signal_duration(df):
     ]
     # print(f"long_signals= " + str(long_signals).replace("'", ""))
     return df
+
 
 def add_snr(df):
     required_params = [
@@ -92,6 +68,7 @@ def add_snr(df):
     df["l1_snr"] = l1_snr
     df["network_snr"] = network_snr
     return df
+
 
 @np.vectorize
 def _get_injection_snr(
@@ -152,7 +129,7 @@ def _get_injection_snr(
         parameter_conversion=bilby.gw.conversion.convert_to_lal_binary_black_hole_parameters,
         waveform_arguments=dict(
             waveform_approximant="IMRPhenomPv2",
-            reference_frequency=20.0,
+            reference_frequency=REFERENCE_FREQ,
             minimum_frequency=20.0,
         ),
     )
@@ -186,21 +163,6 @@ def get_chi_p(s1x, s1y, s2x, s2y, q):
     return np.maximum(chi1p, chi2p * qfactor)
 
 
-@np.vectorize
-def get_t2_from_t1_and_t12_spins(θ12, ϕ12, θ1, ϕ1):
-    """https://www.wolframcloud.com/obj/d954c5d7-c296-40c5-b776-740441099c40"""
-    s2 = [
-        -(cos(θ12) * sin(θ1)) + cos(θ1) * cos(ϕ1 - ϕ12) * sin(θ12),
-        sin(θ12) * sin(ϕ1 - ϕ12),
-        cos(θ1) * cos(θ12) + cos(ϕ1 - ϕ12) * sin(θ1) * sin(θ12),
-    ]
-    tilt_2 = np.arccos(s2[2])
-    phi_2 = np.arctan2(s2[1], s2[0])
-    if phi_2 < 0:
-        phi_2 += 2.0 * np.pi
-
-    return tilt_2, phi_2
-
 
 def get_component_mass_from_source_mass_and_z(m1_source, q, z):
     m1 = m1_source * (1 + np.array(z))
@@ -208,39 +170,17 @@ def get_component_mass_from_source_mass_and_z(m1_source, q, z):
     return m1, m2
 
 
-@np.vectorize
-def transform_component_spins(
-        incl=2, S1x=0, S1y=0, S1z=1, S2x=0, S2y=0, S2z=1, m1=20, m2=20, phase=0
-):
-    """https://lscsoft.docs.ligo.org/lalsuite/lalsimulation/group__lalsimulation__inference.html#ga6920c640f473e7125f9ddabc4398d60a"""
-    (
-        thetaJN,
-        phiJL,
-        theta1,
-        theta2,
-        phi12,
-        chi1,
-        chi2,
-    ) = lalsimulation.SimInspiralTransformPrecessingWvf2PE(
-        incl=incl,
-        S1x=S1x,
-        S1y=S1y,
-        S1z=S1z,
-        S2x=S2x,
-        S2y=S2y,
-        S2z=S2z,
-        m1=m1,
-        m2=m2,
-        fRef=REFERENCE_FREQ,
-        phiRef=phase,
-    )
-    return thetaJN, phiJL, theta1, theta2, phi12, chi1, chi2
-
-
-@np.vectorize
-def make_spin_vector(θ, ϕ):
-    return (sin(θ) * cos(ϕ), sin(θ) * sin(ϕ), cos(θ))
+def get_component_mass_from_mchirp_q(mchirp, q):
+    mtot = chirp_mass_and_mass_ratio_to_total_mass(chirp_mass=mchirp, mass_ratio=q)
+    m1, m2 = total_mass_and_mass_ratio_to_component_masses(mass_ratio=q, total_mass=mtot)
+    return m1, m2
 
 
 def scale_vector(scale, vector):
-    return np.array([m * v for m, v in zip(scale, vector)])
+    if len(scale.shape) > 0:
+        if scale.shape[0] == vector.shape[0]:
+            return  np.array([m * v for m, v in zip(scale, vector)])
+    else:
+        v = scale * vector
+        v.shape = (3,1)
+        return v.T

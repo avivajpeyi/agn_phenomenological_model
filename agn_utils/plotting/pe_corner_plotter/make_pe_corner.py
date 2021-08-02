@@ -51,7 +51,7 @@ PE_PRIOR = PriorDict(
         tilt_1=Sine(name="tilt_1"),
         tilt_2=Sine(name="tilt_2"),
         phi_12=Uniform(
-            name="phi_12", minimum=0, maximum=2 * np.pi, boundary="periodic"
+            name="phi_z_s12", minimum=0, maximum=2 * np.pi, boundary="periodic"
         ),
         phi_jl=Uniform(
             name="phi_jl", minimum=0, maximum=2 * np.pi, boundary="periodic"

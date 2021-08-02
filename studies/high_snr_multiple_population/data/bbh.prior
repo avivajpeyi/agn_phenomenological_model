@@ -1,0 +1,25 @@
+# 'theta_jn', 'phi_jl', 'tilt_1', 'tilt_2', 'phi_z_s12', 'a_1', 'a_2', 'mass_1', 'mass_2', 'reference_frequency', 'phase']
+
+# MASS
+chirp_mass = Uniform(name='chirp_mass', minimum=14, maximum=60, unit='$M_{\odot}$')
+mass_ratio = 1.0
+
+# SPIN
+a_1 = 0.6
+a_2 = 0.6
+cos_tilt_1 = Uniform(name='cos_tilt_1', minimum=-1, maximum=1)
+cos_tilt_2 = Uniform(name='cos_tilt_2', minimum=-1, maximum=1)
+phi_12 = Uniform(name='phi_12', minimum=0, maximum=2 * np.pi, boundary='periodic')
+phi_jl = Uniform(name='phi_jl', minimum=0, maximum=2 * np.pi, boundary='periodic')
+
+
+# LOCATION
+theta_jn = Sine(name='theta_jn')
+luminosity_distance = bilby.gw.prior.UniformSourceFrame(name='luminosity_distance', minimum=50, maximum=200, unit='Mpc')
+dec = Cosine(name='dec')
+ra = Uniform(name='ra', minimum=0, maximum=2 * np.pi, boundary='periodic')
+psi = Uniform(name='psi', minimum=0, maximum=np.pi, boundary='periodic')
+phase = Uniform(name='phase', minimum=0, maximum=2 * np.pi, boundary='periodic')
+geocent_time = 0
+
+

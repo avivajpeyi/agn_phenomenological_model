@@ -3,7 +3,6 @@ import pandas as pd
 from typing import Dict, List
 from .agn_prior import get_bbh_population_from_agn_prior
 from .calculate_extra_bbh_parameters import (
-    add_cos_theta_12_from_component_spins,
     add_signal_duration,
     add_snr
 )

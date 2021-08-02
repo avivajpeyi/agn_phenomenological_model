@@ -13,33 +13,35 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 from matplotlib import rcParams
+from matplotlib.colors import to_rgba
+
 
 warnings.filterwarnings("ignore")
 
-
-rcParams["font.size"] = 30
-rcParams["font.family"] = "serif"
-rcParams["font.sans-serif"] = ["Computer Modern Sans"]
-rcParams["text.usetex"] = True
-rcParams["axes.labelsize"] = 30
-rcParams["axes.titlesize"] = 30
-rcParams["axes.labelpad"] = 10
-rcParams["axes.linewidth"] = 2.5
-rcParams["axes.edgecolor"] = "black"
-rcParams["xtick.labelsize"] = 25
-rcParams["xtick.major.size"] = 10.0
-rcParams["xtick.minor.size"] = 5.0
-rcParams["ytick.labelsize"] = 25
-rcParams["ytick.major.size"] = 10.0
-rcParams["ytick.minor.size"] = 5.0
-plt.rcParams["xtick.direction"] = "in"
-plt.rcParams["ytick.direction"] = "in"
-plt.rcParams["xtick.minor.width"] = 1
-plt.rcParams["xtick.major.width"] = 3
-plt.rcParams["ytick.minor.width"] = 1
-plt.rcParams["ytick.major.width"] = 2.5
-plt.rcParams["xtick.top"] = True
-plt.rcParams["ytick.right"] = True
+#
+# rcParams["font.size"] = 30
+# rcParams["font.family"] = "serif"
+# rcParams["font.sans-serif"] = ["Computer Modern Sans"]
+# rcParams["text.usetex"] = True
+# rcParams["axes.labelsize"] = 30
+# rcParams["axes.titlesize"] = 30
+# rcParams["axes.labelpad"] = 10
+# rcParams["axes.linewidth"] = 2.5
+# rcParams["axes.edgecolor"] = "black"
+# rcParams["xtick.labelsize"] = 25
+# rcParams["xtick.major.size"] = 10.0
+# rcParams["xtick.minor.size"] = 5.0
+# rcParams["ytick.labelsize"] = 25
+# rcParams["ytick.major.size"] = 10.0
+# rcParams["ytick.minor.size"] = 5.0
+# plt.rcParams["xtick.direction"] = "in"
+# plt.rcParams["ytick.direction"] = "in"
+# plt.rcParams["xtick.minor.width"] = 1
+# plt.rcParams["xtick.major.width"] = 3
+# plt.rcParams["ytick.minor.width"] = 1
+# plt.rcParams["ytick.major.width"] = 2.5
+# plt.rcParams["xtick.top"] = True
+# plt.rcParams["ytick.right"] = True
 
 HYPER_PARAM_VALS = {
     "alpha": 2.62,
@@ -102,7 +104,7 @@ def plot_masses(posteriors, events, truths):
     axs[0].hlines(y=HYPER_PARAM_VALS["mmax"], xmin=0, xmax=len(events) + 1)
     axs[0].hlines(y=HYPER_PARAM_VALS["mmin"], xmin=0, xmax=len(events) + 1)
     axs[0].set_ylabel("mass 1 source")
-    axs[1].set_ylabel("cos θ 12")
+    axs[1].set_ylabel("cos tilt 12")
     axs[2].set_ylabel("snr")
     axs[2].set_xticks(np.arange(1, len(events) + 1), events, rotation=90)
     axs[2].set_xlim(0, len(events) + 1)
@@ -131,13 +133,67 @@ def get_data():
     return posteriors, events, truths
 
 
+def change_violin_col(violin_part, col, idx):
+    violin_part['bodies'][idx].set_facecolor(col)
+    violin_part['bodies'][idx].set_edgecolor(col)
+    violin_part['cquantiles'].set_color('k')
+    for d in ['cmeans', 'cmins', 'cmaxes', 'cbars', 'cmedians']:
+        if d in violin_part:
+            current_colors = violin_part[d].get_colors()
+            if len(current_colors)==1:
+                current_col = current_colors[0]
+                num_cols  = len(violin_part['bodies'])
+                current_colors = [current_col for _ in range(num_cols)]
+            current_colors[idx] = to_rgba(col)
+            violin_part[d].set_colors(current_colors)
+
+
+
+def simple_violin_plotter(dat, fname):
+    """dat: {posteriors:dict(label:lists of posteriors), trues:dict(label:list of trues)"""
+    num_events = len(dat['posteriors']['cos_theta_1'])
+    quantiles = [ [0.16, 0.84] for _ in range(num_events)]
+    fig, axs = plt.subplots(2,1, sharex=True, figsize=(16, 5))
+
+    dat_labs = ['cos_theta_1', 'cos_theta_12']
+    labels = [r"$\cos\theta_1$", r"$\cos\theta_{12}$"]
+    for ax, dat_lab, label in zip(axs, dat_labs, labels):
+        posteriors = list(dat["posteriors"][dat_lab])
+        trues =  [[i] for i in dat["trues"][dat_lab]]
+        trues_in_quants = [true_in_quant(p, t, quantiles[0]) for p,t in zip(posteriors, trues)]
+        violin_pts = ax.violinplot(posteriors, quantiles=quantiles)
+        for i, in_quant in enumerate(trues_in_quants):
+            if not in_quant:
+                change_violin_col(violin_pts, "tab:red", i)
+
+        true_vpts = ax.violinplot(trues, widths=[0.9 for _ in range(num_events)])
+        for b in true_vpts['bodies']:
+            b.set_facecolor('orange')
+        for d in ['cmaxes','cmins','cbars']:
+            true_vpts[d].set_color('orange')
+            true_vpts[d].set_lw(2)
+        ax.set_ylabel(label)
+        ax.set_ylim(-1,1)
+
+    axs[1].set_xlabel("Events")
+
+    plt.suptitle(fname.replace(".png", "").replace("_", " "))
+    plt.tight_layout()
+    plt.savefig(fname)
+
+
+def true_in_quant(post, true, quant ):
+    quantiles = np.quantile(post, quant)
+    return quantiles[0] <= true <= quantiles[1]
+
+
 def main():
     plot_masses(*get_data())
 
 
 ### is quant above min
 def is_quant_above_mmin(masses, quantiles, mmin):
-    return min(quantile(masses, q=quantiles)) > mmin
+    return min(np.quantile(masses, q=quantiles)) > mmin
 
 
 def plot_masses(posteriors, events, ignore_list, mmin):

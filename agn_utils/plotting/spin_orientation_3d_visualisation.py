@@ -40,8 +40,8 @@ PARAMS = dict(
 
 def rotate_vector_along_z(v1, theta):
     """
-    |cos θ   −sin θ   0| |x|   |x cos θ − y sin θ|   |x'|
-    |sin θ    cos θ   0| |y| = |x sin θ + y cos θ| = |y'|
+    |cos tilt   −sin tilt   0| |x|   |x cos tilt − y sin tilt|   |x'|
+    |sin tilt    cos tilt   0| |y| = |x sin tilt + y cos tilt| = |y'|
     |  0       0      1| |z|   |        z        |   |z'|
     """
     x, y, z = v1[0], v1[1], v1[2]
@@ -54,9 +54,9 @@ def rotate_vector_along_z(v1, theta):
 
 def rotate_vector_along_y(v1, theta):
     """
-    | cos θ    0   sin θ| |grid_x|   | grid_x cos θ + pred_z sin θ|   |grid_x'|
+    | cos tilt    0   sin tilt| |grid_x|   | grid_x cos tilt + pred_z sin tilt|   |grid_x'|
     |   0      1       0| |grid_y| = |         grid_y        | = |grid_y'|
-    |−sin θ    0   cos θ| |pred_z|   |−grid_x sin θ + pred_z cos θ|   |pred_z'|
+    |−sin tilt    0   cos tilt| |pred_z|   |−grid_x sin tilt + pred_z cos tilt|   |pred_z'|
     """
     x, y, z = v1[0], v1[1], v1[2]
     return [

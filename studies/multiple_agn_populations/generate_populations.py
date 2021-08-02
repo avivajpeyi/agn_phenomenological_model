@@ -27,7 +27,7 @@ REQUIRED_PARAMS = [
     'a_2',
     'cos_tilt_1',
     'cos_tilt_2',
-    'phi_12',
+    'phi_z_s12',
     'phi_jl',
     'mass_ratio',
     'chirp_mass',

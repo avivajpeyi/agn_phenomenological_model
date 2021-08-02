@@ -13,10 +13,6 @@ from .calculate_extra_bbh_parameters import (
     get_chi_eff,
     get_chi_p,
     get_component_mass_from_source_mass_and_z,
-    get_t2_from_t1_and_t12_spins,
-    make_spin_vector,
-    scale_vector,
-    transform_component_spins,
 )
 
 logging.getLogger("bilby").setLevel(logging.ERROR)
@@ -42,7 +38,7 @@ CHI_EFF = "chi_eff"
 CHI_P = "chi_p"
 PHI_1 = "phi_1"
 PHI_2 = "phi_2"
-PHI_12 = "phi_12"
+PHI_12 = "phi_z_s12"
 MASS_1 = "mass_1"
 MASS_2 = "mass_2"
 LUMINOSITY_DISTANCE = "luminosity_distance"
@@ -171,7 +167,7 @@ def generate_population_prior(population_params):
                 latex_label="$\\phi_1$",
             ),
             phi_12=Uniform(
-                name="phi_12",
+                name="phi_z_s12",
                 minimum=0,
                 maximum=2 * np.pi,
                 boundary="periodic",
@@ -195,47 +191,37 @@ def generate_population_prior(population_params):
     return priors
 
 
-def get_bbh_population_from_agn_prior(num_samples=10000, population_params={}):
-    pop_model = generate_population_prior(population_params)
-    s = pd.DataFrame(pop_model.sample(num_samples)).to_dict("list")
+def get_bbh_population(num_samples, pop_prior, use_z=True):
+    s = pd.DataFrame(pop_prior.sample(num_samples)).to_dict("list")
+
     # Unpack posteriors_list
     phi_1, phi_12 = s[PHI_1], s[PHI_12]
-    z, q = s[Z], s[Q]
+    z, q = s.get(Z, []), s[Q]
     incl, phase = s[INCL], s[PHASE]
     a_1, a_2 = np.array(s[A_1]), np.array(s[A_2])
     tilt_1, theta_12 = np.arccos(s[COS_TILT_1]), np.arccos(s[COS_THETA_12])
     m1, m2 = get_component_mass_from_source_mass_and_z(s[SOURCE_M1], s[Q], z)
-    tilt_2, phi_2 = get_t2_from_t1_and_t12_spins(
-        θ12=theta_12, ϕ12=phi_12, θ1=tilt_1, ϕ1=phi_1
-    )
-    s1 = scale_vector(
-        a_1, np.array(make_spin_vector(tilt_1, phi_1)).transpose()
-    )
-    s2 = scale_vector(
-        a_2, np.array(make_spin_vector(tilt_2, phi_2)).transpose()
-    )
-    s1x, s1y, s1z = s1[:, 0], s1[:, 1], s1[:, 2]
-    s2x, s2y, s2z = s2[:, 0], s2[:, 1], s2[:, 2]
-    theta_jn, phi_jl, _, _, _, _, _ = transform_component_spins(
-        incl=incl,
-        S1x=s1x,
-        S1y=s1y,
-        S1z=s1z,
-        S2x=s2x,
-        S2y=s2y,
-        S2z=s2z,
-        m1=m1 * bilby.utils.solar_mass,
-        m2=m2 * bilby.utils.solar_mass,
-        phase=phase,
-    )
-    # pack posteriors_list
+    (
+        theta_jn, phi_jl,
+        tilt_2, phi_2,
+        s1x, s1y, s1z,
+        s2x, s2y, s2z
+    ) = get_component_spins_from_relative_spins(
+        a_1, a_2,
+        tilt_1,
+        theta_12,
+        phi_1,
+        phi_12,
+        incl, phase,
+        m1, m2)
+
     s[CHI_EFF] = get_chi_eff(s1z=s1z, s2z=s2z, q=q)
     s[CHI_P] = get_chi_p(s1x=s1x, s1y=s1y, s2x=s2x, s2y=s2y, q=q)
     s[PHI_2] = phi_2
     s[MASS_1] = m1
     s[MASS_2] = m2
     s[Q] = q
-    s[f"p_{Q}"] = pop_model[Q].prob(s[Q])
+    s[f"p_{Q}"] = pop_prior[Q].prob(s[Q])
     s[
         LUMINOSITY_DISTANCE
     ] = bilby.gw.conversion.redshift_to_luminosity_distance(z)
@@ -243,9 +229,14 @@ def get_bbh_population_from_agn_prior(num_samples=10000, population_params={}):
     s[TILT_2] = tilt_2
     s[COS_TILT_1] = np.cos(tilt_1)
     s[COS_TILT_2] = np.cos(tilt_2)
-    s[f"p_{COS_TILT_1}"] = pop_model[COS_TILT_1].prob(s[COS_TILT_1])
+    s[f"p_{COS_TILT_1}"] = pop_prior[COS_TILT_1].prob(s[COS_TILT_1])
     s[COS_THETA_12] = np.cos(theta_12)
-    s[f"p_{COS_THETA_12}"] = pop_model[COS_THETA_12].prob(s[COS_THETA_12])
+    s[f"p_{COS_THETA_12}"] = pop_prior[COS_THETA_12].prob(s[COS_THETA_12])
     s[THETA_JN] = theta_jn
     s[PHI_JL] = phi_jl
     return pd.DataFrame(s)
+
+
+def get_bbh_population_from_agn_prior(num_samples=10000, population_params={}):
+    pop_prior = generate_population_prior(population_params)
+    return get_bbh_population(num_samples, pop_prior)
