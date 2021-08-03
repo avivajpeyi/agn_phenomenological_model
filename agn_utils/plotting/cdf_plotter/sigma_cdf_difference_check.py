@@ -60,7 +60,7 @@ def plotter(pop_a_regex, pop_b_regex):
     DataB = "darkorange"
 
     if pop_a_regex:
-        pop_a_pkl = os.path.dirname(pop_a_regex)
+        pop_a_pkl = "pop_a_posteriors.pkl"
         dat_a = get_bilby_results(pop_a_regex, pop_a_pkl, ["cos_theta_1", "cos_theta_12"])
         simple_violin_plotter(dat_a, "pop_a_pe.png")
         pe_cdf(
@@ -76,7 +76,7 @@ def plotter(pop_a_regex, pop_b_regex):
         )
 
     if pop_b_regex:
-        pop_b_pkl = os.path.dirname(pop_b_regex)
+        pop_b_pkl = "pop_b_posteriors.pkl"
         dat_b = get_bilby_results(pop_b_regex, pop_b_pkl, ["cos_theta_1", "cos_theta_12"])
         simple_violin_plotter(dat_b, "pop_b_pe.png")
         pe_cdf(
