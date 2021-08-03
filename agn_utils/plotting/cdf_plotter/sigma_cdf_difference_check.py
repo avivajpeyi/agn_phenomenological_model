@@ -100,7 +100,7 @@ def plotter(pop_a_regex, pop_b_regex):
 
 def main():
     args = create_parser_and_read_args()
-    main(pop_a_regex=args.pop_a_regex, pop_b_regex=args.pop_b_regex)
+    plotter(pop_a_regex=args.pop_a_regex, pop_b_regex=args.pop_b_regex)
 
 
 if __name__ == "__main__":
