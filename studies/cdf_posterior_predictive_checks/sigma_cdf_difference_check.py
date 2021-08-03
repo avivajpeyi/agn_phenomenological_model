@@ -12,8 +12,8 @@ from agn_utils.pe_postprocessing.posterior_reweighter import rejection_sample_po
 from agn_utils.plotting.posterior_predictive_plot import plot_posterior_predictive_check, plot_trues, update_style
 from agn_utils.plotting.posterior_violin_plotter import simple_violin_plotter
 
-POP_A_REGEX = "/Users/avaj0001/Documents/projects/agn_phenomenological_model/studies/multiple_agn_populations/output_ozstar/pop_a/*.json"
-POP_B_REGEX = "/Users/avaj0001/Documents/projects/agn_phenomenological_model/studies/multiple_agn_populations/output_ozstar/pop_b/*.json"
+POP_A_REGEX = "/fred/oz980/avajpeyi/projects/agn_phenomenological_model/studies/high_snr_multiple_population/outdir_pop_*_highsnr/out_pop_*_highsnr_*/result/pop*highsnr_*.json"
+POP_B_REGEX = "/fred/oz980/avajpeyi/projects/agn_phenomenological_model/studies/multiple_agn_populations/outdir_pop_b_highsnr/out_pop_*_highsnr_*/result/pop*highsnr_*.json"
 POP_A_PKL = "pop_a.pkl"
 POP_B_PKL = "pop_b.pkl"
 
