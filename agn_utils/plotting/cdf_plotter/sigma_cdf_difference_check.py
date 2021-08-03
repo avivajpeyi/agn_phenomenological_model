@@ -39,14 +39,8 @@ def pe_cdf(pops_regexs, true_pop_params, fname="posterior_predictive_check.png",
 
 def create_parser_and_read_args():
     parser = argparse.ArgumentParser()
-    parser.add_argument("--make-dag", help="Make dag", action="store_true")
-    parser.add_argument(
-        "--outdir", help="outdir for plot_posterior_predictive_check", type=str, default="."
-    )
-    parser.add_argument(
-        "--event-name", help="path", type=str, default="GW150914"
-    )
-
+    parser.add_argument("--pop-a-regex",type=str, default="")
+    parser.add_argument( "--pop-b-regex",type=str, default=""  )
     args = parser.parse_args()
     return args
 
