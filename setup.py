@@ -76,4 +76,9 @@ if __name__ == "__main__":
         extras_require=EXTRA_REQUIRE,
         classifiers=CLASSIFIERS,
         zip_safe=True,
+        entery_points={
+            "console_scripts": [
+                "cdf_check=agn_utils.plotting.cdf_plotter.sigma_cdf_difference_check.py:main",
+            ]
+        }
     )

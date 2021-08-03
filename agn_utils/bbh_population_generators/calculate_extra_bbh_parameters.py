@@ -13,6 +13,7 @@ from bilby.gw.conversion import (
 from bilby_pipe.gracedb import (
     determine_duration_and_scale_factor_from_parameters,
 )
+from .spin_conversions import calculate_relative_spins_from_component_spins
 from numpy import cos, sin
 
 REFERENCE_FREQ = 20
@@ -184,3 +185,8 @@ def scale_vector(scale, vector):
         v = scale * vector
         v.shape = (3,1)
         return v.T
+
+
+def add_cos_theta_12_from_component_spins(s):
+    _, _, _, _, _, _, _, theta_12, _ = calculate_relative_spins_from_component_spins(s.spin_1x, s.spin_1y, s.spin_1z, s.spin_2x, s.spin_2y, s.spin_2z)
+    s['cos_theta_12'] = np.cos(theta_12)

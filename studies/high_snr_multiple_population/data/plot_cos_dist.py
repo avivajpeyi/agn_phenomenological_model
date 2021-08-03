@@ -9,7 +9,7 @@ Example usage:
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
-from agn_utils.bbh_population_generators.calculate_extra_bbh_parameters import add_snr
+from agn_utils.bbh_population_generators.calculate_extra_bbh_parameters import add_snr, add_cos_theta_12_from_component_spins
 from bilby.core.prior import TruncatedNormal
 from bilby.gw.conversion import generate_spin_parameters, generate_mass_parameters, \
     convert_to_lal_binary_black_hole_parameters
@@ -25,9 +25,8 @@ def process_samples(s, rf=20):
     s, _ = convert_to_lal_binary_black_hole_parameters(s)
     s = generate_mass_parameters(s)
     s = generate_spin_parameters(s)
+    s = add_cos_theta_12_from_component_spins(s)
 
-    _, _, _, _, _, _, _, theta_12, _ = calculate_relative_spins_from_component_spins(s.spin_1x, s.spin_1y, s.spin_1z, s.spin_2x, s.spin_2y, s.spin_2z)
-    s['cos_theta_12'] = np.cos(theta_12)
 
     # s = add_snr(s)
     # s['snr'] = s['network_snr']
