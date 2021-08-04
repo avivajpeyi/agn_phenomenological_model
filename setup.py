@@ -78,7 +78,10 @@ if __name__ == "__main__":
         zip_safe=True,
         entry_points={
             "console_scripts": [
-                "cdf_check=agn_utils.plotting.cdf_plotter.sigma_cdf_difference_check.py:main",
+                "cdf_check=agn_utils.plotting.cdf_plotter.sigma_cdf_difference_check:main",
+                "pe_corner=agn_utils.plotting.pe_corner_plotter.make_pe_corner:main",
+                "pbilby_pe_jobgen=agn_utils.pe_setup.pbilby_jobgen_cli:main",
+                "draw_population_samples=agn_utils.pe_setup.make_population_files:main"
             ]
         }
     )

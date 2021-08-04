@@ -15,9 +15,9 @@ from bilby.gw.conversion import generate_spin_parameters, generate_mass_paramete
     convert_to_lal_binary_black_hole_parameters
 from agn_utils.bbh_population_generators.spin_conversions import  calculate_relative_spins_from_component_spins
 
-POPULATION_A = dict(sigma_1=0.5, sigma_12=3)
-
-POPULATION_B = dict(sigma_1=1,sigma_12=0.25)
+# POPULATION_A = dict(sigma_1=0.5, sigma_12=3)
+#
+# POPULATION_B = dict(sigma_1=1,sigma_12=0.25)
 
 
 def process_samples(s, rf=20):
@@ -33,16 +33,16 @@ def process_samples(s, rf=20):
     return s
 
 
-def plot(pop_name, pop_val, root='.'):
+def plot_pdf(pop_name, pop_val, pop_file, full_pop_file, outdir='.'):
     """Plots a scatter plot."""
     plt.style.use(
         "https://gist.githubusercontent.com/avivajpeyi/4d9839b1ceb7d3651cbb469bc6b0d69b/raw/4ee4a870126653d542572372ff3eee4e89abcab0/publication.mplstyle")
 
     plt.close('all')
-    all = pd.read_csv(f"{root}/pop_{pop_name}.dat", sep=" ")
+    all = pd.read_csv(full_pop_file, sep=" ")
     all['cos_theta_1'] = all['cos_tilt_1']
     all = process_samples(all)
-    sub = pd.read_csv(f"{root}/pop_{pop_name}_highsnr.dat", sep=" ")
+    sub = pd.read_csv(pop_file, sep=" ")
     sub = process_samples(sub)
     sub['cos_theta_1'] = sub['cos_tilt_1']
 
@@ -70,14 +70,41 @@ def plot(pop_name, pop_val, root='.'):
 
     plt.suptitle(f"POP {pop_name}")
     plt.tight_layout()
-    plt.savefig(f"{root}/pop_trues_{pop_name}.png")
+    plt.savefig(f"{outdir}/pop_trues_{pop_name}.png")
 
 
+def plot_snr(pop_a_file, pop_b_file, outdir='.'):
+    plt.close()
+    a_snr = pd.read_csv(pop_a_file, sep=" ")
+    b_snr = pd.read_csv(pop_b_file, sep=" ")
+    plt.hist(a_snr.network_snr, density=False, label="PopA",histtype="step")
+    plt.hist(b_snr.network_snr, density=False, label="PopB",histtype="step")
+    plt.ylabel("Count")
+    plt.xlabel("SNR")
+    # plt.xscale('log')
+    plt.legend()
+    plt.tight_layout()
+    plt.savefig(f"{outdir}/snr.png")
+
+def plot_snr_dist(pop_a_file, pop_b_file, outdir='.'):
+    plt.close()
+    a_snr = pd.read_csv(pop_a_file, sep=" ")
+    b_snr = pd.read_csv(pop_b_file, sep=" ")
+    plt.scatter(a_snr.luminosity_distance, a_snr.network_snr, label="PopA")
+    plt.scatter(b_snr.luminosity_distance, b_snr.network_snr, label="PopB")
+    plt.ylabel("SNR")
+    plt.xlabel("Dl")
+    # plt.xscale('log')
+    plt.legend()
+    plt.tight_layout()
+    plt.savefig(f"{outdir}/snr_dl.png")
 
 
-def main():
-    plot('a', list(POPULATION_A.values()))
-    plot('b', list(POPULATION_B.values()))
+def main_plotter(pop_a_file, pop_b_file, full_pop_a_file, full_pop_b_file, outdir, pop_a_vals, pop_b_vals):
+    plot_snr(pop_a_file, pop_b_file, outdir)
+    plot_snr_dist(pop_a_file, pop_b_file, outdir)
+    plot_pdf('a', pop_a_vals, pop_a_file, full_pop_a_file, outdir)
+    plot_pdf('b', pop_b_vals, pop_b_file, full_pop_b_file, outdir)
 
 
 if __name__ == "__main__":

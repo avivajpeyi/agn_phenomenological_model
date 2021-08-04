@@ -4,6 +4,7 @@ from agn_utils.bbh_population_generators.posterior_simulator import simulate_exa
 from agn_utils.pe_postprocessing.jsons_to_numpy import get_bilby_results
 from agn_utils.plotting.posterior_predictive_plot import plot_posterior_predictive_check, plot_trues, update_style
 from agn_utils.plotting.posterior_violin_plotter import simple_violin_plotter
+from bilby.gw.result import CBCResult
 
 import argparse
 

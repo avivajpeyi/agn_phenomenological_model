@@ -129,8 +129,12 @@ def overlaid_corner(
         plot_range.append(p_data["range"])
         axis_labels.append(p_data["latex_label"])
 
-    if len(ranges)!=0:
-        plot_range=ranges
+
+    if isinstance(ranges, list):
+        if len(ranges)!=0:
+            plot_range=ranges
+    elif isinstance(ranges, type(None)):
+        plot_range=None
 
     # get some constants
     n = len(samples_list)

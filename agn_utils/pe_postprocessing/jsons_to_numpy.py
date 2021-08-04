@@ -27,7 +27,9 @@ def convert_params(p):
             p = p.astype({f'spin_{i}x': 'float64', f'spin_{i}y': 'float64', f'spin_{i}z': 'float64'})
         else:
             p = generate_all_bns_parameters(p)
+
     p = add_cos_theta_12_from_component_spins(p)
+    p['cos_theta_1'] = np.cos(p['tilt_1'])
     p['cos_theta_1'] = p['cos_tilt_1']
     return p
 

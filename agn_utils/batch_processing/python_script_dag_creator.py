@@ -74,6 +74,7 @@ def create_python_script_jobs(
     logdir = os.path.join(run_dir, f"logs")
     dag = pycondor.Dagman(name=main_job_name, submit=subdir)
     jobs = []
+    bash_commands = []
     for job_name, job_args in zip(job_names_list, job_args_list):
         jobs.append(
             create_python_script_job(
@@ -87,8 +88,10 @@ def create_python_script_jobs(
                 extra_lines,
             )
         )
+        bash_commands.append(f"{python_script} {convert_args_dict_to_str(job_args)}")
     dag.build(makedirs=True, fancyname=False)
     command_line = "$ condor_submit_dag {}".format(
         os.path.relpath(dag.submit_file)
     )
+    open(f"{main_job_name}/bash.sh",'w').write("\n".join(bash_commands))
     print(f"Created {len(jobs)} jobs. Run:\n{command_line}\n")

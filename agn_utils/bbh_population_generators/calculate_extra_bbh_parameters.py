@@ -188,5 +188,6 @@ def scale_vector(scale, vector):
 
 
 def add_cos_theta_12_from_component_spins(s):
-    _, _, _, _, _, _, _, theta_12, _ = calculate_relative_spins_from_component_spins(s.spin_1x, s.spin_1y, s.spin_1z, s.spin_2x, s.spin_2y, s.spin_2z)
+    _, _, _, _, _, _, _, theta_12, _ = calculate_relative_spins_from_component_spins(s["spin_1x"], s["spin_1y"], s["spin_1z"], s["spin_2x"], s["spin_2y"], s["spin_2z"])
     s['cos_theta_12'] = np.cos(theta_12)
+    return s

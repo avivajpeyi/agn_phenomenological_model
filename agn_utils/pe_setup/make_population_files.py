@@ -1,23 +1,24 @@
+import os
 import warnings
 from typing import Dict, List
 
 import bilby
 import numpy as np
 import pandas as pd
-from bilby.core.prior import TruncatedNormal, Uniform
-from data.plot_cos_dist import plot
-from deepdiff import DeepDiff
-
 from agn_utils.bbh_population_generators.calculate_extra_bbh_parameters import (
     get_component_mass_from_mchirp_q, add_snr, add_signal_duration
 )
 from agn_utils.bbh_population_generators.spin_conversions import (agn_to_cartesian_coords,
                                                                   cartesian_to_spherical_coords,
                                                                   spherical_to_cartesian_coords)
+from agn_utils.plotting.plot_cos_dist import main_plotter
+from bilby.core.prior import TruncatedNormal, Uniform
+from deepdiff import DeepDiff
+
+import argparse
 
 warnings.filterwarnings('ignore')
 
-PRIOR_PATH = "data/bbh.prior"
 
 POPULATION_A = dict(sigma_1=0.5, sigma_12=3)
 
@@ -94,7 +95,7 @@ def convert_s12_samples_to_s2_samples(s: Dict[str, List[float]]) -> Dict[str, Li
         s1x_2, s1y_2, s1z_2, s2x_2, s2y_2, s2z_2,
         mass_1, mass_2, s["phase"], reference_frequency)
     final_spin_vector = dict(tilt_1=tilt_1_2, tilt_2=tilt_2_2, phi_12=phi_12_2, a_1=a_1_2, a_2=a_2_2, phi_jl=phi_jl_2,
-                               theta_jn=theta_jn_2)
+                             theta_jn=theta_jn_2)
 
     diff = DeepDiff(initial_spin_vector, final_spin_vector, math_epsilon=0.001)
     if len(diff) != 0:
@@ -111,9 +112,9 @@ def convert_s12_samples_to_s2_samples(s: Dict[str, List[float]]) -> Dict[str, Li
     return data
 
 
-def create_population_prior(pop_parameters):
+def create_population_prior(pop_parameters, prior_path):
     """Remove tilt angle priors, replace with population priors"""
-    prior = bilby.prior.PriorDict(filename=PRIOR_PATH)
+    prior = bilby.prior.PriorDict(filename=prior_path)
     for param in ['cos_tilt_1', 'cos_tilt_2', 'phi_12', 'theta_jn', 'phi_jl']:
         prior.pop(param)
     for i in [1, 12]:
@@ -121,13 +122,13 @@ def create_population_prior(pop_parameters):
         prior[f'cos_theta_{i}'] = TruncatedNormal(sigma=pop_parameters[f'sigma_{i}'], **kwargs)
     prior[f'phi_1'] = Uniform(name='phi_1', minimum=0, maximum=2 * np.pi, boundary='periodic')
     prior[f'phi_z_s12'] = Uniform(name='phi_z_s12', minimum=0, maximum=2 * np.pi, boundary='periodic')
-    prior[f'incl'] = Uniform(name='phi_z_s12', minimum=0, maximum=2 * np.pi, boundary='periodic')
+    prior[f'incl'] = Uniform(name='incl', minimum=0, maximum=2 * np.pi, boundary='periodic')
     return prior
 
 
 def check_if_injections_in_prior(injection_df: pd.DataFrame, prior_path: str):
     priors = bilby.prior.PriorDict(filename=prior_path)
-    injection_df['mass_ratio'] = injection_df['mass_2']/injection_df['mass_1']
+    injection_df['mass_ratio'] = injection_df['mass_2'] / injection_df['mass_1']
     missing_params = set(priors.keys()) - set(injection_df.columns)
     assert len(missing_params) == 0, f"Injection DF mising {missing_params}"
     in_prior = pd.DataFrame(index=injection_df.index)
@@ -148,18 +149,18 @@ def keep_injections_inside_prior(df, prior_path):
 
 
 def filter_undesired_injections(df, prior_path, number_high_snr_events=80):
-    df = df[df['network_snr'] >= 60]
+    df = df[df['network_snr'] >= 50]
+    df = df[df['network_snr'] <= 100]
     df = df[df['duration'] == 4]
     df = keep_injections_inside_prior(df, prior_path)
-    # if len(df) > number_high_snr_events:
-    #     df  = df.sample(number_high_snr_events, weights=df.weights)
     return df
 
 
-def generate_population(pop_name, pop_pri):
-    fname = f"data/{pop_name}.dat"
+def generate_population(pop_name, pop_pri, outdir, prior_path):
+    os.makedirs(outdir, exist_ok=True)
+    fname = f"{outdir}/{pop_name}.dat"
 
-    pop_samp = pop_pri.sample(100)
+    pop_samp = pop_pri.sample(200)
     pop_samp['reference_frequency'] = REF_FREQ
     pop_samp = convert_s12_samples_to_s2_samples(pop_samp)
     pop_samp = add_snr(pop_samp)
@@ -167,26 +168,48 @@ def generate_population(pop_name, pop_pri):
     pop_samp['cos_tilt_2'] = np.cos(pop_samp['tilt_2'])
     pop_samp['cos_tilt_1'] = np.cos(pop_samp['tilt_1'])
 
-    num_high_snr = sum(pop_samp['network_snr'] >= 60)
+
+    df = pd.DataFrame(pop_samp)
+    num_high_snr = len(df[(df['network_snr'] >= 50) & (df['network_snr'] <= 100)])
+
+
     pop_df = pd.DataFrame(pop_samp)
-    # pop_df["weights"] = [pop_pri.ln_prob({k: pop_df.iloc[i][k] for k in pop_pri.keys()}) for i in range(len(pop_df))]
+
     pop_df.to_csv(fname, sep=' ', mode='w', index=False)
     print(f"# high SNR events: {num_high_snr} in {len(pop_df)} BBH")
 
     cached_pop = pd.read_csv(fname, sep=' ')
-    high_snr_events = filter_undesired_injections(cached_pop, PRIOR_PATH)
-
+    high_snr_events = filter_undesired_injections(cached_pop, prior_path)
 
     high_snr_events = high_snr_events.reset_index(drop=True)
-    if len(high_snr_events)>40:
+    if len(high_snr_events) > 40:
         high_snr_events = high_snr_events.sample(40)
     print(f"Saving {len(high_snr_events)} SNR events")
     high_snr_events.to_csv(fname.replace('.dat', '_highsnr.dat'), index=False, sep=' ')
 
 
-if __name__ == "__main__":
+def main_generator(prior_path, outdir='data'):
+    os.makedirs(outdir, exist_ok=True)
     for pop_name, pop_params in POPS.items():
-        pri = create_population_prior(pop_parameters=pop_params)
-        generate_population(pop_name, pri)
-    plot('a', list(POPULATION_A.values()), 'data')
-    plot('b', list(POPULATION_B.values()), 'data')
+        pop_pri = create_population_prior(pop_parameters=pop_params, prior_path=prior_path)
+        generate_population(pop_name, pop_pri, outdir, prior_path)
+    main_plotter(
+        pop_a_file=f"{outdir}/{list(POPS.keys())[0]}_highsnr.dat",
+        pop_b_file=f"{outdir}/{list(POPS.keys())[1]}_highsnr.dat",
+        full_pop_a_file=f"{outdir}/{list(POPS.keys())[0]}.dat",
+        full_pop_b_file=f"{outdir}/{list(POPS.keys())[1]}.dat",
+        outdir=outdir,
+        pop_a_vals=list(list(POPS.values())[0].values()),
+        pop_b_vals=list(list(POPS.values())[1].values()),
+    )
+
+def create_parser_and_read_args():
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--outdir", type=str)
+    parser.add_argument("--prior-file",type=str)
+    args = parser.parse_args()
+    return args
+
+def main():
+    args = create_parser_and_read_args()
+    main_generator(prior_path=args.prior_file, outdir=args.outdir)

@@ -6,6 +6,7 @@ PARAMS = dict(
     cos_tilt_1=dict(latex_label=r"$\cos(t1)$", range=(-1, 1)),
     cos_tilt_2=dict(latex_label=r"$\cos(t2)$", range=(-1, 1)),
     cos_theta_12=dict(latex_label=r"$\cos \theta_{12}$", range=(-1, 1)),
+    phi_12=dict(latex_label=r"$\phi_{12}$", range=(0, np.pi*2)),
     tilt_1=dict(latex_label=r"$tilt_{1}$", range=(0, np.pi)),
     remnant_kick_mag=dict(latex_label=r"$|\vec{v}_k|\ $km/s", range=(0, 3000)),
     chirp_mass=dict(latex_label="$M_{c}$", range=(5, 200)),
@@ -13,4 +14,5 @@ PARAMS = dict(
     mass_2_source=dict(latex_label="$m_2^{\\mathrm{source}}$", range=(0, 200)),
     luminosity_distance=dict(latex_label="$d_L$", range=(50, 20000)),
     log_snr=dict(latex_label="$\\rm{log}_{10}\ \\rho$)", range=(-1, 3)),
+    snr=dict(latex_label="$\mathrm{SNR}$", range=(0, 20)),
 )
