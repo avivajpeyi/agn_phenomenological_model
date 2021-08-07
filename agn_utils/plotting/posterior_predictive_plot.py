@@ -3,6 +3,7 @@ from typing import List, Optional
 import seaborn as sns
 import numpy as np
 from bilby.core.prior import TruncatedNormal
+import random
 
 def get_colors(num_colors: int, alpha: Optional[float]=1) -> List[List[float]]:
     """Get a list of colorblind colors,
@@ -27,16 +28,23 @@ def update_style():
 
 
 
-def add_cdf_percentiles_to_ax(posteriors_list, ax, label="", add_each_posterior_cdf=True, color=None):
+def add_cdf_percentiles_to_ax(posteriors_list, ax, label="", add_each_posterior_cdf=True, color=None, true_distribution_data=[]):
 
     if isinstance(posteriors_list, list):
-        posteriors_list = np.array(posteriors_list)
+        min_len = min([len(i) for i in posteriors_list])
+        posteriors_list = np.array([np.random.choice(i, min_len, replace=False) for i in posteriors_list])
+
+
 
     # CI for each event
     cumulative_prob = np.linspace(0, 1, len(posteriors_list[:, 0]))  # one bin for each event
     sorted_posterior = np.sort(posteriors_list, axis=0)  # sort amongts various posteriors
     data_05_percentile = np.quantile(sorted_posterior, 0.05, axis=1)  # get 0.05 CI from all events' posteriors
     data_95_percentile = np.quantile(sorted_posterior, 0.95, axis=1)  # get 0.95 CI from all events' posteriors
+
+    if len(posteriors_list)==1:
+        post = posteriors_list[0]
+        ax.plot(np.sort(post), np.linspace(0, 1, len(post)),color=color, lw=2.0)
 
     ax.fill_betweenx(
         y=cumulative_prob,
@@ -51,6 +59,8 @@ def add_cdf_percentiles_to_ax(posteriors_list, ax, label="", add_each_posterior_
         for post in posteriors_list:
             post = np.sort(post)
             ax.plot(post, np.linspace(0, 1, len(post)), alpha=0.05, color='k')
+    if len(true_distribution_data)>0:
+        ax.plot(np.sort(true_distribution_data), np.linspace(0, 1, len(true_distribution_data)), alpha=1.0, color=color)
 
 
 def plot_posterior_predictive_check(data_sets, rhs_ax_labels, colors=[],  add_posteriors = False, axes =[]):
@@ -62,10 +72,10 @@ def plot_posterior_predictive_check(data_sets, rhs_ax_labels, colors=[],  add_po
         colors = get_colors(len(data_sets))
     if len(rhs_ax_labels) < len(data_sets):
         rhs_ax_labels += [""] * (len(data_sets) - len(rhs_ax_labels))
+
     for i, data in enumerate(data_sets):
-        add_cdf_percentiles_to_ax(data['cos_theta_1'], axes[0], add_each_posterior_cdf=add_posteriors, color=colors[i])
-        add_cdf_percentiles_to_ax(data['cos_theta_12'], axes[1], label=rhs_ax_labels[i],
-                                  add_each_posterior_cdf=add_posteriors, color=colors[i])
+        add_cdf_percentiles_to_ax(posteriors_list=data['cos_tilt_1'], ax=axes[0], add_each_posterior_cdf=add_posteriors, color=colors[i], true_distribution_data=[])
+        add_cdf_percentiles_to_ax(posteriors_list=data['cos_theta_12'], ax=axes[1], label=rhs_ax_labels[i], add_each_posterior_cdf=add_posteriors, color=colors[i], true_distribution_data=[])
 
     for i, ax in enumerate(axes):
         ax.set_xlim([-1, 1])
@@ -95,8 +105,8 @@ def plot_trues(data_sets, trues, rhs_ax_labels, colors=[], axes=[]):
         axes[i].set_xlim([-1, 1])
 
     for i, data in enumerate(data_sets):
-        kwargs = dict(density=True, histtype='step',lw=0.5, alpha=0.3,color=colors[len(trues) + i])
-        axes[0].hist(data['cos_theta_1'],  **kwargs)
+        kwargs = dict(density=True, histtype='step',lw=0.5, alpha=0.6,color=colors[len(trues) + i])
+        axes[0].hist(data['cos_tilt_1'],  **kwargs)
         axes[1].hist(data['cos_theta_12'],  **kwargs)
 
         if (i == 0):

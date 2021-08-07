@@ -5,30 +5,17 @@ import bilby
 import matplotlib.pyplot as plt
 import pandas as pd
 from PIL import Image
-from agn_utils.bbh_population_generators.calculate_extra_bbh_parameters import add_cos_theta_12_from_component_spins, add_snr
+from agn_utils.bbh_population_generators.calculate_extra_bbh_parameters import add_cos_theta_12_from_component_spins, add_snr, result_post_processing
 from agn_utils.plotting.overlaid_corner_plotter import overlaid_corner
 from bilby.gw.conversion import generate_spin_parameters, generate_mass_parameters, convert_to_lal_binary_black_hole_parameters
+
+
+import argparse
 
 from fpdf import FPDF
 from tqdm.auto import tqdm
 
 plt.rcParams['font.size'] = 10
-
-def process_samples(s, rf):
-    s['reference_frequency'] = rf
-    s, _ = convert_to_lal_binary_black_hole_parameters(s)
-    s = generate_mass_parameters(s)
-    s = generate_spin_parameters(s)
-    s = add_cos_theta_12_from_component_spins(s)
-    s = add_snr(s)
-    s['snr'] = s['network_snr']
-    return s
-
-
-def result_post_processing(r):
-    r.posterior = add_cos_theta_12_from_component_spins(r.posterior)
-    r.injection_parameters = process_samples(r.injection_parameters, r.reference_frequency)
-    return r
 
 
 def generate_corner(r,  plot_params, bilby_corner=True, labels=[]):
@@ -98,14 +85,16 @@ def make_pdf(pdf_fname, image_path_list):
     pdf.output(pdf_fname, "F")
 
 
+def create_and_parse_args():
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--regex",type=str)
+    parser.add_argument("--outdir",type=str)
+    return args
+
+
 def main():
-    make_plots("/Users/avaj0001/Documents/projects/agn_phenomenological_model/studies/multiple_agn_populations/output_ozstar/pop_a/*.json", outdir="/Users/avaj0001/Documents/projects/agn_phenomenological_model/studies/multiple_agn_populations/plots/ozstar/pop_a")
-    make_plots("/Users/avaj0001/Documents/projects/agn_phenomenological_model/studies/multiple_agn_populations/output_ozstar/pop_b/*.json", outdir="/Users/avaj0001/Documents/projects/agn_phenomenological_model/studies/multiple_agn_populations/plots/ozstar/pop_b")
-    # make_plots(regex="7th_inj/*.json", outdir="7th_inj-plot")
-    # make_plots(regex="bp_pop_a/*.json", outdir="bp_plot_a")
-    # make_plots(regex="bp_pop_b/*.json", outdir="bp_plot_b")
-    # make_plots(regex="pop_a/*.json", outdir="plot_out_a")
-    # make_plots(regex="pop_b/*.json", outdir="plot_out_b")
+    args = create_and_parse_args()
+    make_plots(regex=args.regex, outdir=args.outdir)
     print("Complete! :)")
 
 

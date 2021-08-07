@@ -7,7 +7,7 @@ import numpy as np
 
 from bilby.gw.conversion import (
     component_masses_to_chirp_mass, total_mass_and_mass_ratio_to_component_masses,
-                                 chirp_mass_and_mass_ratio_to_total_mass,
+                                 chirp_mass_and_mass_ratio_to_total_mass, generate_all_bbh_parameters, generate_spin_parameters, generate_mass_parameters,
     convert_to_lal_binary_black_hole_parameters, generate_mass_parameters, generate_component_spins
 )
 from bilby_pipe.gracedb import (
@@ -191,3 +191,23 @@ def add_cos_theta_12_from_component_spins(s):
     _, _, _, _, _, _, _, theta_12, _ = calculate_relative_spins_from_component_spins(s["spin_1x"], s["spin_1y"], s["spin_1z"], s["spin_2x"], s["spin_2y"], s["spin_2z"])
     s['cos_theta_12'] = np.cos(theta_12)
     return s
+
+
+def process_samples(s, rf):
+    s['reference_frequency'] = rf
+    s, _ = convert_to_lal_binary_black_hole_parameters(s)
+    s = generate_mass_parameters(s)
+    s = generate_spin_parameters(s)
+    s = add_cos_theta_12_from_component_spins(s)
+    try:
+        s = add_snr(s)
+        s['snr'] = s['network_snr']
+    except Exception as e:
+        pass
+    return s
+
+
+def result_post_processing(r):
+    r.posterior = add_cos_theta_12_from_component_spins(r.posterior)
+    r.injection_parameters = process_samples(r.injection_parameters, r.reference_frequency)
+    return r
