@@ -61,7 +61,7 @@ def simulate_population_posteriors(sig1=5, sig12=5, number_events=10, n_samp=500
 
 def simulate_exact_population_posteriors(sig1=5, sig12=5, number_events=10, n_samp=10000):
     pop_prior = PriorDict(dict(
-        cos_theta_1=TruncatedNormal(mu=1, sigma=sig1, minimum=-1, maximum=1),
+        cos_tilt_1=TruncatedNormal(mu=1, sigma=sig1, minimum=-1, maximum=1),
         cos_theta_12=TruncatedNormal(mu=1, sigma=sig12, minimum=-1, maximum=1)
     ))
     posteriors = [pop_prior.sample(n_samp) for _ in range(number_events)]

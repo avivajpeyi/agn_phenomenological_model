@@ -18,30 +18,6 @@ from matplotlib.colors import to_rgba
 
 warnings.filterwarnings("ignore")
 
-#
-# rcParams["font.size"] = 30
-# rcParams["font.family"] = "serif"
-# rcParams["font.sans-serif"] = ["Computer Modern Sans"]
-# rcParams["text.usetex"] = True
-# rcParams["axes.labelsize"] = 30
-# rcParams["axes.titlesize"] = 30
-# rcParams["axes.labelpad"] = 10
-# rcParams["axes.linewidth"] = 2.5
-# rcParams["axes.edgecolor"] = "black"
-# rcParams["xtick.labelsize"] = 25
-# rcParams["xtick.major.size"] = 10.0
-# rcParams["xtick.minor.size"] = 5.0
-# rcParams["ytick.labelsize"] = 25
-# rcParams["ytick.major.size"] = 10.0
-# rcParams["ytick.minor.size"] = 5.0
-# plt.rcParams["xtick.direction"] = "in"
-# plt.rcParams["ytick.direction"] = "in"
-# plt.rcParams["xtick.minor.width"] = 1
-# plt.rcParams["xtick.major.width"] = 3
-# plt.rcParams["ytick.minor.width"] = 1
-# plt.rcParams["ytick.major.width"] = 2.5
-# plt.rcParams["xtick.top"] = True
-# plt.rcParams["ytick.right"] = True
 
 HYPER_PARAM_VALS = {
     "alpha": 2.62,
@@ -150,13 +126,13 @@ def change_violin_col(violin_part, col, idx):
 
 
 def simple_violin_plotter(dat, fname):
-    """dat: {posteriors:dict(label:lists of posteriors), trues:dict(label:list of trues)"""
-    num_events = len(dat['posteriors']['cos_theta_1'])
+    """dat: {posteriors:dict(label:lists of posteriors), trues:dict(label:list of trues), labels: list of labels"""
+    num_events = len(dat['labels'])
     quantiles = [ [0.16, 0.84] for _ in range(num_events)]
-    fig, axs = plt.subplots(2,1, sharex=True, figsize=(16, 5))
+    fig, axs = plt.subplots(3,1, sharex=True, figsize=(16, 8))
 
-    dat_labs = ['cos_theta_1', 'cos_theta_12']
-    labels = [r"$\cos\theta_1$", r"$\cos\theta_{12}$"]
+    dat_labs = ['chirp_mass','cos_tilt_1', 'cos_theta_12']
+    labels = [r"$\mathcal{M}$", r"$\cos\theta_1$", r"$\cos\theta_{12}$"]
     for ax, dat_lab, label in zip(axs, dat_labs, labels):
         posteriors = list(dat["posteriors"][dat_lab])
         trues =  [[i] for i in dat["trues"][dat_lab]]
@@ -171,15 +147,34 @@ def simple_violin_plotter(dat, fname):
             b.set_facecolor('orange')
         for d in ['cmaxes','cmins','cbars']:
             true_vpts[d].set_color('orange')
-            true_vpts[d].set_lw(2)
+            # true_vpts[d].set_lw(2)
         ax.set_ylabel(label)
-        ax.set_ylim(-1,1)
+        # ax.set_ylim(-1,1)
 
-    axs[1].set_xlabel("Events")
+    tick_labels = [i.replace('pop a highsnr ', '') for i in dat['labels']]
+    format_x_axes(axs, tick_labels)
 
     plt.suptitle(fname.replace(".png", "").replace("_", " "))
     plt.tight_layout()
     plt.savefig(fname)
+
+def format_x_axes(axs, labels):
+    for ax in axs:
+        ax.xaxis.set_tick_params(direction='inout')
+        ax.xaxis.set_ticks_position('both')
+        ax.minorticks_off()
+    bottom = len(axs)-1
+    axs[bottom].set_xticks(np.arange(1, len(labels) + 1))
+    axs[bottom].set_xlabel("Events")
+    axs[bottom].set_xticklabels(labels, rotation=70)
+    axs[bottom].set_xlim(0.25, len(labels) + 0.75)
+
+def long_substr(data):
+    substrs = lambda x: {x[i:i+j] for i in range(len(x)) for j in range(len(x) - i + 1)}
+    s = substrs(data[0])
+    for val in data[1:]:
+        s.intersection_update(substrs(val))
+    return max(s, key=len)
 
 
 def true_in_quant(post, true, quant ):
