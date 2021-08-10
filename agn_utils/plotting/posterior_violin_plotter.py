@@ -125,14 +125,12 @@ def change_violin_col(violin_part, col, idx):
 
 
 
-def simple_violin_plotter(dat, fname):
+def simple_violin_plotter(dat, fname, dat_labs=['cos_tilt_1', 'cos_theta_12'], labels=[r"$\cos\theta_1$", r"$\cos\theta_{12}$"]):
     """dat: {posteriors:dict(label:lists of posteriors), trues:dict(label:list of trues), labels: list of labels"""
     num_events = len(dat['labels'])
     quantiles = [ [0.16, 0.84] for _ in range(num_events)]
-    fig, axs = plt.subplots(3,1, sharex=True, figsize=(16, 8))
+    fig, axs = plt.subplots(3,1, sharex=True, figsize=(16, 3*len(labels)))
 
-    dat_labs = ['chirp_mass','cos_tilt_1', 'cos_theta_12']
-    labels = [r"$\mathcal{M}$", r"$\cos\theta_1$", r"$\cos\theta_{12}$"]
     for ax, dat_lab, label in zip(axs, dat_labs, labels):
         posteriors = list(dat["posteriors"][dat_lab])
         trues =  [[i] for i in dat["trues"][dat_lab]]
