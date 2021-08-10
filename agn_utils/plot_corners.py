@@ -61,8 +61,8 @@ def make_plots(regex, outdir):
         labels = ['cos t1', 'cos t2', 'cos t12', 'Mc', 'dl']
         # priors = bilby.prior.PriorDict(filename=PRIORS)
         fig = generate_corner(r,  plot_params, labels=labels)
-        dl, m , s = r.injection_parameters['luminosity_distance'], r.injection_parameters['mass_1'], r.injection_parameters['snr']
-        plt.suptitle(f"$dl={dl:.2f}$\n$m={m:.2f}$\n$SNR={s:.2f}$")
+        dl, m = r.injection_parameters['luminosity_distance'], r.injection_parameters['chirp_mass']
+        plt.suptitle(f"$dl={dl:.2f}$\n$m={m:.2f}$")
         # plt.tight_layout()
         fig.savefig(fpath)
         plt.close('all')
@@ -89,6 +89,7 @@ def create_and_parse_args():
     parser = argparse.ArgumentParser()
     parser.add_argument("--regex",type=str)
     parser.add_argument("--outdir",type=str)
+    args = parser.parse_args()
     return args
 
 

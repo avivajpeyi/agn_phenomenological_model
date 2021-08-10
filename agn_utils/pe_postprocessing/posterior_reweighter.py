@@ -1,3 +1,7 @@
+"""
+See
+https://git.ligo.org/RatesAndPopulations/gwpopulation_pipe/-/blob/master/gwpopulation_pipe/common_format.py#L136
+"""
 from agn_utils.data_formetter import dl_to_ld, ld_to_dl
 
 import matplotlib.pyplot as plt
@@ -21,7 +25,7 @@ PRIOR_VOLUME = (
 
 
 def rejection_sample_posterior(event_samples, hyper_param, n_draws=2000):
-    event_samples['cos_tilt_1'] = event_samples['cos_theta_1']
+    # event_samples['cos_tilt_1'] = event_samples['cos_theta_1']
     model = Model(model_functions=[agn_spin])
     model.parameters.update(hyper_param)
     weights = model.prob(event_samples) / PRIOR_VOLUME
@@ -35,7 +39,7 @@ def rejection_sample_posterior(event_samples, hyper_param, n_draws=2000):
 def rejection_sample_population(posteriors, true_population_param):
     """
     :param posteriors: dict(label:posteior list for each event)
-    :param trues: dict(label:list of trues for each event)
+    :param true_population_param: dict of hyper_param
     """
     posteriors_ld = dl_to_ld(posteriors)
     posteriors_ld = [rejection_sample_posterior(p, true_population_param) for p in posteriors_ld]

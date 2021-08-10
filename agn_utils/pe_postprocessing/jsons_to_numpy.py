@@ -5,7 +5,7 @@ import numpy as np
 import pandas as pd
 from bilby.gw.result import CBCResult
 from tqdm import tqdm
-
+from typing import Dict, List
 from ..bbh_population_generators.calculate_extra_bbh_parameters import add_cos_theta_12_from_component_spins, result_post_processing
 from bilby.gw.conversion import _generate_all_cbc_parameters, convert_to_lal_binary_black_hole_parameters
 
@@ -83,7 +83,11 @@ def load_posteriors_and_trues(fname):
         return data
 
 
-def get_bilby_results(regex, picklefname, params, clean=False):
+def get_bilby_results(regex, picklefname, params, clean=False)->Dict[str,List]:
+    """
+    :return: dict(posteriors=posteriors, trues=trues, labels=labels)
+    """
+
     if not clean and os.path.isfile(picklefname):
         dat = load_posteriors_and_trues(picklefname)
     else:
