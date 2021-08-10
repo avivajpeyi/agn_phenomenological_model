@@ -53,6 +53,7 @@ def make_plots(regex, outdir):
     for f in tqdm(files, desc="Plotting corners"):
         r = bilby.gw.result.CBCResult.from_json(f)
         r = result_post_processing(r)
+        r.priors['cos_theta_12'] = bilby.prior.Uniform(-1,1)
         plt.rcParams["text.usetex"] = False
         # r.plot_marginals(priors=True,outdir=outdir, dpi=60)
         fname = os.path.basename(f).replace(".json", ".png")
