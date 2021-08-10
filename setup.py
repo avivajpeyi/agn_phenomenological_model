@@ -26,8 +26,10 @@ CLASSIFIERS = [
 INSTALL_REQUIRES = [
     "gwpopulation",
     "surfinbh",
+    "deepdiff",
     "sklearn",
     "joblib",
+    "fpdf"
 ]
 EXTRA_REQUIRE = {"test": ["pytest>=3.6", "testbook>=0.2.3"]}
 EXTRA_REQUIRE["dev"] = EXTRA_REQUIRE["test"] + [
