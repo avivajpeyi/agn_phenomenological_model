@@ -1,23 +1,20 @@
-# MASS
-chirp_mass = Uniform(name='chirp_mass', minimum=40, maximum=45, unit='$M_{\odot}$')
-mass_ratio = 1.0
-
-# SPIN
 a_1 = 0.6
 a_2 = 0.6
 cos_tilt_1 = Uniform(name='cos_tilt_1', minimum=-1, maximum=1)
 cos_tilt_2 = Uniform(name='cos_tilt_2', minimum=-1, maximum=1)
 phi_12 = Uniform(name='phi_12', minimum=0, maximum=2 * np.pi, boundary='periodic')
 phi_jl = Uniform(name='phi_jl', minimum=0, maximum=2 * np.pi, boundary='periodic')
-
-
-# LOCATION
 theta_jn = Sine(name='theta_jn')
 
 
+
+phase = 0.1
+geocent_time = 0
+
+# median +- GW150914 uncer
+chirp_mass = Uniform(name='chirp_mass', minimum=40, maximum=45, unit='$M_{\odot}$')
+mass_ratio = 1.0
 luminosity_distance = Uniform(name='luminosity_distance', minimum=200, maximum=210, unit='Mpc')
 dec = Cosine(name='dec', minimum=0, maximum=0.1)
 ra = Uniform(name='ra', minimum=0, maximum=0.1, boundary='periodic')
 psi = Uniform(name='psi', minimum=0, maximum=0.1, boundary='periodic')
-phase = 0.1
-geocent_time = 0
