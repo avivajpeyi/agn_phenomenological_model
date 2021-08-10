@@ -9,7 +9,7 @@ from bilby.core.prior import TruncatedNormal
 
 import argparse
 
-def pe_cdf(pops_regexs, true_pop_params, fname="posterior_predictive_check.png", title="Population A",
+def pe_cdf(pops_dat_dicts, true_pop_params, fname="posterior_predictive_check.png", title="Population A",
            num_simulated_events=10, colors1=[], colors2=[]):
     plt.close('all')
     update_style()
@@ -26,10 +26,9 @@ def pe_cdf(pops_regexs, true_pop_params, fname="posterior_predictive_check.png",
         samps.append(exact_pop)
         labels.append("Population " + str(sim_true_val))
 
-    for pop_name, regex in pops_regexs.items():
-        res = get_bilby_results(regex, pop_name + ".pkl", params=["cos_tilt_1", "cos_theta_12"])
-        samps.append(res['posteriors'])
-        trues.append(res['trues'])
+    for pop_name, dat in pops_dat_dicts.items():
+        samps.append(dat['posteriors'])
+        trues.append(dat['trues'])
         labels.append("90\% CI PE Posteriors")
 
     plot_posterior_predictive_check(samps, labels, colors=colors1, axes=cdf_axes,)
@@ -60,7 +59,7 @@ def plotter(pop_a_regex, pop_b_regex):
         dat_a = get_bilby_results(pop_a_regex, pop_a_pkl, ["cos_tilt_1", "cos_theta_12"])
         simple_violin_plotter(dat_a, "pop_a_pe.png")
         pe_cdf(
-            pops_regexs=dict(
+            pops_dat_dicts=dict(
                 pop_a=pop_a_regex,
             ),
             true_pop_params=dict(
@@ -76,7 +75,7 @@ def plotter(pop_a_regex, pop_b_regex):
         dat_b = get_bilby_results(pop_b_regex, pop_b_pkl, ["cos_tilt_1", "cos_theta_12"])
         # simple_violin_plotter(dat_b, "pop_b_pe.png")
         pe_cdf(
-            pops_regexs=dict(
+            pops_dat_dicts=dict(
                 pop_b=pop_b_regex
             ),
             true_pop_params=dict(
@@ -88,7 +87,7 @@ def plotter(pop_a_regex, pop_b_regex):
 
     if pop_a_regex and pop_b_regex:
         pe_cdf(
-            pops_regexs=dict(
+            pops_dat_dicts=dict(
                 pop_a=pop_a_regex,
                 pop_b=pop_b_regex
             ),
