@@ -1,0 +1,1 @@
+cdf_check --pop-a-regex "/fred/oz980/avajpeyi/projects/agn_phenomenological_model/studies/high_snr_multiple_population/outdir_pop_a_highsnr/out_pop_a_highsnr_*/result/pop*highsnr_*.json"

@@ -26,6 +26,7 @@ CLASSIFIERS = [
 INSTALL_REQUIRES = [
     "gwpopulation",
     "surfinbh",
+    "deepdiff",
     "sklearn",
     "joblib",
 ]
