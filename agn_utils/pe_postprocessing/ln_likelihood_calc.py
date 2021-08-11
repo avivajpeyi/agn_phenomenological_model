@@ -29,6 +29,10 @@ def setup_likelihood(res_file, data_dump_file):
         f"max(posterior LnL): {max(res.posterior.log_likelihood) + res.log_noise_evidence}\n"
         # f"LnL(posterior max LnL param): {max_likelihood_posterior}\n"
         f"LnL(true val): {true_logL}")
+    h1_dat_fig = res.plot_interferometer_waveform_posterior(interferometer=ifo_list[0], save=False)
+    h1_dat_fig.savefig("h1.png")
+    l1_dat_fig = res.plot_interferometer_waveform_posterior(interferometer=ifo_list[0], save=False)
+    l1_dat_fig.savefig("h1.png")
     pass
 
 
