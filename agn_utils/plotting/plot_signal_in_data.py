@@ -9,11 +9,12 @@ from bilby.core.utils import (
 from bilby.gw.utils import asd_from_freq_series
 from matplotlib import rcParams
 from tqdm.auto import tqdm
+from agn_utils.pe_postprocessing.ln_likelihood_calc import get_lnL
 
 
 @latex_plot_format
 def plot_interferometer_waveform_posterior(res, interferometer, level=0.9, n_samples=None, start_time=None,
-                                           end_time=None, outdir='.'):
+                                           end_time=None, outdir='.', signals_to_plot={}):
     """
     Plot the posterior for the waveform in the frequency domain and
     whitened time domain.
@@ -140,7 +141,7 @@ def plot_interferometer_waveform_posterior(res, interferometer, level=0.9, n_sam
                 interferometer.amplitude_spectral_density_array,
                 res.sampling_frequency)[time_idxs]
         except Exception as e:
-            logger.error(f"ERROR: {e}\nparams: {params}")
+            logger.debug(f"ERROR: {e}\nparams: {params}")
             pass
         td_waveforms.append(td_waveform)
     fd_waveforms = asd_from_freq_series(
@@ -178,29 +179,29 @@ def plot_interferometer_waveform_posterior(res, interferometer, level=0.9, n_sam
         color=WAVEFORM_COLOR,
         alpha=0.3)
 
-    if res.injection_parameters is not None:
-        try:
-            hf_inj = waveform_generator.frequency_domain_strain(
-                res.injection_parameters)
-            hf_inj_det = interferometer.get_detector_response(
-                hf_inj, res.injection_parameters)
-            ht_inj_det = infft(
-                hf_inj_det * np.sqrt(2. / interferometer.sampling_frequency) /
-                interferometer.amplitude_spectral_density_array,
-                res.sampling_frequency)[time_idxs]
+    if len(signals_to_plot) > 0:
+        for d in signals_to_plot:
+            params = d['params']
+            label = d['label']
+            col = d['color']
+            try:
+                hf_inj = waveform_generator.frequency_domain_strain(params)
+                hf_inj_det = interferometer.get_detector_response(hf_inj, params)
+                ht_inj_det = infft(
+                    hf_inj_det * np.sqrt(2. / interferometer.sampling_frequency) /
+                    interferometer.amplitude_spectral_density_array,
+                    res.sampling_frequency)[time_idxs]
 
-            axs[0].loglog(
-                plot_frequencies,
-                asd_from_freq_series(
-                    hf_inj_det[frequency_idxs],
-                    1 / interferometer.strain_data.duration),
-                color=INJECTION_COLOR, label='Injection', linestyle=':')
-            axs[1].plot(
-                plot_times, ht_inj_det,
-                color=INJECTION_COLOR, linestyle=':')
-            logger.debug('Plotted injection.')
-        except IndexError as e:
-            logger.info('Failed to plot injection with message {}.'.format(e))
+                axs[0].loglog(
+                    plot_frequencies,
+                    asd_from_freq_series(
+                        hf_inj_det[frequency_idxs],
+                        1 / interferometer.strain_data.duration),
+                    label=label, linestyle=':', color=col)
+                axs[1].plot(plot_times, ht_inj_det, linestyle=':', color=col)
+                logger.debug('Plotted injection.')
+            except IndexError as e:
+                logger.info('Failed to plot injection with message {}.'.format(e))
 
     f_domain_x_label = "$f [\\mathrm{Hz}]$"
     f_domain_y_label = "$\\mathrm{ASD} \\left[\\mathrm{Hz}^{-1/2}\\right]$"
@@ -222,20 +223,29 @@ def plot_interferometer_waveform_posterior(res, interferometer, level=0.9, n_sam
     plt.tight_layout()
     fig.savefig(fname=filename, dpi=600)
     plt.close()
-    logger.debug("Waveform figure saved to {}".format(filename))
+    logger.info("Waveform figure saved to {}".format(filename))
     rcParams["font.size"] = old_font_size
 
 
-if __name__ == '__main__':
-    res_file = "../../studies/snr50_100_fixedphase/outdir_pop_a_highsnr/out_pop_a_highsnr_01/result/pop_a_highsnr_01_0_result.json"
-    data_dump_file = "../../studies/snr50_100_fixedphase/outdir_pop_a_highsnr/out_pop_a_highsnr_01/data/pop_a_highsnr_01_data_dump.pickle"
+def plot_res_signal_and_max_l(res_file, data_dump_file):
     res = bilby.gw.result.CBCResult.from_json(filename=res_file)
 
     with open(data_dump_file, "rb") as file:
         data_dump = pickle.load(file)
-
     ifo_list = data_dump["ifo_list"]
-    waveform_generator = data_dump["waveform_generator"]
-    injection_parameters = data_dump.get("injection_parameters", None)
 
-    plot_interferometer_waveform_posterior(res=res, interferometer=ifo_list[0])
+    true = res.injection_parameters
+    max_post_param = res.posterior.to_dict('records')[-1]
+    lnL = get_lnL(params=[true, max_post_param], res_file=res_file, data_dump_file=data_dump_file)
+
+    plot_interferometer_waveform_posterior(
+        res=res, interferometer=ifo_list[0],
+        signals_to_plot=[
+            dict(params=true, label=f"True (LnL={lnL[0]:.2f})", color="black"),
+            dict(params=max_post_param, label=f"MaxLnL (LnL={lnL[1]:.2f}]", color="red"),
+        ])
+
+if __name__ == '__main__':
+    res_file = "../../studies/snr50_100_fixedphase/outdir_pop_a_highsnr/out_pop_a_highsnr_01/result/pop_a_highsnr_01_0_result.json"
+    data_dump_file = "../../studies/snr50_100_fixedphase/outdir_pop_a_highsnr/out_pop_a_highsnr_01/data/pop_a_highsnr_01_data_dump.pickle"
+    plot_res_signal_and_max_l(res_file, data_dump_file)
