@@ -14,10 +14,10 @@ DIR = os.path.dirname(__file__)
 CONFIG_TEMPLATE = os.path.join(DIR, "pbilby_config_template.ini")
 GEN_TEMPLATE = os.path.join(DIR, "pbilby_generation_job_template.ini")
 
-SSTAR_ENV = "source /fred/oz980/avajpeyi/envs/sstar_venv/bin/activate"
+SSTAR_ENV = "/fred/oz980/avajpeyi/envs/sstar_venv/bin/activate"
 SSTAR_TASKS = 14
 
-GSTAR_ENV = "source /fred/oz980/avajpeyi/envs/gstar_venv/bin/activate"
+GSTAR_ENV = "/fred/oz980/avajpeyi/envs/gstar_venv/bin/activate"
 GSTAR_TASKS = 12
 
 SSTAR_KWAGS = dict(tasks=SSTAR_TASKS, env=SSTAR_ENV)
