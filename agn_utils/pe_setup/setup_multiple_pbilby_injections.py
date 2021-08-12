@@ -97,7 +97,7 @@ def pbilby_jobs_generator(injection_file, label, prior_file, psd_file, waveform)
             label=label,
             psd_file=psd_file,
             waveform=waveform,
-            **GSTAR_KWAGS
+            **SSTAR_KWAGS
         )
 
     create_data_generation_slurm_submission_file(num_inj, label=label)
