@@ -14,10 +14,20 @@ DIR = os.path.dirname(__file__)
 CONFIG_TEMPLATE = os.path.join(DIR, "pbilby_config_template.ini")
 GEN_TEMPLATE = os.path.join(DIR, "pbilby_generation_job_template.ini")
 
+SSTAR_ENV = "source /fred/oz980/avajpeyi/envs/sstar_venv/bin/activate"
+SSTAR_TASKS = 14
+
+GSTAR_ENV = "source /fred/oz980/avajpeyi/envs/gstar_venv/bin/activate"
+GSTAR_TASKS = 12
+
+SSTAR_KWAGS = dict(tasks=SSTAR_TASKS, env=SSTAR_ENV)
+GSTAR_KWAGS = dict(tasks=GSTAR_TASKS, env=GSTAR_ENV)
+
 
 def create_ini(injection_idx: int, injection_file: str, prior_file: str, label: str, psd_file: str, waveform: str,
                nlive: Optional[int] = 1000, nact: Optional[int] = 5, nodes: Optional[int] = 1,
-               tasks: Optional[int] = 14, time: Optional[str] = "24:00:00", mem: Optional[int] = 800
+               tasks: Optional[int] = 14, time: Optional[str] = "24:00:00", mem: Optional[int] = 800,
+               env: Optional[str] = SSTAR_ENV
                ):
     unique_label = f"{label}_{injection_idx:02}"
     outdir = f"outdir_{label}/out_{unique_label}"
@@ -38,6 +48,7 @@ def create_ini(injection_idx: int, injection_file: str, prior_file: str, label: 
         txt = txt.replace("{{{TASKS}}}", str(tasks))
         txt = txt.replace("{{{TIME}}}", time)
         txt = txt.replace("{{{MEM}}}", str(mem))
+        txt = txt.replace("{{{ENV}}}", env)
     with open(ini, "w") as f:
         f.write(txt)
     print("Completed ini writing")
@@ -79,8 +90,15 @@ def pbilby_jobs_generator(injection_file, label, prior_file, psd_file, waveform)
 
     num_inj = len(pd.read_csv(injection_file))
     for i in range(num_inj):
-        create_ini(injection_idx=i, injection_file=injection_file, prior_file=prior_file, label=label,
-                   psd_file=psd_file, waveform=waveform)
+        create_ini(
+            injection_idx=i,
+            injection_file=injection_file,
+            prior_file=prior_file,
+            label=label,
+            psd_file=psd_file,
+            waveform=waveform,
+            **GSTAR_KWAGS
+        )
 
     create_data_generation_slurm_submission_file(num_inj, label=label)
     logging.info("Start generation jobs with:\n$ sbatch slurm_data_generation.sh")
