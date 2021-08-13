@@ -7,7 +7,15 @@ from agn_utils.data_formetter import dl_to_ld, ld_to_dl
 import matplotlib.pyplot as plt
 import numpy as np
 from bilby.hyper.model import Model
-from gwpopulation.models.spin import agn_spin
+try:
+    from gwpopulation.models.spin import agn_spin
+except Exception:
+    def agn_spin(dataset, sigma_1, sigma_12):
+        """cos_theta_12: angle bw BH1 and BH2"""
+        prior = truncnorm(xx=dataset["cos_tilt_1"], mu=1, sigma=sigma_1, high=1, low=-1) \
+                * truncnorm(xx=dataset["cos_theta_12"], mu=1, sigma=sigma_12, high=1, low=-1)
+        return prior
+
 from tqdm import tqdm
 import pandas as pd
 
