@@ -10,6 +10,8 @@ from bilby.hyper.model import Model
 try:
     from gwpopulation.models.spin import agn_spin
 except Exception:
+    from gwpopulation.models.spin import truncnorm
+
     def agn_spin(dataset, sigma_1, sigma_12):
         """cos_theta_12: angle bw BH1 and BH2"""
         prior = truncnorm(xx=dataset["cos_tilt_1"], mu=1, sigma=sigma_1, high=1, low=-1) \
