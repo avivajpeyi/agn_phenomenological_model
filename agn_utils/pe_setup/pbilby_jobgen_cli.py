@@ -9,11 +9,12 @@ def create_parser_and_read_args():
     parser.add_argument("--pop-files", nargs='+', default=[])
     parser.add_argument("--prior-file", type=str)
     parser.add_argument("--psd-file", type=str)
+    parser.add_argument("--cluster", type=str)
     args = parser.parse_args()
     return args
 
 
-def main_job_gen(prior_file, psd_file, pop_files):
+def main_job_gen(prior_file, psd_file, pop_files, cluster):
     for p in pop_files:
         pbilby_jobs_generator(
             injection_file=p,
@@ -21,12 +22,13 @@ def main_job_gen(prior_file, psd_file, pop_files):
             prior_file=prior_file,
             psd_file=psd_file,
             waveform="IMRPhenomXPHM",
+            cluster=cluster
         )
 
 
 def main():
     args = create_parser_and_read_args()
-    main_job_gen(prior_file=args.prior_file, psd_file=args.psd_file, pop_files=args.pop_files)
+    main_job_gen(prior_file=args.prior_file, psd_file=args.psd_file, pop_files=args.pop_files, cluster=args.cluster)
 
 
 if __name__ == "__main__":

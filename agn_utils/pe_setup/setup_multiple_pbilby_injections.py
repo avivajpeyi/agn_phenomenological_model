@@ -23,6 +23,8 @@ GSTAR_TASKS = 12
 SSTAR_KWAGS = dict(tasks=SSTAR_TASKS, env=SSTAR_ENV)
 GSTAR_KWAGS = dict(tasks=GSTAR_TASKS, env=GSTAR_ENV)
 
+CLUSTER_KWARGS = dict(sstar=SSTAR_KWAGS, gstar=GSTAR_KWAGS)
+
 
 def create_ini(injection_idx: int, injection_file: str, prior_file: str, label: str, psd_file: str, waveform: str,
                nlive: Optional[int] = 1000, nact: Optional[int] = 5, nodes: Optional[int] = 1,
@@ -80,7 +82,7 @@ def create_analysis_bash_runner(num_inj, label):
         f.write(file_contents)
 
 
-def pbilby_jobs_generator(injection_file, label, prior_file, psd_file, waveform):
+def pbilby_jobs_generator(injection_file, label, prior_file, psd_file, waveform, cluster):
     logging.info("Generating parallel bilby ini files + submission scripts")
 
     injection_file = os.path.abspath(injection_file)
@@ -89,6 +91,7 @@ def pbilby_jobs_generator(injection_file, label, prior_file, psd_file, waveform)
     psd_file = os.path.abspath(psd_file)
 
     num_inj = len(pd.read_csv(injection_file))
+
     for i in range(num_inj):
         create_ini(
             injection_idx=i,
@@ -97,7 +100,7 @@ def pbilby_jobs_generator(injection_file, label, prior_file, psd_file, waveform)
             label=label,
             psd_file=psd_file,
             waveform=waveform,
-            **SSTAR_KWAGS
+            **CLUSTER_KWARGS[cluster]
         )
 
     create_data_generation_slurm_submission_file(num_inj, label=label)

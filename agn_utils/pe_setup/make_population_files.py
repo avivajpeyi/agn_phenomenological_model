@@ -27,6 +27,9 @@ POPULATION_B = dict(sigma_1=1, sigma_12=0.25)
 POPS = dict(pop_a=POPULATION_A, pop_b=POPULATION_B)
 
 REF_FREQ = 20.0
+MIN_SNR = 8
+MAX_SNR = 100
+NUM_EVENTS = 100
 
 REQUIRED_PARAMS = [
     "chirp_mass",
@@ -148,9 +151,9 @@ def keep_injections_inside_prior(df, prior_path):
     return df
 
 
-def filter_undesired_injections(df, prior_path, number_high_snr_events=80):
-    df = df[df['network_snr'] >= 50]
-    df = df[df['network_snr'] <= 100]
+def filter_undesired_injections(df, prior_path, number_valid_snr_events=80):
+    df = df[df['network_snr'] >= MIN_SNR]
+    df = df[df['network_snr'] <= MAX_SNR]
     df = df[df['duration'] == 4]
     df = keep_injections_inside_prior(df, prior_path)
     return df
@@ -170,32 +173,35 @@ def generate_population(pop_name, pop_pri, outdir, prior_path):
 
 
     df = pd.DataFrame(pop_samp)
-    num_high_snr = len(df[(df['network_snr'] >= 50) & (df['network_snr'] <= 100)])
+    num_valid_snr = len(df[(df['network_snr'] >= MIN_SNR) & (df['network_snr'] <= MAX_SNR)])
 
 
     pop_df = pd.DataFrame(pop_samp)
 
     pop_df.to_csv(fname, sep=' ', mode='w', index=False)
-    print(f"# high SNR events: {num_high_snr} in {len(pop_df)} BBH")
+    print(f"# valid SNR events: {num_valid_snr} in {len(pop_df)} BBH")
 
     cached_pop = pd.read_csv(fname, sep=' ')
-    high_snr_events = filter_undesired_injections(cached_pop, prior_path)
+    valid_snr_events = filter_undesired_injections(cached_pop, prior_path)
 
-    high_snr_events = high_snr_events.reset_index(drop=True)
-    if len(high_snr_events) > 40:
-        high_snr_events = high_snr_events.sample(40)
-    print(f"Saving {len(high_snr_events)} SNR events")
-    high_snr_events.to_csv(fname.replace('.dat', '_highsnr.dat'), index=False, sep=' ')
+    valid_snr_events = valid_snr_events.reset_index(drop=True)
+    if len(valid_snr_events) > NUM_EVENTS:
+        valid_snr_events = valid_snr_events.sample(NUM_EVENTS)
+    print(f"Saving {len(valid_snr_events)} SNR events")
+    valid_snr_events.to_csv(fname.replace('.dat', '_validsnr.dat'), index=False, sep=' ')
 
+import shutil
 
 def main_generator(prior_path, outdir='data'):
+    if (os.path.isdir(outdir)):
+        shutil.rmtree(outdir)
     os.makedirs(outdir, exist_ok=True)
     for pop_name, pop_params in POPS.items():
         pop_pri = create_population_prior(pop_parameters=pop_params, prior_path=prior_path)
         generate_population(pop_name, pop_pri, outdir, prior_path)
     main_plotter(
-        pop_a_file=f"{outdir}/{list(POPS.keys())[0]}_highsnr.dat",
-        pop_b_file=f"{outdir}/{list(POPS.keys())[1]}_highsnr.dat",
+        pop_a_file=f"{outdir}/{list(POPS.keys())[0]}_validsnr.dat",
+        pop_b_file=f"{outdir}/{list(POPS.keys())[1]}_validsnr.dat",
         full_pop_a_file=f"{outdir}/{list(POPS.keys())[0]}.dat",
         full_pop_b_file=f"{outdir}/{list(POPS.keys())[1]}.dat",
         outdir=outdir,

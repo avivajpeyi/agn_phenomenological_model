@@ -52,7 +52,9 @@ def plot_pdf(pop_name, pop_val, pop_file, full_pop_file, outdir='.'):
     fig, axes = plt.subplots(1, 2, figsize=(10, 5))
     for ax, l in zip(axes, ["cos_theta_1", "cos_theta_12"]):
         ax.hist(all[l], density=True, histtype='step', color="tab:blue", label="ALL", lw=2, alpha=0.8)
+        ax.scatter(all[l], [0 for _ in all[l]], color="tab:blue",marker="+")
         ax.hist(sub[l], density=True, histtype='step', color="tab:purple", label="HIGH SNR", lw=2, alpha=0.6)
+        ax.scatter(sub[l], [0 for _ in sub[l]], color="tab:purple", marker="+")
 
     x = np.linspace(-1, 1, 100)
     y1 = TruncatedNormal(mu=1, sigma=pop_val[0], minimum=-1, maximum=1).prob(x)
