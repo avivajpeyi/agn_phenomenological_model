@@ -39,7 +39,7 @@ LABELS = dict(
 )
 
 
-def generate_corner(r, plot_params, bilby_corner=False):
+def generate_corner(r, plot_params, bilby_corner=True):
     if bilby_corner:
         fig = r.plot_corner(
             truths=True,
