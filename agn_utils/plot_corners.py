@@ -69,7 +69,7 @@ def generate_corner(r, plot_params, bilby_corner=False):
 import corner
 
 
-def make_plots(regex, outdir, compile_pdf=False):
+def make_plots(regex, outdir, compile_pdf=True):
     files = glob.glob(regex)
     plot_dir = outdir
     os.makedirs(plot_dir, exist_ok=True)
