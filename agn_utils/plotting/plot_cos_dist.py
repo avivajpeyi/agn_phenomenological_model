@@ -35,8 +35,11 @@ def process_samples(s, rf=20):
 
 def plot_pdf(pop_name, pop_val, pop_file, full_pop_file, outdir='.'):
     """Plots a scatter plot."""
-    plt.style.use(
+    try:
+        plt.style.use(
         "https://gist.githubusercontent.com/avivajpeyi/4d9839b1ceb7d3651cbb469bc6b0d69b/raw/4ee4a870126653d542572372ff3eee4e89abcab0/publication.mplstyle")
+    except Exception:
+        pass
 
     plt.close('all')
     all = pd.read_csv(full_pop_file, sep=" ")
