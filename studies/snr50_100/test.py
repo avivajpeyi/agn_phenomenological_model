@@ -10,16 +10,6 @@ TruePopB = "bisque"
 DataA = "midnightblue"
 DataB = "darkorange"
 
-# f = 'outdir/pop_a/pop_a_highsnr_00_0_result.json'
-# r = bilby.gw.result.CBCResult.from_json(filename=f)
-# pprint(r.injection_parameters)
-#
-#
-# r2 = result_post_processing(r)
-# pprint(r2.injection_parameters)
-
-#%%
-
 pop_a_regex = 'outdir/pop_a/*.json'
 pop_b_regex = 'outdir/pop_b/*.json'
 pop_a_pkl = 'pop_a.pkl'
@@ -83,9 +73,6 @@ pe_cdf(
         pop_b=dat_b
     ),
     true_pop_params=dict(),
-    # true_pop_params=dict(
-    #     popA=[0.5, 3],
-    #     popB=[1, 0.25]),
     title="Population Comparision (reweighted)", fname="pop_compare_cdf_reweighted.png",
     colors1=[TruePopA, TruePopB, DataA,  DataB],
     colors2=[TruePopA, TruePopB, DataA, DataB]
