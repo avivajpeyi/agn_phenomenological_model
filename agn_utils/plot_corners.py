@@ -80,9 +80,7 @@ def make_plots(regex, outdir, compile_pdf=True):
         r = result_post_processing(r)
         z = luminosity_distance_to_redshift(r.injection_parameters['luminosity_distance'])
         mc = r.injection_parameters['chirp_mass']
-        mc_up = mc * (1+z)
-        mc_down = mc / (1+z)
-        # r.injection_parameters['chirp_mass'] = mc_down
+
         r.priors['cos_theta_12'] = bilby.prior.Uniform(-1, 1)
         plt.rcParams["text.usetex"] = False
         fname = os.path.basename(f).replace(".json", ".png")
@@ -95,36 +93,6 @@ def make_plots(regex, outdir, compile_pdf=True):
         fig.savefig(fpath)
         plt.close('all')
         image_paths.append(fpath)
-
-        fig = plt.figure()
-        ax = plt.gca()
-        ax.hist(r.posterior['chirp_mass'], density=True, alpha=0.2, label="posterior['chirp_mass']")
-        ax.hist(r.posterior['chirp_mass_source'], density=True, alpha=0.2, label="posterior['chirp_mass_source']")
-        ax.axvline(mc, c='tab:orange', label=f'mc (@ z = {z:.2f})')
-        ax.axvline(mc_down, c='tab:blue', label = 'mc / (1+z)')
-        ax.axvline(mc_up, c='tab:green', label='mc * (1+z)')
-        ax.set_xlabel('chirp_mass (mc)')
-        data_dump_path = get_data_dump_path(f)
-        if data_dump_path:
-            mcs = np.linspace(start=40, stop=mc_up+10, num=100)
-            params = [r.injection_parameters.copy() for i in range(len(mcs))]
-            for i in range(len(mcs)):
-                params[i].update(dict(chirp_mass=mcs[i]))
-            lnls = get_lnL(params, f, data_dump_path)
-            # normed_lnl = [float(i)/max(lnls) for i in lnls]
-
-            ax = plt.gca()
-            ax2 = ax.twinx()
-            ax2.set_ylabel("LnL",color='purple')
-            ax2.spines['right'].set_color('purple')
-            ax2.xaxis.label.set_color('purple')
-            ax2.tick_params(axis='y', colors='purple')
-            ax2.plot(mcs, lnls, color='purple', zorder = -1, alpha = 0.5)
-            print("LnL")
-        ax.legend()
-        plt.tight_layout()
-        plt.savefig(fpath.replace('.png','_chirp.png'))
-        plt.close('all')
 
     if compile_pdf:
         make_pdf(pdf_fname=f"{plot_dir}/corners.pdf", image_path_list=image_paths)
