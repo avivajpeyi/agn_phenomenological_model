@@ -129,7 +129,7 @@ def simple_violin_plotter(dat, fname, dat_labs=['cos_tilt_1', 'cos_theta_12'], l
     """dat: {posteriors:dict(label:lists of posteriors), trues:dict(label:list of trues), labels: list of labels"""
     num_events = len(dat['labels'])
     quantiles = [ [0.16, 0.84] for _ in range(num_events)]
-    fig, axs = plt.subplots(3,1, sharex=True, figsize=(16, 3*len(labels)))
+    fig, axs = plt.subplots(1,len(dat_labs), sharex=True, figsize=(16, 3*len(labels)))
 
     for ax, dat_lab, label in zip(axs, dat_labs, labels):
         posteriors = list(dat["posteriors"][dat_lab])

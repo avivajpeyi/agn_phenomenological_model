@@ -27,6 +27,7 @@ def pe_cdf(pops_dat_dicts, true_pop_params, fname="posterior_predictive_check.pn
         labels.append("Population " + str(sim_true_val))
 
     for pop_name, dat in pops_dat_dicts.items():
+        print(dat)
         samps.append(dat['posteriors'])
         trues.append(dat['trues'])
         labels.append("90\% CI PE Posteriors")
@@ -73,7 +74,7 @@ def plotter(pop_a_regex, pop_b_regex):
     if pop_b_regex:
         pop_b_pkl = "pop_b.pkl"
         dat_b = get_bilby_results(pop_b_regex, pop_b_pkl, ["cos_tilt_1", "cos_theta_12"])
-        # simple_violin_plotter(dat_b, "pop_b_pe.png")
+        simple_violin_plotter(dat_b, "pop_b_pe.png")
         pe_cdf(
             pops_dat_dicts=dict(
                 pop_b=pop_b_regex
