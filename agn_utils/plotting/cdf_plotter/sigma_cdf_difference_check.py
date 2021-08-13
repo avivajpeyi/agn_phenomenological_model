@@ -62,7 +62,7 @@ def plotter(pop_a_regex, pop_b_regex):
     DataB = "darkorange"
 
     pop_a_pkl = 'pop_a.pkl'
-    pop_b_pkl = 'pop_a.pkl'
+    pop_b_pkl = 'pop_b.pkl'
     dat_a = get_bilby_results(pop_a_regex, pop_a_pkl, ["cos_tilt_1", "cos_theta_12"])
     simple_violin_plotter(dat_a, "pop_a_pe.png")
     pe_cdf(
@@ -92,6 +92,7 @@ def plotter(pop_a_regex, pop_b_regex):
     )
 
     dat_b = get_bilby_results(pop_b_regex, pop_b_pkl, ["cos_tilt_1", "cos_theta_12"])
+    simple_violin_plotter(dat_a, "pop_a_pe_reweighted.png")
     pe_cdf(
         pops_dat_dicts=dict(
             pop_B=dat_b,
