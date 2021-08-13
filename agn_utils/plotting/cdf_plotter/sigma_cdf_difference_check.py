@@ -9,7 +9,7 @@ from bilby.core.prior import TruncatedNormal
 import bilby
 from pprint import pprint
 from agn_utils.plot_corners import result_post_processing, generate_corner
-from agn_utils.plotting.cdf_plotter.sigma_cdf_difference_check import simple_violin_plotter, get_bilby_results, pe_cdf
+
 from agn_utils.pe_postprocessing.posterior_reweighter import rejection_sample_population
 
 
