@@ -33,7 +33,6 @@ def pe_cdf(pops_dat_dicts, true_pop_params, fname="posterior_predictive_check.pn
         labels.append("Population " + str(sim_true_val))
 
     for pop_name, dat in pops_dat_dicts.items():
-        print(dat)
         samps.append(dat['posteriors'])
         trues.append(dat['trues'])
         labels.append("90\% CI PE Posteriors")
