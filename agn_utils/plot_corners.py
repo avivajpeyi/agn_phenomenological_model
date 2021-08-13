@@ -78,8 +78,6 @@ def make_plots(regex, outdir, compile_pdf=True):
     for f in tqdm(files, desc="Plotting corners"):
         r = bilby.gw.result.CBCResult.from_json(f)
         r = result_post_processing(r)
-        z = luminosity_distance_to_redshift(r.injection_parameters['luminosity_distance'])
-        mc = r.injection_parameters['chirp_mass']
 
         r.priors['cos_theta_12'] = bilby.prior.Uniform(-1, 1)
         plt.rcParams["text.usetex"] = False
@@ -88,7 +86,7 @@ def make_plots(regex, outdir, compile_pdf=True):
                        'chirp_mass', "luminosity_distance", 'ra', 'dec', 'psi']
         fig = generate_corner(r, plot_params)
         dl, m = r.injection_parameters['luminosity_distance'], r.injection_parameters['chirp_mass']
-        plt.suptitle(f"${r.label.replace('_','-')}$\n$dl={dl:.2f}$\n$mc={mc:.2f}$\n$mc/(1+z)={mc_down:.2f}$",fontsize=30)
+        plt.suptitle(f"${r.label.replace('_','-')}$\n$dl={dl:.2f}$\n$mc={m:.2f}$",fontsize=30)
         fpath = os.path.join(plot_dir, fname)
         fig.savefig(fpath)
         plt.close('all')
