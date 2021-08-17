@@ -1,19 +1,12 @@
-import matplotlib.pyplot as plt
+import argparse
 
+import matplotlib.pyplot as plt
 from agn_utils.bbh_population_generators.posterior_simulator import simulate_exact_population_posteriors
 from agn_utils.pe_postprocessing.jsons_to_numpy import get_bilby_results
+from agn_utils.pe_postprocessing.posterior_reweighter import rejection_sample_population
 from agn_utils.plotting.posterior_predictive_plot import plot_posterior_predictive_check, plot_trues, update_style
 from agn_utils.plotting.posterior_violin_plotter import simple_violin_plotter
-from bilby.gw.result import CBCResult
-from bilby.core.prior import TruncatedNormal
-import bilby
-from pprint import pprint
-from agn_utils.plot_corners import result_post_processing, generate_corner
 
-from agn_utils.pe_postprocessing.posterior_reweighter import rejection_sample_population
-
-
-import argparse
 
 def pe_cdf(pops_dat_dicts, true_pop_params, fname="posterior_predictive_check.png", title="Population A",
            num_simulated_events=10, colors1=[], colors2=[]):
@@ -37,7 +30,7 @@ def pe_cdf(pops_dat_dicts, true_pop_params, fname="posterior_predictive_check.pn
         trues.append(dat['trues'])
         labels.append("90\% CI PE Posteriors")
 
-    plot_posterior_predictive_check(samps, labels, colors=colors1, axes=cdf_axes,)
+    plot_posterior_predictive_check(samps, labels, colors=colors1, axes=cdf_axes, )
     plot_trues(trues, true_pop_params, labels, axes=pdf_axes, colors=colors2)
     plt.suptitle(title)
     plt.tight_layout()
@@ -46,8 +39,8 @@ def pe_cdf(pops_dat_dicts, true_pop_params, fname="posterior_predictive_check.pn
 
 def create_parser_and_read_args():
     parser = argparse.ArgumentParser()
-    parser.add_argument("--pop-a-regex",type=str, default="")
-    parser.add_argument( "--pop-b-regex",type=str, default=""  )
+    parser.add_argument("--pop-a-regex", type=str, default="")
+    parser.add_argument("--pop-b-regex", type=str, default="")
     args = parser.parse_args()
     return args
 
@@ -78,7 +71,8 @@ def plotter(pop_a_regex, pop_b_regex):
             colors2=[TruePopA, DataA]
         )
 
-        dat_a["posteriors"] = rejection_sample_population(dat_a["posteriors"], true_population_param=dict(sigma_1=0.5, sigma_12=3))
+        dat_a["posteriors"] = rejection_sample_population(dat_a["posteriors"],
+                                                          true_population_param=dict(sigma_1=0.5, sigma_12=3))
         simple_violin_plotter(dat_a, "pop_a_pe_reweighted.png")
         pe_cdf(
             pops_dat_dicts=dict(
@@ -94,7 +88,7 @@ def plotter(pop_a_regex, pop_b_regex):
 
     if len(pop_b_regex) > 0:
         dat_b = get_bilby_results(pop_b_regex, pop_b_pkl, ["cos_tilt_1", "cos_theta_12"])
-        simple_violin_plotter(dat_a, "pop_a_pe_reweighted.png")
+        simple_violin_plotter(dat_b, "pop_b_pe_reweighted.png")
         pe_cdf(
             pops_dat_dicts=dict(
                 pop_B=dat_b,
@@ -106,7 +100,8 @@ def plotter(pop_a_regex, pop_b_regex):
             colors1=[TruePopB, DataB],
             colors2=[TruePopB, DataB]
         )
-        dat_b["posteriors"] = rejection_sample_population(dat_b["posteriors"], true_population_param=dict(sigma_1=1, sigma_12=0.25))
+        dat_b["posteriors"] = rejection_sample_population(dat_b["posteriors"],
+                                                          true_population_param=dict(sigma_1=1, sigma_12=0.25))
         pe_cdf(
             pops_dat_dicts=dict(
                 pop_b=dat_b,
@@ -119,7 +114,7 @@ def plotter(pop_a_regex, pop_b_regex):
             colors2=[TruePopB, DataB]
         )
 
-    if len(pop_a_regex) > 0 and  len(pop_b_regex) > 0:
+    if len(pop_a_regex) > 0 and len(pop_b_regex) > 0:
         pe_cdf(
             pops_dat_dicts=dict(
                 pop_a=dat_a,
@@ -127,10 +122,9 @@ def plotter(pop_a_regex, pop_b_regex):
             ),
             true_pop_params=dict(),
             title="Population Comparision (reweighted)", fname="pop_compare_cdf_reweighted.png",
-            colors1=[TruePopA, TruePopB, DataA,  DataB],
+            colors1=[TruePopA, TruePopB, DataA, DataB],
             colors2=[TruePopA, TruePopB, DataA, DataB]
         )
-
 
 
 def main():
