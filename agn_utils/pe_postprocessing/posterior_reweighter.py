@@ -6,18 +6,25 @@ from agn_utils.data_formetter import dl_to_ld, ld_to_dl
 
 import matplotlib.pyplot as plt
 
-from gwpopulation.cupy_utils import xp
+import numpy as np
 from bilby.hyper.model import Model
-try:
-    from gwpopulation.models.spin import agn_spin
-except Exception:
-    from gwpopulation.models.spin import truncnorm
 
-    def agn_spin(dataset, sigma_1, sigma_12):
-        """cos_theta_12: angle bw BH1 and BH2"""
-        prior = truncnorm(xx=dataset["cos_tilt_1"], mu=1, sigma=sigma_1, high=1, low=-1) \
-                * truncnorm(xx=dataset["cos_theta_12"], mu=1, sigma=sigma_12, high=1, low=-1)
-        return prior
+def truncnorm(xx, mu, sigma, high, low):
+    if sigma <= 0:
+        raise ValueError(f"Sigma must be greater than 0, sigma={sigma}")
+    norm = 2 ** 0.5 / xp.pi ** 0.5 / sigma
+    norm /= erf((high - mu) / 2 ** 0.5 / sigma) + erf((mu - low) / 2 ** 0.5 / sigma)
+    prob = np.exp(-np.power(xx - mu, 2) / (2 * sigma ** 2))
+    prob *= norm
+    prob *= (xx <= high) & (xx >= low)
+    return prob
+
+def agn_spin(dataset, sigma_1, sigma_12):
+    """cos_theta_12: angle bw BH1 and BH2"""
+    prior = truncnorm(xx=dataset["cos_tilt_1"], mu=1, sigma=sigma_1, high=1, low=-1) \
+            * truncnorm(xx=dataset["cos_theta_12"], mu=1, sigma=sigma_12, high=1, low=-1)
+    return prior
+
 
 from tqdm import tqdm
 import pandas as pd
@@ -40,7 +47,7 @@ def rejection_sample_posterior(event_samples, hyper_param, n_draws=2000):
     model = Model(model_functions=[agn_spin])
     model.parameters.update(hyper_param)
     weights = model.prob(event_samples) / PRIOR_VOLUME
-    weights = (weights.T / xp.sum(weights, axis=-1)).T
+    weights = (weights.T / np.sum(weights, axis=-1)).T
     event_samples = pd.DataFrame(event_samples)
     event_samples = event_samples.sample(n_draws, weights=weights)
     event_samples = event_samples.to_dict('list')
@@ -53,9 +60,9 @@ def rejection_sample_population(posteriors, true_population_param):
     :param true_population_param: dict of hyper_param
     """
     posteriors_ld = dl_to_ld(posteriors)
-    posteriors_ld = [rejection_sample_posterior(xp.array(p), true_population_param) for p in posteriors_ld]
+    posteriors_ld = [rejection_sample_posterior(p, true_population_param) for p in posteriors_ld]
     posteriors = ld_to_dl(posteriors_ld)
-    posteriors = {k:xp.array(v) for k,v in posteriors.items()}
+    posteriors = {k:np.array(v) for k,v in posteriors.items()}
     return posteriors
 
 
