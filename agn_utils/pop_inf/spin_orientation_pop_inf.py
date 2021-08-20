@@ -7,9 +7,10 @@ from gwpopulation.hyperpe import HyperparameterLikelihood
 from gwpopulation.models.spin import agn_spin
 
 from agn_utils.data_formetter import dl_to_ld
-from agn_utils.pe_postprocessing.jsons_to_numpy import load_posteriors_and_trues
+from agn_utils.pe_postprocessing.jsons_to_numpy import load_posteriors_and_trues, result_post_processing
 from agn_utils.stats_printer import print_cpu_info, print_gpu_info
 import os
+from agn_utils.pe_postprocessing.posterior_reweighter import rejection_sample_population
 
 BOUNDS = dict(
     cos_theta_1=(-1, 1),
@@ -29,7 +30,7 @@ def get_agn_spin_hyper_pe_prior():
     return p
 
 
-def load_posteriors(pickle_fname):
+def load_posteriors(pickle_fname, true_pop):
     """
     posteriors: list
     An list of pandas data frames of samples sets of samples.
@@ -42,6 +43,9 @@ def load_posteriors(pickle_fname):
 
     """
     dat = load_posteriors_and_trues(pickle_fname)
+    dat["posteriors"] = rejection_sample_population(
+        dat["posteriors"],
+        true_population_param=true_pop)
     posteriors = dl_to_ld(dat['posteriors'])
     posteriors_dfs = []
     for p in posteriors:
@@ -67,7 +71,8 @@ def main():
     fname = sys.argv[1]
     sig_1 = sys.argv[2]
     sig_12 = sys.argv[3]
-    posteriors = load_posteriors(fname)
+    true_param = dict(sigma_1=sig_1, sigma_12=sig_12)
+    posteriors = load_posteriors(fname, true_param)
     label = os.path.basename(fname).split(".")[0]
     outdir = f"out_{label}"
     bilby.core.utils.setup_logger(outdir=outdir, label=label)
@@ -80,21 +85,21 @@ def main():
 
     likelihood.parameters.update(prior.sample())
     likelihood.log_likelihood_ratio()
+    likelihood.parameters.update(true_param)
 
-    likelihood.parameters.update(dict(sigma_1=sig_1, sigma_12=sig_12))
-    likelihood.log_likelihood_ratio()
-
-    print(f"True LnL: {likelihood.log_likelihood()}")
 
     hyper_pe_result = bilby.run_sampler(
         likelihood=likelihood, priors=prior,
-        sampler='dynesty', nlive=2000, nact=10,
+        sampler='dynesty', nlive=1500, nact=10,
         outdir=outdir, label=label
     )
     hyper_pe_result.plot_corner(save=True)
 
     print(f"Max LnL: {likelihood.log_likelihood()}")
 
+    likelihood.parameters.update(true_param)
+    likelihood.log_likelihood_ratio()
+    print(f"True LnL: {likelihood.log_likelihood()}")
 
 if __name__ == '__main__':
     main()
