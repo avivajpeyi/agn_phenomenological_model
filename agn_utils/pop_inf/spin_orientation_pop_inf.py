@@ -65,6 +65,8 @@ def main():
 
     # load posteriors
     fname = sys.argv[1]
+    sig_1 = sys.argv[2]
+    sig_12 = sys.argv[3]
     posteriors = load_posteriors(fname)
     label = os.path.basename(fname).split(".")[0]
     outdir = f"out_{label}"
@@ -78,12 +80,21 @@ def main():
 
     likelihood.parameters.update(prior.sample())
     likelihood.log_likelihood_ratio()
+
+    likelihood.parameters.update(dict(sigma_1=sig_1, sigma_12=sig_12))
+    likelihood.log_likelihood_ratio()
+
+    print(f"True LnL: {likelihood.log_likelihood()}")
+
     hyper_pe_result = bilby.run_sampler(
         likelihood=likelihood, priors=prior,
         sampler='dynesty', nlive=1000,
         outdir=outdir, label=label
     )
     hyper_pe_result.plot_corner(save=True)
+
+    print(f"Max LnL: {likelihood.log_likelihood()}")
+
 
 if __name__ == '__main__':
     main()
