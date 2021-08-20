@@ -67,7 +67,7 @@ def main():
     fname = sys.argv[1]
     posteriors = load_posteriors(fname)
     label = os.path.basename(fname).split(".")[0]
-    outir = f"out_{label}"
+    outdir = f"out_{label}"
     bilby.core.utils.setup_logger(outdir=outdir, label=label)
 
     # get hyper-prior
@@ -81,7 +81,7 @@ def main():
     hyper_pe_result = bilby.run_sampler(
         likelihood=likelihood, priors=prior,
         sampler='dynesty', nlive=1000,
-        outdir=outir, label=label
+        outdir=outdir, label=label
     )
     hyper_pe_result.plot_corner(save=True)
 
