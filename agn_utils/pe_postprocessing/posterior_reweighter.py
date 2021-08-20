@@ -53,7 +53,7 @@ def rejection_sample_population(posteriors, true_population_param):
     :param true_population_param: dict of hyper_param
     """
     posteriors_ld = dl_to_ld(posteriors)
-    posteriors_ld = [rejection_sample_posterior(p, true_population_param) for p in posteriors_ld]
+    posteriors_ld = [rejection_sample_posterior(xp.array(p), true_population_param) for p in posteriors_ld]
     posteriors = ld_to_dl(posteriors_ld)
     posteriors = {k:xp.array(v) for k,v in posteriors.items()}
     return posteriors
