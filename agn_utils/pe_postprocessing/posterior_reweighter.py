@@ -8,6 +8,8 @@ import matplotlib.pyplot as plt
 
 import numpy as np
 from bilby.hyper.model import Model
+from scipy.special import erf, gammaln
+
 
 def truncnorm(xx, mu, sigma, high, low):
     if sigma <= 0:
