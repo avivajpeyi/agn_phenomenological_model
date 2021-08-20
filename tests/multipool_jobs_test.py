@@ -9,7 +9,7 @@ logging.getLogger("tests").setLevel(logging.INFO)
 
 class MultiprocessJobTest(unittest.TestCase):
     def test_runner(self):
-        num_processes = 5
+        num_processes = 20
         run_function_with_multiprocess(
             num_multiprocesses=num_processes,
             target_function=foo,

@@ -1,5 +1,5 @@
 # Created by .ignore support plugin (hsz.mobi)
-
+studies/comoving_dist_injections/plots
 times.png
 ### Extra junk
 *.csv
@@ -206,3 +206,4 @@ cython_debug/
 /studies/fixed_snr/outdir_pbilby/
 /studies/fixed_snr/outdir_snr60/
 /studies/snr50_100/plots/
+/studies/comoving_dist_injections/plots/

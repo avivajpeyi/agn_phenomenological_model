@@ -104,17 +104,22 @@ def plot_trues(data_sets, trues, rhs_ax_labels, colors=[], axes=[]):
         axes[0].plot(x,y1, color=colors[i], zorder=10, lw=3 )
         axes[i].set_xlim([-1, 1])
 
+    hatches = ['///', "\\\\\\"]
+
     for i, data in enumerate(data_sets):
-        kwargs = dict(density=True, histtype='step',lw=0.5, alpha=0.6,color=colors[len(trues) + i])
+        c = colors[len(trues) + i]
+        kwargs = dict(density=True, histtype='stepfilled',lw=2.0, alpha=0.5, color=c, hatch=hatches[i], edgecolor=c)
         axes[0].hist(data['cos_tilt_1'],  **kwargs)
         axes[1].hist(data['cos_theta_12'],  **kwargs)
 
         if (i == 0):
             axes[i].set_xlabel(r"$\cos\ \theta_1$")
-            axes[i].set_ylabel("PDF")
+            axes[i].set_ylabel("PDF (trues)")
+            axes[i].set_ylim(0, 2.5)
         else:
             axes[i].set_xlabel(r"$\cos\ \theta_{12}$")
             axes[i].set_yticklabels([])
+            axes[i].set_ylim(0, 2.5)
             # axes[i].legend(fontsize='small')
 
         axes[i].grid(False)
