@@ -69,8 +69,8 @@ def main():
 
     # load posteriors
     fname = sys.argv[1]
-    sig_1 = sys.argv[2]
-    sig_12 = sys.argv[3]
+    sig_1 = float(sys.argv[2])
+    sig_12 = float(sys.argv[3])
     true_param = dict(sigma_1=sig_1, sigma_12=sig_12)
     posteriors = load_posteriors(fname, true_param)
     label = os.path.basename(fname).split(".")[0]
