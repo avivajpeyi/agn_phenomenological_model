@@ -88,7 +88,7 @@ def main():
 
     hyper_pe_result = bilby.run_sampler(
         likelihood=likelihood, priors=prior,
-        sampler='dynesty', nlive=1000,
+        sampler='dynesty', nlive=2000, nact=10,
         outdir=outdir, label=label
     )
     hyper_pe_result.plot_corner(save=True)
