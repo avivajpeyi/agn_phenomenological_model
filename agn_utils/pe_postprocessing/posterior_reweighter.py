@@ -12,7 +12,7 @@ from bilby.hyper.model import Model
 def truncnorm(xx, mu, sigma, high, low):
     if sigma <= 0:
         raise ValueError(f"Sigma must be greater than 0, sigma={sigma}")
-    norm = 2 ** 0.5 / xp.pi ** 0.5 / sigma
+    norm = 2 ** 0.5 / np.pi ** 0.5 / sigma
     norm /= erf((high - mu) / 2 ** 0.5 / sigma) + erf((mu - low) / 2 ** 0.5 / sigma)
     prob = np.exp(-np.power(xx - mu, 2) / (2 * sigma ** 2))
     prob *= norm
