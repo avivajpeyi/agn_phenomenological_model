@@ -1,0 +1,13 @@
+#! /bin/bash
+#SBATCH --job-name=load_gwtc
+#SBATCH --output=load_gwtc.err
+#SBATCH --ntasks=1
+#SBATCH --cpus-per-task=1
+#SBATCH --mem-per-cpu=8G
+#SBATCH --time=200:00
+
+module load gcc/9.2.0 openmpi/4.0.2 mpi4py/3.0.3-python-3.7.4 lalsuite-lalsimulation/2.0.0 astropy/4.0.1-python-3.7.4 scipy-bundle/2019.10-python-3.7.4 h5py/3.2.1-python-3.7.4
+source /fred/oz980/avajpeyi/envs/gstar_venv/bin/activate
+
+
+/fred/oz980/avajpeyi/envs/gstar_venv/bin/python /fred/oz980/avajpeyi/projects/gwtc2_bbh

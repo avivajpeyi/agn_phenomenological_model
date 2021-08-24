@@ -58,7 +58,7 @@ def read_hdf(f):
 def read_hdfs(pkl_fname):
     hdf_dir = os.path.dirname(pkl_fname)
     hdf_regex = os.path.join(hdf_dir, "*.hdf")
-    files = glob.glob(hdf_regex)
+    files = glob.glob(hdf_regex)[0:2]
     posteriors, labels, truths = [], [], []
     for f in tqdm(files, desc="HDFs", total=len(files)):
         labels.append(f.replace("_", " "))
