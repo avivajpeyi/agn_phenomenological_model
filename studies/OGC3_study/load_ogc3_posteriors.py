@@ -84,5 +84,5 @@ if __name__ == '__main__':
     gwtc1_dir = sys.argv[1]
     print(f"Getting GWTC events from {gwtc1_dir}")
     read_pe_table(gwtc1_dir)
-    load_gwtc_posteriors(pkl_fname=f"{gwtc1_dir}/gwtc.pkl")
+    dat = load_gwtc_posteriors(pkl_fname=f"{gwtc1_dir}/gwtc.pkl")
     simple_violin_plotter(dat, fname="")
