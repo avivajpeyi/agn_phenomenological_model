@@ -17,7 +17,7 @@ def read_pe_table(dir):
     cols = open(f).readlines()[0].split()
     print(cols)
     df = pd.read_csv(f, ",", skiprows=1, names=cols)
-    print(df.summary)
+    print(df)
 
 
 def read_hdf(f):
