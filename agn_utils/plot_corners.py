@@ -84,7 +84,7 @@ def make_plots(regex, outdir, compile_pdf=True):
         fname = os.path.basename(f).replace(".json", ".png")
         plot_params = ['cos_tilt_1', 'cos_tilt_2', 'cos_theta_12', 'phi_12',  'phi_jl', 'theta_jn',
                        'chirp_mass', "luminosity_distance", 'ra', 'dec', 'psi']
-        plot_params [ 'cos_tilt_1', 'cos_tilt_2', 'cos_theta_12']
+        plot_params = [ 'cos_tilt_1', 'cos_tilt_2', 'cos_theta_12']
         fig = generate_corner(r, plot_params)
         dl, m = r.injection_parameters['luminosity_distance'], r.injection_parameters['chirp_mass']
         plt.suptitle(f"${r.label.replace('_','-')}$\n$dl={dl:.2f}$\n$mc={m:.2f}$",fontsize=30)
