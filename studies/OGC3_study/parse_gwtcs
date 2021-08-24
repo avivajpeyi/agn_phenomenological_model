@@ -10,4 +10,4 @@ module load gcc/9.2.0 openmpi/4.0.2 mpi4py/3.0.3-python-3.7.4 lalsuite-lalsimula
 source /fred/oz980/avajpeyi/envs/gstar_venv/bin/activate
 
 
-/fred/oz980/avajpeyi/envs/gstar_venv/bin/python /fred/oz980/avajpeyi/projects/gwtc2_bbh
+/fred/oz980/avajpeyi/envs/gstar_venv/bin/python load_ogc3_posteriors.py /fred/oz980/avajpeyi/projects/gwtc2_bbh

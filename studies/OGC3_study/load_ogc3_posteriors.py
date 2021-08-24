@@ -7,11 +7,11 @@ import numpy as np
 import pandas as pd
 from agn_utils.bbh_population_generators.spin_conversions import make_spin_vector, \
     calculate_relative_spins_from_component_spins
-from agn_utils.pe_postprocessing.jsons_to_numpy import load_posteriors_and_trues, save_posteriors_and_trues
-from tqdm.auto import tqdm
 from agn_utils.data_formetter import ld_to_dl
-
+from agn_utils.pe_postprocessing.jsons_to_numpy import load_posteriors_and_trues, save_posteriors_and_trues
 from agn_utils.plotting.posterior_violin_plotter import simple_violin_plotter
+from tqdm.auto import tqdm
+
 
 def read_pe_table(dir):
     f = f"{dir}/PEtable.txt"
@@ -67,7 +67,6 @@ def read_hdfs(pkl_fname):
         except Exception as e:
             print(f"skipping {f}:{e}")
 
-
     posteriors = ld_to_dl(posteriors)
 
     return dict(posteriors=posteriors, labels=labels)
@@ -80,8 +79,6 @@ def load_gwtc_posteriors(pkl_fname):
         dat = read_hdfs(pkl_fname)
         save_posteriors_and_trues(dat, pkl_fname)
     return dat
-
-
 
 
 if __name__ == '__main__':
