@@ -58,11 +58,15 @@ def read_hdf(f):
 def read_hdfs(pkl_fname):
     hdf_dir = os.path.dirname(pkl_fname)
     hdf_regex = os.path.join(hdf_dir, "*.hdf")
-    files = glob.glob(hdf_regex)[0:2]
+    files = glob.glob(hdf_regex)
     posteriors, labels, truths = [], [], []
     for f in tqdm(files, desc="HDFs", total=len(files)):
-        labels.append(f.replace("_", " "))
-        posteriors.append(read_hdf(f))
+        try:
+            labels.append(f.replace("_", " "))
+            posteriors.append(read_hdf(f))
+        except Exception as e:
+            print(f"skipping {f}:{e}")
+
 
     posteriors = ld_to_dl(posteriors)
 
@@ -85,4 +89,4 @@ if __name__ == '__main__':
     print(f"Getting GWTC events from {gwtc1_dir}")
     read_pe_table(gwtc1_dir)
     dat = load_gwtc_posteriors(pkl_fname=f"{gwtc1_dir}/gwtc.pkl")
-    simple_violin_plotter(dat, fname="")
+    simple_violin_plotter(dat, fname="gwtc.png")
