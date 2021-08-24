@@ -86,6 +86,9 @@ def make_plots(regex, outdir, compile_pdf=True):
                        'chirp_mass', "luminosity_distance", 'ra', 'dec', 'psi']
         plot_params = [ 'cos_tilt_1', 'cos_tilt_2', 'cos_theta_12']
         fig = generate_corner(r, plot_params)
+
+
+
         dl, m = r.injection_parameters['luminosity_distance'], r.injection_parameters['chirp_mass']
         # plt.suptitle(f"${r.label.replace('_','-')}$\n$dl={dl:.2f}$\n$mc={m:.2f}$",fontsize=30)
         fpath = os.path.join(plot_dir, fname)
@@ -95,6 +98,7 @@ def make_plots(regex, outdir, compile_pdf=True):
 
     if compile_pdf:
         make_pdf(pdf_fname=f"{plot_dir}/corners.pdf", image_path_list=image_paths)
+
 
 
 def get_data_dump_path(res_path):

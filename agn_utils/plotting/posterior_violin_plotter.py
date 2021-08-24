@@ -133,20 +133,26 @@ def simple_violin_plotter(dat, fname, dat_labs=['cos_tilt_1', 'cos_theta_12'], l
 
     for ax, dat_lab, label in zip(axs, dat_labs, labels):
         posteriors = list(dat["posteriors"][dat_lab])
-        trues =  [[i] for i in dat["trues"][dat_lab]]
-        trues_in_quants = [true_in_quant(p, t, quantiles[0]) for p,t in zip(posteriors, trues)]
         violin_pts = ax.violinplot(posteriors, quantiles=quantiles)
-        for i, in_quant in enumerate(trues_in_quants):
-            if not in_quant:
-                change_violin_col(violin_pts, "tab:red", i)
-
-        true_vpts = ax.violinplot(trues, widths=[0.9 for _ in range(num_events)])
-        for b in true_vpts['bodies']:
-            b.set_facecolor('orange')
-        for d in ['cmaxes','cmins','cbars']:
-            true_vpts[d].set_color('orange')
-            # true_vpts[d].set_lw(2)
         ax.set_ylabel(label)
+
+        if dat.get("trues", None) is not None:
+            trues =  [[i] for i in dat.get("trues", {}).get(dat_lab, np.nan)]
+            trues_in_quants = [true_in_quant(p, t, quantiles[0]) for p,t in zip(posteriors, trues)]
+
+            for i, in_quant in enumerate(trues_in_quants):
+                if not in_quant:
+                    change_violin_col(violin_pts, "tab:red", i)
+
+
+            true_vpts = ax.violinplot(trues, widths=[0.9 for _ in range(num_events)])
+            for b in true_vpts['bodies']:
+                b.set_facecolor('orange')
+            for d in ['cmaxes','cmins','cbars']:
+                true_vpts[d].set_color('orange')
+                # true_vpts[d].set_lw(2)
+
+
         # ax.set_ylim(-1,1)
 
     tick_labels = [i.replace('pop a highsnr ', '') for i in dat['labels']]

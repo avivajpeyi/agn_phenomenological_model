@@ -90,16 +90,15 @@ def main():
 
     hyper_pe_result = bilby.run_sampler(
         likelihood=likelihood, priors=prior,
-        sampler='dynesty', nlive=1500, nact=10,
+        sampler='dynesty', nlive=1000, nact=5,
         outdir=outdir, label=label
     )
     hyper_pe_result.plot_corner(save=True)
 
-    print(f"Max LnL: {likelihood.log_likelihood()}")
+    print(f"Max LnL: {likelihood.log_likelihood_ratio()}")
 
     likelihood.parameters.update(true_param)
-    likelihood.log_likelihood_ratio()
-    print(f"True LnL: {likelihood.log_likelihood()}")
+    print(f"True LnL: {likelihood.log_likelihood_ratio()}")
 
 if __name__ == '__main__':
     main()
