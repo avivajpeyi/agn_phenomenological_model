@@ -1,6 +1,7 @@
 from agn_utils.pe_postprocessing.posterior_reweighter import rejection_sample_population
 from agn_utils.plotting.cdf_plotter.sigma_cdf_difference_check import pe_cdf
 from agn_utils.pe_postprocessing.jsons_to_numpy import load_posteriors_and_trues
+from agn_utils.plotting.posterior_violin_plotter import simple_violin_plotter
 import numpy as np
 
 np.random.seed(0)
@@ -19,6 +20,9 @@ dat_b["posteriors"] = rejection_sample_population(
     dat_b["posteriors"],
     true_population_param=dict(sigma_1=1, sigma_12=0.25)
 )
+
+simple_violin_plotter(dat_a, "pop_a_reweighted.png")
+simple_violin_plotter(dat_a, "pop_b_reweighted.png")
 
 TruePopA = "cornflowerblue"
 TruePopB = "bisque"
