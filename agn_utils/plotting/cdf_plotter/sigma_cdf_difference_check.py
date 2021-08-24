@@ -1,5 +1,5 @@
 import argparse
-
+import numpy as np
 import matplotlib.pyplot as plt
 from agn_utils.bbh_population_generators.posterior_simulator import simulate_exact_population_posteriors
 from agn_utils.pe_postprocessing.jsons_to_numpy import get_bilby_results
