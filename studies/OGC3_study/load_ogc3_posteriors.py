@@ -8,6 +8,7 @@ import pandas as pd
 from agn_utils.bbh_population_generators.spin_conversions import make_spin_vector, \
     calculate_relative_spins_from_component_spins
 from agn_utils.data_formetter import ld_to_dl
+from agn_utils.plotting.cdf_plotter.sigma_cdf_difference_check import pe_cdf
 from agn_utils.pe_postprocessing.jsons_to_numpy import load_posteriors_and_trues, save_posteriors_and_trues
 from agn_utils.plotting.posterior_violin_plotter import simple_violin_plotter
 from tqdm.auto import tqdm
@@ -87,3 +88,12 @@ if __name__ == '__main__':
     read_pe_table(gwtc1_dir)
     dat = load_gwtc_posteriors(pkl_fname=f"{gwtc1_dir}/gwtc.pkl")
     simple_violin_plotter(dat, fname="gwtc.png")
+    pe_cdf(
+        pops_dat_dicts=dict(
+            gwtc=dat,
+        ),
+        true_pop_params=dict(),
+        title="GWTC", fname="GWTC_cdf.png",
+        colors1=["tab:blue"],
+        colors2=["tab:blue"]
+    )

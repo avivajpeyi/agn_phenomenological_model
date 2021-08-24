@@ -27,11 +27,14 @@ def pe_cdf(pops_dat_dicts, true_pop_params, fname="posterior_predictive_check.pn
 
     for pop_name, dat in pops_dat_dicts.items():
         samps.append(dat['posteriors'])
-        trues.append(dat['trues'])
+        trues.append(dat.get('trues', np.nan))
         labels.append("90\% CI PE Posteriors")
 
     plot_posterior_predictive_check(samps, labels, colors=colors1, axes=cdf_axes, )
-    plot_trues(trues, true_pop_params, labels, axes=pdf_axes, colors=colors2)
+    try:
+        plot_trues(trues, true_pop_params, labels, axes=pdf_axes, colors=colors2)
+    except Exception:
+        pass
     plt.suptitle(title)
     plt.tight_layout()
     plt.savefig(fname)
