@@ -30,6 +30,8 @@ def update_style():
 
 def add_cdf_percentiles_to_ax(posteriors_list, ax, label="", add_each_posterior_cdf=True, color=None, true_distribution_data=[]):
 
+    zor = dict(ci_99=-4, ci_90=-3, ci_line=-2, tru=-1)
+
     if isinstance(posteriors_list, list):
         min_len = min([len(i) for i in posteriors_list])
         posteriors_list = np.array([np.random.choice(i, min_len, replace=False) for i in posteriors_list])
@@ -39,28 +41,48 @@ def add_cdf_percentiles_to_ax(posteriors_list, ax, label="", add_each_posterior_
     # CI for each event
     cumulative_prob = np.linspace(0, 1, len(posteriors_list[:, 0]))  # one bin for each event
     sorted_posterior = np.sort(posteriors_list, axis=0)  # sort amongts various posteriors
+
+
     data_05_percentile = np.quantile(sorted_posterior, 0.05, axis=1)  # get 0.05 CI from all events' posteriors
     data_95_percentile = np.quantile(sorted_posterior, 0.95, axis=1)  # get 0.95 CI from all events' posteriors
 
+    data_005_percentile = np.quantile(sorted_posterior, 0.005, axis=1)  # get 0.05 CI from all events' posteriors
+    data_995_percentile = np.quantile(sorted_posterior, 0.995, axis=1)  # get 0.95 CI from all events' posteriors
+
+
     if len(posteriors_list)==1:
         post = posteriors_list[0]
-        ax.plot(np.sort(post), np.linspace(0, 1, len(post)),color=color, lw=2.0)
+        ax.plot(np.sort(post), np.linspace(0, 1, len(post)),color=color, lw=2.0, zorder=zor['tru'])
 
     ax.fill_betweenx(
         y=cumulative_prob,
         x1=data_05_percentile,
         x2=data_95_percentile,
-        alpha=0.6, label=label,
-        color=color
+        alpha=0.5, label=label,
+        color=color,
+        zorder=zor['ci_90']
     )
-    ax.plot(data_05_percentile, cumulative_prob, color='black', lw=0.5, alpha=0.5)
-    ax.plot(data_95_percentile, cumulative_prob, color='black', lw=0.5, alpha=0.5)
+    ax.fill_betweenx(
+        y=cumulative_prob,
+        x1=data_005_percentile,
+        x2=data_995_percentile,
+        alpha=0.2, label=label,
+        color=color,
+        zorder=zor['ci_99']
+    )
+
+    ax.plot(data_05_percentile, cumulative_prob, color=color, lw=0.5, alpha=0.5,zorder=zor['ci_line'])
+    ax.plot(data_95_percentile, cumulative_prob, color=color, lw=0.5, alpha=0.5,zorder=zor['ci_line'])
+    #
+    ax.plot(data_005_percentile, cumulative_prob, color=color, lw=0.5, alpha=0.5,zorder=zor['ci_line'])
+    ax.plot(data_995_percentile, cumulative_prob, color=color, lw=0.5, alpha=0.5,zorder=zor['ci_line'])
+
     if add_each_posterior_cdf:
         for post in posteriors_list:
             post = np.sort(post)
             ax.plot(post, np.linspace(0, 1, len(post)), alpha=0.05, color='k')
     if len(true_distribution_data)>0:
-        ax.plot(np.sort(true_distribution_data), np.linspace(0, 1, len(true_distribution_data)), alpha=1.0, color=color)
+        ax.plot(np.sort(true_distribution_data), np.linspace(0, 1, len(true_distribution_data)), alpha=1.0, color=color, zorder=12)
 
 
 def plot_posterior_predictive_check(data_sets, rhs_ax_labels, colors=[],  add_posteriors = False, axes =[]):
@@ -73,6 +95,8 @@ def plot_posterior_predictive_check(data_sets, rhs_ax_labels, colors=[],  add_po
     if len(rhs_ax_labels) < len(data_sets):
         rhs_ax_labels += [""] * (len(data_sets) - len(rhs_ax_labels))
 
+
+
     for i, data in enumerate(data_sets):
         add_cdf_percentiles_to_ax(posteriors_list=data['cos_tilt_1'], ax=axes[0], add_each_posterior_cdf=add_posteriors, color=colors[i], true_distribution_data=[])
         add_cdf_percentiles_to_ax(posteriors_list=data['cos_theta_12'], ax=axes[1], label=rhs_ax_labels[i], add_each_posterior_cdf=add_posteriors, color=colors[i], true_distribution_data=[])
@@ -83,11 +107,12 @@ def plot_posterior_predictive_check(data_sets, rhs_ax_labels, colors=[],  add_po
 
         if (i == 0):
             ax.set_xlabel(r"$\cos\ \theta_1$")
-            ax.set_ylabel("Cumulative Probability")
+            # ax.set_ylabel("CDF")
         else:
             ax.set_xlabel(r"$\cos\ \theta_{12}$")
             ax.set_yticklabels([])
-            ax.legend(fontsize='small')
+            if ("".join(rhs_ax_labels) != ""):
+                ax.legend(fontsize='small')
         ax.grid(False)
 
 def plot_trues(data_sets, trues, rhs_ax_labels, colors=[], axes=[]):

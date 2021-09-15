@@ -1,21 +1,62 @@
-# MASS
 chirp_mass = Uniform(name='chirp_mass', minimum=15, maximum=60, unit='$M_{\odot}$')
 mass_ratio = 1.0
-
-# SPIN
 a_1 = 0.6
 a_2 = 0.6
-cos_tilt_1 = Uniform(name='cos_tilt_1', minimum=-1, maximum=1)
-cos_tilt_2 = Uniform(name='cos_tilt_2', minimum=-1, maximum=1)
-phi_12 = Uniform(name='phi_12', minimum=0, maximum=2 * np.pi, boundary='periodic')
-phi_jl = Uniform(name='phi_jl', minimum=0, maximum=2 * np.pi, boundary='periodic')
-
-
-# LOCATION
-theta_jn = Sine(name='theta_jn')
 luminosity_distance = bilby.gw.prior.UniformSourceFrame(name='luminosity_distance', minimum=200, maximum=800, unit='Mpc')
 dec = Cosine(name='dec')
 ra = Uniform(name='ra', minimum=0, maximum=2 * np.pi, boundary='periodic')
 psi = Uniform(name='psi', minimum=0, maximum=np.pi, boundary='periodic')
 phase = 0.1
 geocent_time = 0
+
+theta_jn = Sine(name='theta_jn')
+
+cos_tilt_1 = Uniform(name='cos_tilt_1', minimum=-1, maximum=1)
+cos_tilt_2 = Uniform(name='cos_tilt_2', minimum=-1, maximum=1)
+phi_12 = Uniform(name='phi_12', minimum=0, maximum=2 * np.pi, boundary='periodic')
+phi_jl = Uniform(name='phi_jl', minimum=0, maximum=2 * np.pi, boundary='periodic')
+
+
+"""
+\begin{tabular}{rlrl}
+\hline
+Parameter                        & Distribution               &  Parameter                        & Distribution                                      \\ \hline
+$q$                              & $\delta(1)$                &  $q$                              & $\delta(1)$                                       \\
+$\mathcal{M}/M_{\odot}$          & $U(15,60)$                 &  $\mathcal{M}/M_{\odot}$          & $U(15,60)$                                        \\ \hline
+$d_{\rm{L}}/\rm{Mpc}$            & $U(200, 800)$              &      $d_{\rm{L}}/\rm{Mpc}$            & $U(200, 800)$                                     \\
+ra                               & $U(0, 2\pi)$               &  ra                               & $U(0, 2\pi)$                                      \\
+dec                              & $C(0, 2\pi)$               &  dec                              & $C(0, 2\pi)$                                      \\
+$\psi$                           & $U(0,2\pi)$                &  $\psi$                           & $U(0,2\pi)$                                       \\
+$\phi$                           & $\delta(0.1)$              &      $\phi$                           & $\delta(0.1)$                                     \\
+$t_c/\rm{s}$                     & $\delta(0)$                &  $t_c/\rm{s}$                     & $\delta(0)$                                       \\ \hline
+$|\vec{\chi}_1|, |\vec{\chi}_2|$ & $\delta(0.6)$              &      $|\vec{\chi}_1|, |\vec{\chi}_2|$ & $\delta(0.6)$                                     \\
+$\cos\theta_1$                   & $\mathcal{N}(\sigma_1)$    &              $\cos\theta_1$                   & $U(-1,1)$                                         \\
+$\cos\theta_2$                   & $\mathcal{N}(\sigma_{12})$ &                  $\cos\theta_2$                   & $U(-1,1)$                                         \\
+$\phi_{12}', \phi_{1}$           & $U(0,2\pi)$                &  $\phi_{12}, \phi_{JL}$           & $U(0,2\pi)$                                      \\
+$\iota$                          & $U(0, \pi)$                &  $\theta_{JN}$                    & $S(0, 2\pi)$                                     \\ 
+\hline
+\end{tabular}
+
+
+
+\begin{tabular}{rl}
+\hline
+Parameter                        & Distribution  
+$q$                              & $\delta(1)$   
+$\mathcal{M}/M_{\odot}$          & $U(15,60)$    
+$d_{\rm{L}}/\rm{Mpc}$            & $U(200, 800)$ 
+ra                               & $U(0, 2\pi)$  
+dec                              & $C(0, 2\pi)$  
+$\psi$                           & $U(0,2\pi)$   
+$\phi$                           & $\delta(0.1)$ 
+$t_c/\rm{s}$                     & $\delta(0)$   
+$|\vec{\chi}_1|, |\vec{\chi}_2|$ & $\delta(0.6)$ 
+$\cos\theta_1$                   & $\mathcal{N}(\sigma_1)$     
+$\cos\theta_2$                   & $\mathcal{N}(\sigma_{12})$     
+$\phi_{12}', \phi_{1}$           & $U(0,2\pi)$  
+$\iota$                          & $U(0, \pi)$  
+\hline
+\end{tabular}
+
+
+"""

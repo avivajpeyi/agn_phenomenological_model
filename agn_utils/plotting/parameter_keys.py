@@ -15,4 +15,6 @@ PARAMS = dict(
     luminosity_distance=dict(latex_label="$d_L$", range=(50, 20000)),
     log_snr=dict(latex_label="$\\rm{log}_{10}\ \\rho$)", range=(-1, 3)),
     snr=dict(latex_label="$\mathrm{SNR}$", range=(0, 20)),
+    log_likelihood=dict(latex_label="$\log\mathrm{L}$", range=(40, 100)),
+    mass_ratio=dict(latex_label="$q$", range=(0, 1)),
 )

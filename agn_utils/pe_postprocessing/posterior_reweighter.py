@@ -30,6 +30,7 @@ def agn_spin(dataset, sigma_1, sigma_12):
 
 from tqdm import tqdm
 import pandas as pd
+import corner
 
 from agn_utils.bbh_population_generators.posterior_simulator import simulate_posterior
 
@@ -44,12 +45,13 @@ PRIOR_VOLUME = (
 )
 
 
-def rejection_sample_posterior(event_samples, hyper_param, n_draws=2000):
+def rejection_sample_posterior(event_samples:pd.DataFrame, hyper_param:dict, n_draws=2000)->pd.DataFrame:
     # event_samples['cos_tilt_1'] = event_samples['cos_theta_1']
     model = Model(model_functions=[agn_spin])
     model.parameters.update(hyper_param)
     weights = model.prob(event_samples) / PRIOR_VOLUME
     weights = (weights.T / np.sum(weights, axis=-1)).T
+    event_samples['weights'] = weights
     event_samples = pd.DataFrame(event_samples)
     event_samples = event_samples.sample(n_draws, weights=weights)
     event_samples = event_samples.to_dict('list')

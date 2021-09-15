@@ -149,7 +149,7 @@ def overlaid_corner(
         truth_color=CORNER_KWARGS["truth_color"]
     )
 
-    hist_kwargs=dict(lw=3, histtype='stepfilled', alpha=0.5)
+    hist_kwargs=dict(lw=3, histtype='step', alpha=0.5)
     if not quants:
         c_kwargs.pop("quantiles", None)
 

@@ -9,12 +9,17 @@ from agn_utils.plotting.posterior_violin_plotter import simple_violin_plotter
 
 
 def pe_cdf(pops_dat_dicts, true_pop_params, fname="posterior_predictive_check.png", title="Population A",
-           num_simulated_events=10, colors1=[], colors2=[]):
+           num_simulated_events=10, colors1=[], colors2=[], plot_trues=False, axes_sets=[], legend=False):
     plt.close('all')
     update_style()
-    fig, axes = plt.subplots(2, 2, figsize=(8, 8), sharex=True)
-    cdf_axes = axes[0, :]
-    pdf_axes = axes[1, :]
+
+    if len(axes_sets) == 0:
+        fig, axes = plt.subplots(2, 2, figsize=(8, 8), sharex=True)
+        cdf_axes = axes[0, :]
+        pdf_axes = axes[1, :]
+    else:
+        cdf_axes = axes_sets[0]
+        pdf_axes = axes_sets[1]
 
     samps, trues, labels, cols = [], [], [], []
 
@@ -23,12 +28,12 @@ def pe_cdf(pops_dat_dicts, true_pop_params, fname="posterior_predictive_check.pn
         exact_pop = simulate_exact_population_posteriors(sig1=sim_true_val[0], sig12=sim_true_val[1], number_events=1)[
             'posteriors']
         samps.append(exact_pop)
-        labels.append("Population " + str(sim_true_val))
+        labels.append("Population " + str(sim_name))
 
     for pop_name, dat in pops_dat_dicts.items():
         samps.append(dat['posteriors'])
         trues.append(dat.get('trues', np.nan))
-        labels.append("90\% CI PE Posteriors")
+        # labels.append("90\% CI PE Posteriors")
 
     plot_posterior_predictive_check(samps, labels, colors=colors1, axes=cdf_axes, )
     try:

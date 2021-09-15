@@ -32,8 +32,10 @@ INSTALL_REQUIRES = [
     "fpdf",
     "gputil",
     "psutil",
-    "tabulate"
+    "tabulate",
+    "lalsuite>=7.0"
 ]
+
 EXTRA_REQUIRE = {"test": ["pytest>=3.6", "testbook>=0.2.3"]}
 EXTRA_REQUIRE["dev"] = EXTRA_REQUIRE["test"] + [
     "pre-commit",
@@ -88,7 +90,8 @@ if __name__ == "__main__":
                 "plot_corners=agn_utils.plot_corners:main",
                 "pbilby_pe_jobgen=agn_utils.pe_setup.pbilby_jobgen_cli:main",
                 "draw_population_samples=agn_utils.pe_setup.make_population_files:main",
-                "clean_dat_file=agn_utils.pe_setup.clean_inj_file:main"
+                "clean_dat_file=agn_utils.pe_setup.clean_inj_file:main",
+                "reweight=aagn_utils.pe_postprocessing:rejection_sample_res:main"
             ]
         }
     )

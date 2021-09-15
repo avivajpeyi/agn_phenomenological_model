@@ -219,3 +219,5 @@ def create_parser_and_read_args():
 def main():
     args = create_parser_and_read_args()
     main_generator(prior_path=args.prior_file, outdir=args.outdir)
+
+

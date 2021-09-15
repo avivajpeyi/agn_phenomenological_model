@@ -15,6 +15,7 @@ from bilby_pipe.gracedb import (
 )
 from .spin_conversions import calculate_relative_spins_from_component_spins
 from numpy import cos, sin
+from ..pe_postprocessing.evolve_spins_back import get_tilts_at_inf
 
 REFERENCE_FREQ = 20
 
@@ -207,7 +208,8 @@ def process_samples(s, rf):
     return s
 
 
-def result_post_processing(r):
+def result_post_processing(r:bilby.result.Result):
     r.posterior = add_cos_theta_12_from_component_spins(r.posterior)
+    r.posterior = get_tilts_at_inf(r.posterior, fref=r.reference_frequency)
     r.injection_parameters = process_samples(r.injection_parameters, r.reference_frequency)
     return r
