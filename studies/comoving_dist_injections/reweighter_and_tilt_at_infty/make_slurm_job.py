@@ -4,7 +4,8 @@ import shutil
 
 TEMPLATE = '''#! /bin/bash
 #SBATCH --job-name={{{LABEL}}}
-#SBATCH --output={{{LOG_DIR}}}/{{{LABEL}}}.err
+#SBATCH --output={{{LOG_DIR}}}/{{{LABEL}}}.out
+#SBATCH --error={{{LOG_DIR}}}/{{{LABEL}}}.err
 #SBATCH --ntasks=1
 #SBATCH --cpus-per-task=1
 #SBATCH --mem-per-cpu=4G
