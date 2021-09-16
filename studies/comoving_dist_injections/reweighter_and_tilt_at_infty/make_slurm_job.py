@@ -23,8 +23,8 @@ scipy-bundle/2019.10-python-3.7.4
 h5py/3.2.1-python-3.7.4
 source /fred/oz980/avajpeyi/envs/gstar_venv/bin/activate
 
-echo "{{{EXE}}} {{{ARGS}}}" ${SLURM_ARRAY_TASK_ID} " 
-{{{EXE}}} {{{ARGS}}} &> {{{LOG_DIR}}}/job_${SLURM_ARRAY_TASK_ID}.err
+echo "{{{EXE}}} {{{ARGS}}}" " 
+{{{EXE}}} {{{ARGS}}} &> {{{LOG_DIR}}}/job_{{{LABEL}}}.err
 
 '''
 
