@@ -48,8 +48,8 @@ REGEX = dict(
     pop_b="/fred/oz980/avajpeyi/projects/agn_phenomenological_model/studies/comoving_dist_injections/outdir_pop_b_validsnr_clean/out_*/result/*_result.json",
 )
 ARGS = dict(
-    pop_a=" ".join([0.5, 3.0]),
-    pop_b=" ".join([1, 0.25]),
+    pop_a="0.5 3.0",
+    pop_b="1 0.25",
 )
 
 
