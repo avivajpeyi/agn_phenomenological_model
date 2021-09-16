@@ -9,6 +9,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 from bilby.hyper.model import Model
 from scipy.special import erf, gammaln
+from typing import  Optional, Dict, List
 
 
 def truncnorm(xx, mu, sigma, high, low):
@@ -45,12 +46,12 @@ PRIOR_VOLUME = (
 )
 
 
-def rejection_sample_posterior(event_samples:pd.DataFrame, hyper_param:dict, n_draws=2000)->pd.DataFrame:
+def rejection_sample_posterior(event_samples:Dict[str, List], hyper_param:dict, n_draws=2000)->pd.DataFrame:
     # event_samples['cos_tilt_1'] = event_samples['cos_theta_1']
     model = Model(model_functions=[agn_spin])
     model.parameters.update(hyper_param)
-    weights = model.prob(event_samples) / PRIOR_VOLUME
-    weights = (weights.T / np.sum(weights, axis=-1)).T
+    weights = np.array(model.prob(event_samples) / PRIOR_VOLUME)
+    weights = weights / np.linalg.norm(weights)
     event_samples['weights'] = weights
     event_samples = pd.DataFrame(event_samples)
     event_samples = event_samples.sample(n_draws, weights=weights)

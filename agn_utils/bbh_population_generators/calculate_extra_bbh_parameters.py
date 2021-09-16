@@ -208,8 +208,7 @@ def process_samples(s, rf):
     return s
 
 
-def result_post_processing(r:bilby.result.Result):
+def result_post_processing(r:bilby.gw.result.CBCResult):
     r.posterior = add_cos_theta_12_from_component_spins(r.posterior)
-    r.posterior = get_tilts_at_inf(r.posterior, fref=r.reference_frequency)
     r.injection_parameters = process_samples(r.injection_parameters, r.reference_frequency)
     return r

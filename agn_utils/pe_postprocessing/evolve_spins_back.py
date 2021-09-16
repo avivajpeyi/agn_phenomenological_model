@@ -26,13 +26,17 @@ def get_tilts_at_inf(posterior: pd.DataFrame, fref: float):
             phi12=p["phi_12"],
             fref=fref
         )
-        converted = prec_avg_tilt_comp(**kwargs)
+        try:
+            converted = prec_avg_tilt_comp(**kwargs)
+        except Exception as e:
+            converted = {}
+        converted_keys = ['tilt1_inf', 'tilt2_inf', 'tilt1_sep_min', 'tilt1_sep_max', 'tilt1_sep_avg', 'tilt2_sep_min', 'tilt2_sep_max', 'tilt2_sep_avg']
         # Output: dictionary with entries 'tilt1_inf', 'tilt2_inf' for evolution to infinity and entries 'tilt1_sep_min',
         # 'tilt1_sep_max', 'tilt1_sep_avg', 'tilt2_sep_min', 'tilt2_sep_max', 'tilt2_sep_avg' for evolution to a
         # finite separation (i.e., a finite orbital angular momentum)
-        for k in converted.keys():
+        for k in converted_keys:
             new_k = k.replace("tilt", "tilt_")
-            param_list[i][new_k] = converted[k]
+            param_list[i][new_k] = converted.get(k, np.nan)
 
     return pd.DataFrame(param_list)
 

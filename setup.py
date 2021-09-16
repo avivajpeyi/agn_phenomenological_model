@@ -91,7 +91,7 @@ if __name__ == "__main__":
                 "pbilby_pe_jobgen=agn_utils.pe_setup.pbilby_jobgen_cli:main",
                 "draw_population_samples=agn_utils.pe_setup.make_population_files:main",
                 "clean_dat_file=agn_utils.pe_setup.clean_inj_file:main",
-                "reweight=aagn_utils.pe_postprocessing:rejection_sample_res:main"
+                "reweight_res=agn_utils.pe_postprocessing.rejection_sample_res:main"
             ]
         }
     )
