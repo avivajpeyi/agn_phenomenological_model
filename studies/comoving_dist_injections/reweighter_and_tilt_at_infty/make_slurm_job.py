@@ -57,7 +57,7 @@ ARGS = dict(
 def make_jobs(label):
     cwd = os.getcwd()
     outdir = f"out_{label}"
-    os.makedirs(outdir)
+    os.makedirs(outdir, exist_ok=True)
     os.chdir(outdir)
     files = glob.glob(REGEX[label])
     job_commands = []
