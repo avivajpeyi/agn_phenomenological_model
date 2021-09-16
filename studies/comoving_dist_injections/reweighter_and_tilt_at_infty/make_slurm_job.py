@@ -2,8 +2,7 @@ import glob
 import os
 import shutil
 
-TEMPLATE = '''
-#! /bin/bash
+TEMPLATE = '''#! /bin/bash
 #SBATCH --job-name={{{LABEL}}}
 #SBATCH --output={{{LOG_DIR}}}/{{{LABEL}}}.err
 #SBATCH --ntasks=1
@@ -22,7 +21,7 @@ module load scipy-bundle/2019.10-python-3.7.4
 module load h5py/3.2.1-python-3.7.4
 source /fred/oz980/avajpeyi/envs/gstar_venv/bin/activate
 
-echo "{{{EXE}}} {{{ARGS}}}" " 
+echo "{{{EXE}}} {{{ARGS}}}" 
 {{{EXE}}} {{{ARGS}}} &> {{{LOG_DIR}}}/job_{{{LABEL}}}.err
 
 '''
