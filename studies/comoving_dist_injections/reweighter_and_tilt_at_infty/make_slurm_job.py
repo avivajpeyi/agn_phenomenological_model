@@ -5,22 +5,21 @@ import shutil
 TEMPLATE = '''
 #! /bin/bash
 #SBATCH --job-name={{{LABEL}}}
-#SBATCH --output={{{LOG_DIR}}}/runner_log.err
+#SBATCH --output={{{LOG_DIR}}}/{{{LABEL}}}.err
 #SBATCH --ntasks=1
 #SBATCH --cpus-per-task=1
 #SBATCH --mem-per-cpu=4G
 #SBATCH --time=20:00
 
-git/2.18.0
-git-lfs/2.4.0
-anaconda3/5.1.0
-gcc/9.2.0
-openmpi/4.0.2
-mpi4py/3.0.3-python-3.7.4
-lalsuite-lalsimulation/2.0.0
-astropy/4.0.1-python-3.7.4
-scipy-bundle/2019.10-python-3.7.4
-h5py/3.2.1-python-3.7.4
+
+module load anaconda3/5.1.0
+module load gcc/9.2.0
+module load openmpi/4.0.2
+module load mpi4py/3.0.3-python-3.7.4
+module load lalsuite-lalsimulation/2.0.0
+module load astropy/4.0.1-python-3.7.4
+module load scipy-bundle/2019.10-python-3.7.4
+module load h5py/3.2.1-python-3.7.4
 source /fred/oz980/avajpeyi/envs/gstar_venv/bin/activate
 
 echo "{{{EXE}}} {{{ARGS}}}" " 
