@@ -23,8 +23,14 @@ def process_r(result_fn, hyper_params):
     samples = pd.DataFrame(rejection_sample_posterior(r.posterior, hyper_param=hyper_params))
     print("Converting to spin at inf")
     samples = get_tilts_at_inf(samples, fref=r.reference_frequency)
-    samples.to_hdf(result.replace(".json", "_reweighted.h5"))
+    samples.to_hdf(result_fn.replace(".json", "_reweighted.h5"))
     print(f"Completed processing {result}")
+    log_number_nans_in_df(samples)
+
+def log_number_nans_in_df(df):
+    tot = len(df)
+    num_nans = df.isna().any(axis=1).sum()
+    print(f"Nans in {num_nans}/{tot} rows")
 
 def main():
     result, hyper_params = get_cli_args()
