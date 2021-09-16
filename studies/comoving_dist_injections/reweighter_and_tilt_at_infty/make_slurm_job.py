@@ -36,7 +36,7 @@ def create_slurm_submission_file(label, job_exe, job_cli_args_str, log_dir="job_
     txt = txt.replace("{{{LABEL}}}", label)
     txt = txt.replace("{{{EXE}}}", shutil.which(job_exe))
     txt = txt.replace("{{{ARGS}}}", job_cli_args_str)
-                      )
+
     fname = f"slurm_{label}.sh"
     with open(fname, "w") as f:
         f.write(txt)
