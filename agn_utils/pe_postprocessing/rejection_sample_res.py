@@ -20,10 +20,10 @@ def process_r(result_fn, hyper_params):
     r = bilby.gw.result.CBCResult.from_json(filename=result_fn)
     r = result_post_processing(r)
     print("Rejection-sampling res")
-    samples = pd.DataFrame(rejection_sample_posterior(r.posterior, hyper_param=hyper_params))
+    samples = pd.DataFrame(rejection_sample_posterior(r.posterior, hyper_param=hyper_params, n_draws=10))
     print("Converting to spin at inf")
     samples = get_tilts_at_inf(samples, fref=r.reference_frequency)
-    samples.to_hdf(result_fn.replace(".json", "_reweighted.h5"))
+    samples.to_hdf(result_fn.replace(".json", "_reweighted.h5"), "samples")
     print(f"Completed processing {result}")
     log_number_nans_in_df(samples)
 
