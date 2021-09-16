@@ -8,8 +8,8 @@ TEMPLATE = '''#! /bin/bash
 #SBATCH --error={{{LOG_DIR}}}/{{{LABEL}}}.err
 #SBATCH --ntasks=1
 #SBATCH --cpus-per-task=1
-#SBATCH --mem-per-cpu=4G
-#SBATCH --time=20:00
+#SBATCH --mem-per-cpu=1G
+#SBATCH --time=40:00
 
 
 module load anaconda3/5.1.0
