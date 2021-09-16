@@ -67,7 +67,7 @@ def make_jobs(label):
             job_exe=EXE,
             job_cli_args_str=args,
         )
-        job_commands.append(f"sbatch {job_file}")
+        job_commands.append(f"sbatch {job_file}\n")
 
     with open("MAIN_RUNNER.sh", 'w') as f:
         f.writelines(job_commands)
