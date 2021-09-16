@@ -24,8 +24,8 @@ def store_posteriors_in_pkl(regex, label):
         pickle.dump(dict(posteriors=data, fnames=fnames), f)
 
 def main():
-    store_posteriors_in_pkl(REGEX['pop_a'])
-    store_posteriors_in_pkl(REGEX['pop_b'])
+    store_posteriors_in_pkl(REGEX['pop_a'], 'pop_a')
+    store_posteriors_in_pkl(REGEX['pop_b'], 'pop_b')
 
 if __name__ == '__main__':
     main()
