@@ -87,4 +87,3 @@ if __name__ == '__main__':
     ax.hist(event_samples['cos_theta_1'], density=True, histtype='step')
     ax.hist(p['cos_theta_1'], histtype='step', density=True)
     plt.savefig('test.png')
-    pass

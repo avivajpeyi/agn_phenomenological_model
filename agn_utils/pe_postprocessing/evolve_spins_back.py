@@ -1,4 +1,5 @@
 from lalsimulation.tilts_at_infinity import prec_avg_tilt_comp
+from lalsimulation.tilts_at_infinity import calc_tilts_at_infty_hybrid_evolve
 import bilby
 import numpy as np
 import pandas as pd
@@ -6,7 +7,7 @@ from bilby.gw.conversion import solar_mass
 from tqdm.auto import tqdm
 
 
-def get_tilts_at_inf(posterior: pd.DataFrame, fref: float):
+def get_tilts_at_inf(posterior: pd.DataFrame, fref: float, only_precession=False):
     param_list = posterior.to_dict('records')
 
     for i, p in tqdm(enumerate(param_list), desc="Back-evolving Params", total=len(param_list)):
@@ -26,20 +27,45 @@ def get_tilts_at_inf(posterior: pd.DataFrame, fref: float):
             phi12=p["phi_12"],
             fref=fref
         )
-        try:
-            converted = prec_avg_tilt_comp(**kwargs)
-        except Exception as e:
-            converted = {}
-        converted_keys = ['tilt1_inf', 'tilt2_inf', 'tilt1_sep_min', 'tilt1_sep_max', 'tilt1_sep_avg', 'tilt2_sep_min', 'tilt2_sep_max', 'tilt2_sep_avg']
-        # Output: dictionary with entries 'tilt1_inf', 'tilt2_inf' for evolution to infinity and entries 'tilt1_sep_min',
-        # 'tilt1_sep_max', 'tilt1_sep_avg', 'tilt2_sep_min', 'tilt2_sep_max', 'tilt2_sep_avg' for evolution to a
-        # finite separation (i.e., a finite orbital angular momentum)
-        for k in converted_keys:
-            new_k = k.replace("tilt", "tilt_")
-            param_list[i][new_k] = converted.get(k, np.nan)
+        if only_precession:
+            converted_dict = back_evolve_only_precession(kwargs)
+        else:
+            converted_dict = back_evolve_hybrid(kwargs)
+
+        for k, v in converted_dict.items():
+            param_list[i][k] = v
 
     return pd.DataFrame(param_list)
 
+
+def back_evolve_only_precession(kwargs):
+    final_dict = {}
+    try:
+        converted = prec_avg_tilt_comp(**kwargs)
+    except Exception as e:
+        converted = {}
+    converted_keys = ['tilt1_inf', 'tilt2_inf', 'tilt1_sep_min', 'tilt1_sep_max', 'tilt1_sep_avg', 'tilt2_sep_min', 'tilt2_sep_max', 'tilt2_sep_avg']
+    for k in converted_keys:
+        new_k = k.replace("tilt", "tilt_")
+        final_dict[new_k] = converted.get(k, np.nan)
+    return final_dict
+
+def back_evolve_hybrid(kwargs):
+    final_dict = {}
+    try:
+        converted = calc_tilts_at_infty_hybrid_evolve(**kwargs)
+    except Exception as e:
+        converted = {}
+    converted_keys = ['tilt1_inf', 'tilt2_inf', 'tilt1_transition', 'tilt2_transition', 'phi12_transition']
+    for k in converted_keys:
+        if 'tilt' in k:
+            new_k = k.replace("tilt", "tilt_")
+        if 'phi' in k:
+            new_k = k.replace("phi", "phi_")
+        if 'trans' in k:
+            new_k = k.replace("_transition", "_ft")
+        final_dict[new_k] = converted.get(k, np.nan)
+    return final_dict
 
 def test_converter():
     from agn_utils.plotting.overlaid_corner_plotter import CORNER_KWARGS
@@ -50,7 +76,7 @@ def test_converter():
     for c in samples.columns:
         if 'tilt' in c[0:5]:
             samples[f'cos_{c}'] = np.cos(samples[c])
-    params = ['cos_tilt_1', 'cos_tilt_2', 'cos_tilt_1_inf', 'cos_tilt_2_inf']
+    params = ['cos_tilt_1', 'cos_tilt_2', 'phi_12', 'cos_tilt_1_ft', 'cos_tilt_2_ft', 'phi_12_ft']
     labels = [r'$\cos\theta_1$', r'$\cos\theta_2$', r'$\cos\theta_1^{\infty}$', r'$\cos\theta_2^{\infty}$']
 
     fig = corner.corner(samples[params], labels=labels, **CORNER_KWARGS, color="tab:blue")

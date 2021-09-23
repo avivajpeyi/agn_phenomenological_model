@@ -36,12 +36,9 @@ def add_cdf_percentiles_to_ax(posteriors_list, ax, label="", add_each_posterior_
         min_len = min([len(i) for i in posteriors_list])
         posteriors_list = np.array([np.random.choice(i, min_len, replace=False) for i in posteriors_list])
 
-
-
     # CI for each event
     cumulative_prob = np.linspace(0, 1, len(posteriors_list[:, 0]))  # one bin for each event
     sorted_posterior = np.sort(posteriors_list, axis=0)  # sort amongts various posteriors
-
 
     data_05_percentile = np.quantile(sorted_posterior, 0.05, axis=1)  # get 0.05 CI from all events' posteriors
     data_95_percentile = np.quantile(sorted_posterior, 0.95, axis=1)  # get 0.95 CI from all events' posteriors
@@ -94,8 +91,6 @@ def plot_posterior_predictive_check(data_sets, rhs_ax_labels, colors=[],  add_po
         colors = get_colors(len(data_sets))
     if len(rhs_ax_labels) < len(data_sets):
         rhs_ax_labels += [""] * (len(data_sets) - len(rhs_ax_labels))
-
-
 
     for i, data in enumerate(data_sets):
         add_cdf_percentiles_to_ax(posteriors_list=data['cos_tilt_1'], ax=axes[0], add_each_posterior_cdf=add_posteriors, color=colors[i], true_distribution_data=[])
