@@ -1,0 +1,16 @@
+chirp_mass = 30.0
+mass_ratio = 1.0
+a_1 = 0.6
+a_2 = 0.6
+luminosity_distance = 500
+dec=-1.2108
+ra=1.375
+psi = 2.659
+phase = 0.1
+geocent_time = 0
+theta_jn = 0.4
+
+cos_tilt_1 = Uniform(name='cos_tilt_1', minimum=-1, maximum=1)
+cos_tilt_2 = Uniform(name='cos_tilt_2', minimum=-1, maximum=1)
+phi_12 = Uniform(name='phi_12', minimum=0, maximum=2 * np.pi, boundary='periodic')
+phi_jl = Uniform(name='phi_jl', minimum=0, maximum=2 * np.pi, boundary='periodic')

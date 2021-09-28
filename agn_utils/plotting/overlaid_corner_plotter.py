@@ -153,6 +153,7 @@ def overlaid_corner(
     if not quants:
         c_kwargs.pop("quantiles", None)
 
+
     fig = corner.corner(
         samples_list[0],
         color=samples_colors[0],

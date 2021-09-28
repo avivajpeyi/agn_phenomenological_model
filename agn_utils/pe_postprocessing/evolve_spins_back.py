@@ -5,9 +5,11 @@ import numpy as np
 import pandas as pd
 from bilby.gw.conversion import solar_mass
 from tqdm.auto import tqdm
+import corner
+import time
 
 
-def get_tilts_at_inf(posterior: pd.DataFrame, fref: float, only_precession=False):
+def get_tilts_at_inf(posterior: pd.DataFrame, fref: float, only_precession=True):
     param_list = posterior.to_dict('records')
 
     for i, p in tqdm(enumerate(param_list), desc="Back-evolving Params", total=len(param_list)):
@@ -68,20 +70,15 @@ def back_evolve_hybrid(kwargs):
     return final_dict
 
 def test_converter():
-    from agn_utils.plotting.overlaid_corner_plotter import CORNER_KWARGS
-    import corner
     prior = bilby.gw.prior.BBHPriorDict()
-    samples = pd.DataFrame(prior.sample(1000))
-    samples = get_tilts_at_inf(samples, fref=20)
-    for c in samples.columns:
-        if 'tilt' in c[0:5]:
-            samples[f'cos_{c}'] = np.cos(samples[c])
-    params = ['cos_tilt_1', 'cos_tilt_2', 'phi_12', 'cos_tilt_1_ft', 'cos_tilt_2_ft', 'phi_12_ft']
-    labels = [r'$\cos\theta_1$', r'$\cos\theta_2$', r'$\cos\theta_1^{\infty}$', r'$\cos\theta_2^{\infty}$']
-
-    fig = corner.corner(samples[params], labels=labels, **CORNER_KWARGS, color="tab:blue")
-    fig.savefig('spins_at_different_freq.png')
-    print("Complete")
+    samples = pd.DataFrame(prior.sample(10))
+    t0 = time.time()
+    samples = get_tilts_at_inf(samples, fref=20, only_precession=True)
+    t1 = time.time()
+    samples = get_tilts_at_inf(samples, fref=20, only_precession=False)
+    t2 = time.time()
+    print(f"only precession: {(t1-t0)/len(samples)}")
+    print(f"hybrid: {(t2-t1)/len(samples)}")
 
 
 if __name__ == '__main__':
