@@ -8,7 +8,7 @@ TEMPLATE = '''#! /bin/bash
 #SBATCH --error={{{LOG_DIR}}}/log_{{{LABEL}}}.err
 #SBATCH --ntasks=1
 #SBATCH --cpus-per-task=1
-#SBATCH --mem-per-cpu=2G
+#SBATCH --mem-per-cpu=1G
 #SBATCH --time=400:00
 
 
