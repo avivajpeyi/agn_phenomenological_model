@@ -67,3 +67,12 @@ if __name__ == '__main__':
         main(label="run_a", injection_fref=20, pe_fref=20)
     elif sys.argv[1]=='run_b':
         main(label="run_b", injection_fref=0.001, pe_fref=20)
+
+"""
+
+email GPatterson
+- specify spin parm at low freq 0.001
+- generate signal at 20Hz
+- pe at 20 Hz
+
+"""
