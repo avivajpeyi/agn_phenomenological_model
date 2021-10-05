@@ -101,7 +101,7 @@ def pbilby_jobs_generator(injection_file, label, prior_file, psd_file, waveform,
             label=label,
             psd_file=psd_file,
             waveform=waveform,
-            fref=fref
+            fref=fref,
             **CLUSTER_KWARGS[cluster]
         )
 
