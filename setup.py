@@ -36,7 +36,8 @@ INSTALL_REQUIRES = [
     "lalsuite>=7.0",
     "precession",
     "pycondor",
-    "bilby_pipe"
+    "bilby_pipe",
+    "parmap"
 ]
 
 EXTRA_REQUIRE = {"test": ["pytest>=3.6", "testbook>=0.2.3"]}

@@ -26,10 +26,10 @@ GSTAR_KWAGS = dict(tasks=GSTAR_TASKS, env=GSTAR_ENV)
 CLUSTER_KWARGS = dict(sstar=SSTAR_KWAGS, gstar=GSTAR_KWAGS)
 
 
-def create_ini(injection_idx: int, injection_file: str, prior_file: str, label: str, psd_file: str, waveform: str,
+def create_ini(injection_idx: int, injection_file: str, prior_file: str, label: str, psd_file: str, waveform: str, fref:float,
                nlive: Optional[int] = 1000, nact: Optional[int] = 5, nodes: Optional[int] = 1,
                tasks: Optional[int] = 14, time: Optional[str] = "24:00:00", mem: Optional[int] = 800,
-               env: Optional[str] = SSTAR_ENV
+               env: Optional[str] = SSTAR_ENV,
                ):
     unique_label = f"{label}_{injection_idx:02}"
     outdir = f"outdir_{label}/out_{unique_label}"
@@ -51,6 +51,7 @@ def create_ini(injection_idx: int, injection_file: str, prior_file: str, label: 
         txt = txt.replace("{{{TIME}}}", time)
         txt = txt.replace("{{{MEM}}}", str(mem))
         txt = txt.replace("{{{ENV}}}", env)
+        txt = txt.replace("{{{FREF}}}", str(fref))
     with open(ini, "w") as f:
         f.write(txt)
     print("Completed ini writing")
@@ -82,7 +83,7 @@ def create_analysis_bash_runner(num_inj, label):
         f.write(file_contents)
 
 
-def pbilby_jobs_generator(injection_file, label, prior_file, psd_file, waveform, cluster):
+def pbilby_jobs_generator(injection_file, label, prior_file, psd_file, waveform, cluster, fref):
     logging.info("Generating parallel bilby ini files + submission scripts")
 
     injection_file = os.path.abspath(injection_file)
@@ -100,6 +101,7 @@ def pbilby_jobs_generator(injection_file, label, prior_file, psd_file, waveform,
             label=label,
             psd_file=psd_file,
             waveform=waveform,
+            fref=fref
             **CLUSTER_KWARGS[cluster]
         )
 
