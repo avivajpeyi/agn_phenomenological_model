@@ -33,7 +33,10 @@ INSTALL_REQUIRES = [
     "gputil",
     "psutil",
     "tabulate",
-    "lalsuite>=7.0"
+    "lalsuite>=7.0",
+    "precession",
+    "pycondor",
+    "bilby_pipe"
 ]
 
 EXTRA_REQUIRE = {"test": ["pytest>=3.6", "testbook>=0.2.3"]}
