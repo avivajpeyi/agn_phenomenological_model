@@ -15,7 +15,7 @@ from bilby_pipe.gracedb import (
 )
 from .spin_conversions import calculate_relative_spins_from_component_spins
 from numpy import cos, sin
-from ..pe_postprocessing.evolve_spins_back import get_tilts_at_inf
+
 
 REFERENCE_FREQ = 20
 
